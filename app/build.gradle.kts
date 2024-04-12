@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.compose.material)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.appcompat)
     testImplementation(libs.junit)
@@ -71,9 +72,6 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(project(":data"))
     implementation(project(":domain"))
-
-//  DataStore
-    implementation(libs.androidx.dataStore)
 
 //  Dagger Hilt
     implementation(libs.daggerHilt.navigation.compose)

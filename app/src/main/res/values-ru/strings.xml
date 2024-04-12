@@ -1,4 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">iNote</string>
+    <string name="settings">Настройки</string>
+    <string name="dark">Тёмный</string>
+    <string name="light">Дневной</string>
+    <string name="theme">Тема</string>
+    <string name="font_size">Размер шрифта</string>
+    <string name="abc_123">Абв 123</string>
+    <string name="apply_changes">Применить изменения</string>
+    <string name="the_changes_will_be_applied_after_the_reboot">Изменения будут применены после перезагрузки</string>
+    <string name="title">Заголовок</string>
+    <string name="date">Дата</string>
+    <string name="color">Цвет</string>
+    <string name="ascending">Нисходящий</string>
+    <string name="descending">Восходящий</string>
+    <string name="note">Заметка</string>
 </resources>

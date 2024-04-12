@@ -1,4 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">iNote</string>
+    <string name="settings">Sozlamalar</string>
+    <string name="dark">Tun</string>
+    <string name="light">Kun</string>
+    <string name="theme">Mavzu</string>
+    <string name="font_size">Shrift o\'lchami</string>
+    <string name="abc_123">Abd 123</string>
+    <string name="apply_changes">O\'zgarishlarni qo\'llash</string>
+    <string name="the_changes_will_be_applied_after_the_reboot">O\'zgarishlar qayta yuklangandan keyin kuchga kiradi</string>
+    <string name="title">Satr</string>
+    <string name="date">Sana</string>
+    <string name="color">Rang</string>
+    <string name="ascending">Tuship boruvchi</string>
+    <string name="descending">O\'sip boruvchi</string>
+    <string name="note">Note</string>
 </resources>
