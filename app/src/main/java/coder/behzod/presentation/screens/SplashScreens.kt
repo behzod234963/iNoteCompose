@@ -1,5 +1,9 @@
 package coder.behzod.presentation.screens
 
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,10 +34,10 @@ import coder.behzod.presentation.utils.constants.KEY_INDEX
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
-import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreens(navController: NavController, sharedPrefs: SharedPreferenceInstance) {
+    Log.d("AAA", "SplashScreens: is started")
     val notesAnimComposition = rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(resId = R.raw.notes)
     )
@@ -82,13 +86,12 @@ fun SplashScreens(navController: NavController, sharedPrefs: SharedPreferenceIns
                 )
             }
         }
-        LaunchedEffect(key1 = true) {
-            delay(2500)
-            if (list.isEmpty()) {
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (list.isEmpty()){
                 navController.navigate(ScreensRouter.EmptyMainScreenRoute.route)
-            } else {
+            }else{
                 navController.navigate(ScreensRouter.MainScreenRoute.route)
             }
-        }
+        }, 2500L)
     }
 }

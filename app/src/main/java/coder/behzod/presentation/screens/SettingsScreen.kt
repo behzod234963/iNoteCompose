@@ -1,6 +1,7 @@
 package coder.behzod.presentation.screens
 
 import android.app.Activity
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -49,6 +50,7 @@ import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.constants.KEY_LANGUAGES
 import coder.behzod.presentation.utils.constants.KEY_THEME_STATUS
 import coder.behzod.presentation.utils.helpers.restartApp
+//import coder.behzod.presentation.utils.helpers.restartApp
 import coder.behzod.presentation.viewModels.SettingsViewModel
 import coder.behzod.presentation.views.ProgressButton
 import coder.behzod.presentation.views.SingleChoiceButtonRow
@@ -62,6 +64,7 @@ fun SettingsScreen(
     navController: NavController,
     sharedPrefs: SharedPreferenceInstance,
 ) {
+    Log.d("AAA", "SettingsScreens: is started")
     val prefsFontSize = sharedPrefs.sharedPreferences.getInt(KEY_FONT_SIZE, 18)
     val state = remember {
         mutableFloatStateOf(
@@ -201,131 +204,131 @@ fun SettingsScreen(
                 .padding(horizontal = 10.dp)
                 .background(color = fontColor.value)
         )
-    }
-    Spacer(modifier = Modifier.height(5.dp))
-    HorizontalDivider(
-        Modifier
-            .padding(horizontal = 10.dp)
-            .background(color = fontColor.value)
-    )
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = stringResource(R.string.font_size),
-            color = fontColor.value,
-            fontSize = 18.sp,
-            fontFamily = FontFamily(fontAmidoneGrotesk)
+        Spacer(modifier = Modifier.height(5.dp))
+        HorizontalDivider(
+            Modifier
+                .padding(horizontal = 10.dp)
+                .background(color = fontColor.value)
         )
-    }
-    Slider(
-        value = state.floatValue,
-        onValueChange = {
-            state.floatValue = it
-            when (state.floatValue) {
-                0f -> {
-                    if (fontSize.intValue > 18) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = stringResource(R.string.font_size),
+                color = fontColor.value,
+                fontSize = 18.sp,
+                fontFamily = FontFamily(fontAmidoneGrotesk)
+            )
+        }
+        Slider(
+            value = state.floatValue,
+            onValueChange = {
+                state.floatValue = it
+                when (state.floatValue) {
+                    0f -> {
+                        if (fontSize.intValue > 18) {
+                            isChanged.value = true
+                        }
+                        fontSize.intValue = 18
+                        experimentalFontSize.value = 18.sp
+                    }
+
+                    1f -> {
                         isChanged.value = true
+                        fontSize.intValue = 25
+                        experimentalFontSize.value = 25.sp
                     }
-                    fontSize.intValue = 18
-                    experimentalFontSize.value = 18.sp
-                }
 
-                1f -> {
-                    isChanged.value = true
-                    fontSize.intValue = 25
-                    experimentalFontSize.value = 25.sp
-                }
-
-                2f -> {
-                    isChanged.value = true
-                    fontSize.intValue = 32
-                    experimentalFontSize.value = 32.sp
-                }
-            }
-        },
-        modifier = Modifier
-            .padding(horizontal = 10.dp),
-        valueRange = 0f..2f,
-        steps = 1
-    )
-    Row(
-        modifier = Modifier
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = stringResource(R.string.abc_123),
-            color = fontColor.value,
-            fontSize = experimentalFontSize.value,
-            fontFamily = FontFamily(fontAmidoneGrotesk)
-        )
-    }
-    Spacer(modifier = Modifier.height(5.dp))
-    HorizontalDivider(
-        Modifier
-            .padding(horizontal = 10.dp)
-            .background(color = fontColor.value)
-    )
-    Spacer(modifier = Modifier.height(5.dp))
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(10.dp),
-        horizontalArrangement = Arrangement.Center
-    ) {
-        ProgressButton(
-            content = {
-                coroutineScope.launch {
-                    delay(1000L)
-                    when (languageIndex.intValue) {
-                        0 -> {
-                            sharedPrefs.sharedPreferences.edit().putInt(KEY_LANGUAGES, 0).apply()
-                        }
-
-                        1 -> {
-                            sharedPrefs.sharedPreferences.edit().putInt(KEY_LANGUAGES, 1).apply()
-                        }
-
-                        2 -> {
-                            sharedPrefs.sharedPreferences.edit().putInt(KEY_LANGUAGES, 2).apply()
-                        }
-
-                        3 -> {
-                            sharedPrefs.sharedPreferences.edit().putInt(KEY_LANGUAGES, 3).apply()
-                        }
-
-                        else -> {}
+                    2f -> {
+                        isChanged.value = true
+                        fontSize.intValue = 32
+                        experimentalFontSize.value = 32.sp
                     }
-                    sharedPrefs.sharedPreferences.edit().putInt(KEY_FONT_SIZE, fontSize.intValue).apply()
-                    restartApp(context)
                 }
             },
-            text = stringResource(R.string.apply_changes),
-            color = themeColor.value,
-            assetColor = fontColor.value
+            modifier = Modifier
+                .padding(horizontal = 10.dp),
+            valueRange = 0f..2f,
+            steps = 1
         )
-    }
-    if (isChanged.value) {
-        Spacer(modifier = Modifier.height(10.dp))
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
         ) {
             Text(
-                textAlign = TextAlign.Center,
-                text = stringResource(R.string.the_changes_will_be_applied_after_the_reboot),
-                fontSize = 20.sp,
-                fontFamily = FontFamily(fontAmidoneGrotesk),
-                color = Color.Red
+                text = stringResource(R.string.abc_123),
+                color = fontColor.value,
+                fontSize = experimentalFontSize.value,
+                fontFamily = FontFamily(fontAmidoneGrotesk)
             )
+        }
+        Spacer(modifier = Modifier.height(5.dp))
+        HorizontalDivider(
+            Modifier
+                .padding(horizontal = 10.dp)
+                .background(color = fontColor.value)
+        )
+        Spacer(modifier = Modifier.height(5.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            ProgressButton(
+                content = {
+                    coroutineScope.launch {
+                        delay(1000L)
+                        when (languageIndex.intValue) {
+                            0 -> {
+                                sharedPrefs.sharedPreferences.edit().putInt(KEY_LANGUAGES, 0).apply()
+                            }
+
+                            1 -> {
+                                sharedPrefs.sharedPreferences.edit().putInt(KEY_LANGUAGES, 1).apply()
+                            }
+
+                            2 -> {
+                                sharedPrefs.sharedPreferences.edit().putInt(KEY_LANGUAGES, 2).apply()
+                            }
+
+                            3 -> {
+                                sharedPrefs.sharedPreferences.edit().putInt(KEY_LANGUAGES, 3).apply()
+                            }
+
+                            else -> {}
+                        }
+                        sharedPrefs.sharedPreferences.edit().putInt(KEY_FONT_SIZE, fontSize.intValue).apply()
+                    restartApp(context)
+                    }
+                },
+                text = stringResource(R.string.apply_changes),
+                color = themeColor.value,
+                assetColor = fontColor.value
+            )
+        }
+        if (isChanged.value) {
+            Spacer(modifier = Modifier.height(10.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    textAlign = TextAlign.Center,
+                    text = stringResource(R.string.the_changes_will_be_applied_after_the_reboot),
+                    fontSize = 20.sp,
+                    fontFamily = FontFamily(fontAmidoneGrotesk),
+                    color = Color.Red
+                )
+            }
         }
     }
 }

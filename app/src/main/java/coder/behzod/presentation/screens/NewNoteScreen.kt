@@ -1,5 +1,6 @@
 package coder.behzod.presentation.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
@@ -37,6 +38,7 @@ fun NewNoteScreen(
     notesModel: NotesModel?,
     sharedPrefs: SharedPreferenceInstance
 ) {
+    Log.d("AAA", "NewNoteScreens: is started")
     val newNote = remember { mutableStateOf("") }
     val newTitle = remember { mutableStateOf("") }
     val simpleDataFormat = SimpleDateFormat("'dd-MM-yyyy'")

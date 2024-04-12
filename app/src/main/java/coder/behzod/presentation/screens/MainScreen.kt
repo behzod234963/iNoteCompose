@@ -1,5 +1,6 @@
 package coder.behzod.presentation.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -40,6 +41,7 @@ fun MainScreen(
     sharedPrefs: SharedPreferenceInstance
 ) {
 
+    Log.d("AAA", "MainScreens: is started")
     val themeIndex =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
     val colorTheme = if (themeIndex.intValue == 0) Color.Black else Color.White

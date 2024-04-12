@@ -1,5 +1,6 @@
 package coder.behzod.presentation.navigation
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
@@ -14,6 +15,7 @@ import coder.behzod.presentation.screens.SplashScreens
 
 @Composable
 fun NavGraph() {
+    Log.d("AAA", "NavGraph: is started")
     val navController = rememberNavController()
     val ctx = LocalContext.current
     NavHost(

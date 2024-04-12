@@ -1,5 +1,6 @@
 package coder.behzod.presentation.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +34,7 @@ fun EmptyMainScreen(
     navController: NavController,
     sharedPrefs: SharedPreferenceInstance
 ) {
+    Log.d("AAA", "EmptyScreens: is started")
     val lottieComposition = rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(resId = R.raw.empty_list)
     )
