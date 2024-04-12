@@ -1,4 +1,4 @@
-package coder.behzod.ui.theme
+package coder.behzod.presentation.theme
 
 import android.app.Activity
 import android.os.Build

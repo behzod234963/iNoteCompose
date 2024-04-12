@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    alias(libs.plugins.dagger.hilt.plugin)
+    id("kotlin-kapt")
 }
 
 android {
@@ -59,6 +61,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.appcompat)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -66,4 +69,34 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(project(":data"))
+    implementation(project(":domain"))
+
+//  DataStore
+    implementation(libs.androidx.dataStore)
+
+//  Dagger Hilt
+    implementation(libs.daggerHilt.navigation.compose)
+    implementation(libs.dagger.hilt)
+    kapt(libs.dagger.hilt.compiler)
+    kapt(libs.dagger.hilt.android.compiler)
+
+//  Room
+    implementation(libs.androidx.room)
+    implementation(libs.androidx.room.coroutines)
+    kapt(libs.room.kapt.compiler)
+
+//  Lottie Animations
+    implementation(libs.lottie.animations)
+
+//  Navigation
+    implementation(libs.androidx.navigation)
+
+    implementation(libs.liveData)
+
+//  Coroutines
+    implementation(libs.kotlinx.coroutines)
+
+//    SSJetPackComposeProgressButton
+    implementation(libs.ss.progressButton)
 }

@@ -1,4 +1,4 @@
-package coder.behzod.ui.theme
+package coder.behzod.presentation.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

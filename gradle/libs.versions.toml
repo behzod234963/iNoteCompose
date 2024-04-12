@@ -7,7 +7,29 @@ junitVersion = "1.1.5"
 espressoCore = "3.5.1"
 lifecycleRuntimeKtx = "2.7.0"
 activityCompose = "1.8.2"
-composeBom = "2023.08.00"
+composeBom = "2024.04.00"
+appcompat = "1.6.1"
+material = "1.11.0"
+dataStroreVersion = "1.0.0"
+ssProgressButtonVersion = "1.0.8"
+composeMaterialVersion = "1.6.5"
+
+#Dagger Hilt versions
+daggerHiltVersion = "2.51.1"
+daggerHiltNavigationComposeVersion = "1.2.0"
+
+#Room version
+roomVersion = "2.6.1"
+roomCommon = "2.6.1"
+
+#Lottie version
+lottieVersion = "6.4.0"
+
+#Navigation version
+navVersion = "2.7.7"
+
+#Coroutines version
+coroutineVersion = "1.8.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -24,8 +46,45 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+
+#Progress Button
+ss-progressButton = { group = "com.github.SimformSolutionsPvtLtd" , name = "SSJetPackComposeProgressButton" , version.ref = "ssProgressButtonVersion"}
+
+#DataStore
+androidx-dataStore = { group = "androidx.datastore" , name  = "datastore-preferences" , version.ref = "dataStroreVersion" }
+
+#daggerHilt
+dagger-hilt = {group = "com.google.dagger",name = "hilt-android",version.ref = "daggerHiltVersion"}
+dagger-hilt-compiler = {group = "com.google.dagger",name = "hilt-compiler",version.ref = "daggerHiltVersion"}
+dagger-hilt-android-compiler = { group = "com.google.dagger" , name  = "hilt-android-compiler" , version.ref = "daggerHiltVersion"}
+dagger-hilt-gradle-plugin = {group = "com.google.dagger",name = "hilt-android-gradle-plugin",version.ref = "daggerHiltVersion"}
+daggerHilt-navigation-compose = { group = "androidx.hilt" ,name  = "hilt-navigation-compose" , version.ref = "daggerHiltNavigationComposeVersion"}
+
+#Room
+androidx-room-common = { group = "androidx.room", name = "room-common", version.ref = "roomCommon" }
+androidx-room = {group = "androidx.room",name = "room-runtime",version.ref = "roomVersion"}
+room-kapt-compiler = {group = "androidx.room",name = "room-compiler",version.ref = "roomVersion"}
+androidx-room-coroutines = { group = "androidx.room" , name = "room-ktx" , version.ref = "roomVersion"}
+
+#Lottie animations
+lottie-animations = {group = "com.airbnb.android",name = "lottie-compose",version.ref = "lottieVersion"}
+
+#Navigation
+androidx-navigation = {group = "androidx.navigation",name = "navigation-compose",version.ref = "navVersion"}
+
+#Live Data
+liveData = { group = "androidx.compose.runtime" , name =  "runtime-livedata" }
+
+#Coroutines
+kotlinx-coroutines = { group = "org.jetbrains.kotlinx" , name = "kotlinx-coroutines-android" , version.ref = "coroutineVersion" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+androidLibrary = { id = "com.android.library", version.ref = "agp" }
+jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 
+#dagger-hilt plugin
+dagger-hilt-plugin = {id = "com.google.dagger.hilt.android",version.ref = "daggerHiltVersion"}
