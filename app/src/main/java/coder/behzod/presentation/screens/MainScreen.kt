@@ -41,7 +41,7 @@ fun MainScreen(
     sharedPrefs: SharedPreferenceInstance
 ) {
 
-    Log.d("AAA", "MainScreens: is started")
+    Log.d("BBB", "MainScreens: is started")
     val themeIndex =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
     val colorTheme = if (themeIndex.intValue == 0) Color.Black else Color.White

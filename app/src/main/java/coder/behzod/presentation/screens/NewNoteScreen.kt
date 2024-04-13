@@ -38,7 +38,7 @@ fun NewNoteScreen(
     notesModel: NotesModel?,
     sharedPrefs: SharedPreferenceInstance
 ) {
-    Log.d("AAA", "NewNoteScreens: is started")
+    Log.d("BBB", "NewNoteScreens: is started")
     val newNote = remember { mutableStateOf("") }
     val newTitle = remember { mutableStateOf("") }
     val simpleDataFormat = SimpleDateFormat("'dd-MM-yyyy'")

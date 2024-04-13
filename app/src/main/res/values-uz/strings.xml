@@ -15,4 +15,9 @@
     <string name="ascending">Tuship boruvchi</string>
     <string name="descending">O\'sip boruvchi</string>
     <string name="note">Note</string>
+    <string name="language">Til</string>
+    <string name="default_language">Sistema</string>
+    <string name="english_language">Inglizcha</string>
+    <string name="russian_language">Ruscha</string>
+    <string name="uzbek_language">O\'zbekcha</string>
 </resources>

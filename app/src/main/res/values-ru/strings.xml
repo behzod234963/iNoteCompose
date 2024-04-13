@@ -2,8 +2,8 @@
 <resources>
     <string name="app_name">iNote</string>
     <string name="settings">Настройки</string>
-    <string name="dark">Тёмный</string>
-    <string name="light">Дневной</string>
+    <string name="dark">Ночь</string>
+    <string name="light">День</string>
     <string name="theme">Тема</string>
     <string name="font_size">Размер шрифта</string>
     <string name="abc_123">Абв 123</string>
@@ -15,4 +15,9 @@
     <string name="ascending">Нисходящий</string>
     <string name="descending">Восходящий</string>
     <string name="note">Заметка</string>
+    <string name="language">Язык</string>
+    <string name="default_language">Системный</string>
+    <string name="english_language">Английский</string>
+    <string name="russian_language">Русский</string>
+    <string name="uzbek_language">Узбекский</string>
 </resources>

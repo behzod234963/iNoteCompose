@@ -15,7 +15,7 @@ import coder.behzod.presentation.screens.SplashScreens
 
 @Composable
 fun NavGraph() {
-    Log.d("AAA", "NavGraph: is started")
+    Log.d("BBB", "NavGraph: is started")
     val navController = rememberNavController()
     val ctx = LocalContext.current
     NavHost(
@@ -32,8 +32,7 @@ fun NavGraph() {
             MainScreen(navController, null,SharedPreferenceInstance(ctx))
         }
         composable(ScreensRouter.EmptyMainScreenRoute.route) {
-            EmptyMainScreen(navController,SharedPreferenceInstance(ctx)
-            )
+            EmptyMainScreen(navController,SharedPreferenceInstance(ctx))
         }
         composable(ScreensRouter.NewNoteScreenRoute.route) {
             NewNoteScreen(navController,null,SharedPreferenceInstance(ctx))

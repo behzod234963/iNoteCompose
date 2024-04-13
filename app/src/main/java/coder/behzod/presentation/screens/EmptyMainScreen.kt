@@ -34,7 +34,7 @@ fun EmptyMainScreen(
     navController: NavController,
     sharedPrefs: SharedPreferenceInstance
 ) {
-    Log.d("AAA", "EmptyScreens: is started")
+    Log.d("BBB", "EmptyScreens: is started")
     val lottieComposition = rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(resId = R.raw.empty_list)
     )
@@ -76,7 +76,6 @@ fun EmptyMainScreen(
         ) {
             LottieAnimation(
                 composition = lottieComposition.value,
-                isPlaying = true,
                 alignment = Alignment.Center,
             )
             FloatingActionButton(

@@ -1,9 +1,15 @@
 package coder.behzod.presentation.screens
 
+//import coder.behzod.presentation.utils.helpers.restartApp
 import android.app.Activity
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,15 +18,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -34,11 +45,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.os.LocaleListCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coder.behzod.R
@@ -50,7 +63,6 @@ import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.constants.KEY_LANGUAGES
 import coder.behzod.presentation.utils.constants.KEY_THEME_STATUS
 import coder.behzod.presentation.utils.helpers.restartApp
-//import coder.behzod.presentation.utils.helpers.restartApp
 import coder.behzod.presentation.viewModels.SettingsViewModel
 import coder.behzod.presentation.views.ProgressButton
 import coder.behzod.presentation.views.SingleChoiceButtonRow
@@ -64,7 +76,7 @@ fun SettingsScreen(
     navController: NavController,
     sharedPrefs: SharedPreferenceInstance,
 ) {
-    Log.d("AAA", "SettingsScreens: is started")
+    Log.d("BBB", "SettingsScreens: is started")
     val prefsFontSize = sharedPrefs.sharedPreferences.getInt(KEY_FONT_SIZE, 18)
     val state = remember {
         mutableFloatStateOf(
@@ -82,12 +94,21 @@ fun SettingsScreen(
     val coroutineScope = rememberCoroutineScope()
     val themeStatus = remember { mutableStateOf(true) }
     val themeIndex = remember { mutableIntStateOf(0) }
-    val languageIndex = remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_LANGUAGES, 0)) }
+    val languageIndex =
+        remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_LANGUAGES, 0)) }
     val isChanged = remember { mutableStateOf(false) }
+
+    val isDefault = remember { mutableStateOf(false) }
+    val isExpanded = remember { mutableStateOf(false) }
+    val localeOptions = mapOf(
+        stringResource(R.string.default_language) to "default",
+        stringResource(R.string.english_language) to "en",
+        stringResource(R.string.russian_language) to "ru",
+        stringResource(R.string.uzbek_language) to "uz"
+    ).mapKeys { it.key }
 
     LaunchedEffect(key1 = Int) {
         delay(100L)
-        viewModel.getLangIndex()
         viewModel.getStatus()
         viewModel.getIndex()
         themeStatus.value = sharedPrefs.sharedPreferences.getBoolean(KEY_THEME_STATUS, true)
@@ -178,8 +199,10 @@ fun SettingsScreen(
                             themeIndex.intValue = 0
                             themeColor.value = Color.Black
                             fontColor.value = Color.White
-                            sharedPrefs.sharedPreferences.edit().putInt(KEY_INDEX, themeIndex.intValue).apply()
-                            sharedPrefs.sharedPreferences.edit().putBoolean(KEY_THEME_STATUS, themeStatus.value).apply()
+                            sharedPrefs.sharedPreferences.edit()
+                                .putInt(KEY_INDEX, themeIndex.intValue).apply()
+                            sharedPrefs.sharedPreferences.edit()
+                                .putBoolean(KEY_THEME_STATUS, themeStatus.value).apply()
                         }
                     } else {
                         coroutineScope.launch(Dispatchers.Main) {
@@ -187,8 +210,10 @@ fun SettingsScreen(
                             themeIndex.intValue = 1
                             themeColor.value = Color.White
                             fontColor.value = Color.Black
-                            sharedPrefs.sharedPreferences.edit().putInt(KEY_INDEX, themeIndex.intValue).apply()
-                            sharedPrefs.sharedPreferences.edit().putBoolean(KEY_THEME_STATUS, themeStatus.value).apply()
+                            sharedPrefs.sharedPreferences.edit()
+                                .putInt(KEY_INDEX, themeIndex.intValue).apply()
+                            sharedPrefs.sharedPreferences.edit()
+                                .putBoolean(KEY_THEME_STATUS, themeStatus.value).apply()
                         }
                     }
                 },
@@ -204,6 +229,99 @@ fun SettingsScreen(
                 .padding(horizontal = 10.dp)
                 .background(color = fontColor.value)
         )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.language),
+                color = fontColor.value,
+                fontFamily = FontFamily(fontAmidoneGrotesk),
+                fontSize = 18.sp
+            )
+            ExposedDropdownMenuBox(
+                expanded = isExpanded.value,
+                onExpandedChange = { isExpanded.value = !isExpanded.value }
+            ) {
+                TextField(
+                    value = stringResource(id = R.string.english_language),
+                    onValueChange = {},
+                    readOnly = true,
+                    modifier = Modifier
+                        .menuAnchor(),
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded.value) }
+                )
+                ExposedDropdownMenu(
+                    expanded = isExpanded.value,
+                    onDismissRequest = {
+                        isExpanded.value = false
+                    }
+                ) {
+                    localeOptions.keys.forEach { locale ->
+                        DropdownMenuItem(
+                            leadingIcon = {
+                                if (locale.contains(stringResource(id = R.string.default_language))) {
+                                    Icon(
+                                        modifier = Modifier
+                                            .size(30.dp),
+                                        painter = painterResource(id = R.drawable.ic_default),
+                                        contentDescription = "default locale icon",
+                                        tint = fontColor.value
+                                    )
+                                } else {
+                                    when (locale) {
+                                        stringResource(id = R.string.english_language) -> {
+                                            Image(
+                                                modifier = Modifier
+                                                    .size(30.dp),
+                                                painter = painterResource(id = R.drawable.ic_eng_flag),
+                                                contentDescription = "english leading icon",
+                                            )
+                                        }
+
+                                        stringResource(id = R.string.russian_language) -> {
+                                            Image(
+                                                modifier = Modifier
+                                                    .size(30.dp),
+                                                painter = painterResource(id = R.drawable.ic_ru_flag),
+                                                contentDescription = "russian leading icon",
+                                            )
+                                        }
+
+                                        stringResource(id = R.string.uzbek_language) -> {
+                                            Image(
+                                                modifier = Modifier
+                                                    .size(30.dp),
+                                                painter = painterResource(id = R.drawable.ic_uz_flag),
+                                                contentDescription = "uzbek leading icon",
+                                            )
+                                        }
+                                    }
+                                }
+                            },
+                            text = {
+                                Text(
+                                    text = locale,
+                                    color = fontColor.value,
+                                    fontSize = 18.sp
+                                )
+                            },
+                            onClick = {
+                                isExpanded.value = false
+                                isChanged.value = true
+                                AppCompatDelegate.setApplicationLocales(
+                                    LocaleListCompat.forLanguageTags(
+                                        localeOptions[locale]
+                                    )
+                                )
+                            }
+                        )
+                    }
+                }
+            }
+        }
         Spacer(modifier = Modifier.height(5.dp))
         HorizontalDivider(
             Modifier
@@ -283,30 +401,30 @@ fun SettingsScreen(
         ) {
             ProgressButton(
                 content = {
-                    coroutineScope.launch {
-                        delay(1000L)
-                        when (languageIndex.intValue) {
-                            0 -> {
-                                sharedPrefs.sharedPreferences.edit().putInt(KEY_LANGUAGES, 0).apply()
-                            }
-
-                            1 -> {
-                                sharedPrefs.sharedPreferences.edit().putInt(KEY_LANGUAGES, 1).apply()
-                            }
-
-                            2 -> {
-                                sharedPrefs.sharedPreferences.edit().putInt(KEY_LANGUAGES, 2).apply()
-                            }
-
-                            3 -> {
-                                sharedPrefs.sharedPreferences.edit().putInt(KEY_LANGUAGES, 3).apply()
-                            }
-
-                            else -> {}
+                    when (languageIndex.intValue) {
+                        0 -> {
+                            sharedPrefs.sharedPreferences.edit().putInt(KEY_LANGUAGES, 0).apply()
                         }
-                        sharedPrefs.sharedPreferences.edit().putInt(KEY_FONT_SIZE, fontSize.intValue).apply()
-                    restartApp(context)
+
+                        1 -> {
+                            sharedPrefs.sharedPreferences.edit().putInt(KEY_LANGUAGES, 1).apply()
+                        }
+
+                        2 -> {
+                            sharedPrefs.sharedPreferences.edit().putInt(KEY_LANGUAGES, 2).apply()
+                        }
+
+                        3 -> {
+                            sharedPrefs.sharedPreferences.edit().putInt(KEY_LANGUAGES, 3).apply()
+                        }
+
+                        else -> {}
                     }
+                    sharedPrefs.sharedPreferences.edit().putInt(KEY_FONT_SIZE, fontSize.intValue)
+                        .apply()
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        restartApp(context)
+                    }, 1000L)
                 },
                 text = stringResource(R.string.apply_changes),
                 color = themeColor.value,

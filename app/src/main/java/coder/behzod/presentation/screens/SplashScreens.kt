@@ -1,19 +1,16 @@
 package coder.behzod.presentation.screens
 
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,13 +33,17 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 
 @Composable
-fun SplashScreens(navController: NavController, sharedPrefs: SharedPreferenceInstance) {
-    Log.d("AAA", "SplashScreens: is started")
+fun SplashScreens(
+    navController: NavController,
+    sharedPrefs: SharedPreferenceInstance
+) {
+    Log.d("BBB", "SplashScreens: is started")
     val notesAnimComposition = rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(resId = R.raw.notes)
     )
     val list: ArrayList<NotesModel> = ArrayList()
-    val themeIndex = remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
+    val themeIndex =
+        remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
     val colorTheme = if (themeIndex.intValue == 0) Color.Black else Color.White
     val themeColor = remember { mutableStateOf(colorTheme) }
     if (colorTheme == Color.Black) {
@@ -56,42 +57,47 @@ fun SplashScreens(navController: NavController, sharedPrefs: SharedPreferenceIns
         fontColor.value = Color.White
     } else {
         fontColor.value = Color.Black
-        Box(
+    }
+    Log.d("BBB", "Box: is started")
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Log.d("BBB", "Column: is started")
+        Text(
             modifier = Modifier
-                .fillMaxSize()
-                .background(themeColor.value),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    modifier = Modifier
-                        .padding(bottom = 10.dp),
-                    text = stringResource(id = R.string.app_name),
-                    color = fontColor.value,
-                    fontFamily = FontFamily(fontAmidoneGrotesk),
-                    fontSize = 32.sp
-                )
-                LottieAnimation(
-                    modifier = Modifier
-                        .size(250.dp),
-                    composition = notesAnimComposition.value,
-                    isPlaying = true,
-                    restartOnPlay = true,
-                    reverseOnRepeat = true,
-                )
-            }
-        }
+                .padding(bottom = 10.dp),
+            text = stringResource(id = R.string.app_name),
+            color = fontColor.value,
+            fontFamily = FontFamily(fontAmidoneGrotesk),
+            fontSize = 32.sp
+        )
+        LottieAnimation(
+            modifier = Modifier
+                .size(250.dp),
+            composition = notesAnimComposition.value,
+            isPlaying = true,
+        )
+    }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         Handler(Looper.getMainLooper()).postDelayed({
-            if (list.isEmpty()){
+            Log.d("BBB", "Looper: is started")
+            if (list.isEmpty()) {
                 navController.navigate(ScreensRouter.EmptyMainScreenRoute.route)
-            }else{
+            } else {
                 navController.navigate(ScreensRouter.MainScreenRoute.route)
             }
-        }, 2500L)
+        }, 2500)
+    } else {
+        Handler().postDelayed({
+            Log.d("BBB", "Looper: is started")
+            if (list.isEmpty()) {
+                navController.navigate(ScreensRouter.EmptyMainScreenRoute.route)
+            } else {
+                navController.navigate(ScreensRouter.MainScreenRoute.route)
+            }
+        }, 2500)
     }
 }
