@@ -1,9 +1,10 @@
 package coder.behzod.presentation.screens
 
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,13 +33,14 @@ import coder.behzod.presentation.utils.constants.KEY_INDEX
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
+import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreens(
     navController: NavController,
     sharedPrefs: SharedPreferenceInstance
 ) {
-    Log.d("BBB", "SplashScreens: is started")
+
     val notesAnimComposition = rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(resId = R.raw.notes)
     )
@@ -58,22 +61,31 @@ fun SplashScreens(
     } else {
         fontColor.value = Color.Black
     }
-    Log.d("BBB", "Box: is started")
+    val isVisible = remember { mutableStateOf( false ) }
+    LaunchedEffect(key1 = Boolean) {
+        delay(1500L)
+        isVisible.value = true
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Log.d("BBB", "Column: is started")
-        Text(
-            modifier = Modifier
-                .padding(bottom = 10.dp),
-            text = stringResource(id = R.string.app_name),
-            color = fontColor.value,
-            fontFamily = FontFamily(fontAmidoneGrotesk),
-            fontSize = 32.sp
-        )
+        AnimatedVisibility(
+            visible = isVisible.value,
+            enter = fadeIn(),
+        ) {
+            Text(
+                modifier = Modifier
+                    .padding(bottom = 10.dp),
+                text = stringResource(id = R.string.app_name),
+                color = fontColor.value,
+                fontFamily = FontFamily(fontAmidoneGrotesk),
+                fontSize = 32.sp
+            )
+        }
         LottieAnimation(
             modifier = Modifier
                 .size(250.dp),
@@ -81,23 +93,11 @@ fun SplashScreens(
             isPlaying = true,
         )
     }
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        Handler(Looper.getMainLooper()).postDelayed({
-            Log.d("BBB", "Looper: is started")
-            if (list.isEmpty()) {
-                navController.navigate(ScreensRouter.EmptyMainScreenRoute.route)
-            } else {
-                navController.navigate(ScreensRouter.MainScreenRoute.route)
-            }
-        }, 2500)
-    } else {
-        Handler().postDelayed({
-            Log.d("BBB", "Looper: is started")
-            if (list.isEmpty()) {
-                navController.navigate(ScreensRouter.EmptyMainScreenRoute.route)
-            } else {
-                navController.navigate(ScreensRouter.MainScreenRoute.route)
-            }
-        }, 2500)
-    }
+    Handler(Looper.getMainLooper()).postDelayed({
+        if (list.isEmpty()) {
+            navController.navigate(ScreensRouter.EmptyMainScreenRoute.route)
+        } else {
+            navController.navigate(ScreensRouter.MainScreenRoute.route)
+        }
+    }, 2500)
 }

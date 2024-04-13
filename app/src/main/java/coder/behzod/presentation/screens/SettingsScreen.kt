@@ -1,15 +1,14 @@
 package coder.behzod.presentation.screens
 
 //import coder.behzod.presentation.utils.helpers.restartApp
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +16,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,6 +29,9 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MenuItemColors
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -70,13 +73,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@SuppressLint("CommitPrefEdits")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     navController: NavController,
+    viewModel: SettingsViewModel = hiltViewModel(),
     sharedPrefs: SharedPreferenceInstance,
 ) {
-    Log.d("BBB", "SettingsScreens: is started")
     val prefsFontSize = sharedPrefs.sharedPreferences.getInt(KEY_FONT_SIZE, 18)
     val state = remember {
         mutableFloatStateOf(
@@ -89,16 +93,11 @@ fun SettingsScreen(
             }
         )
     }
-    val viewModel: SettingsViewModel = hiltViewModel()
     val context = LocalContext.current as Activity
     val coroutineScope = rememberCoroutineScope()
     val themeStatus = remember { mutableStateOf(true) }
     val themeIndex = remember { mutableIntStateOf(0) }
-    val languageIndex =
-        remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_LANGUAGES, 0)) }
     val isChanged = remember { mutableStateOf(false) }
-
-    val isDefault = remember { mutableStateOf(false) }
     val isExpanded = remember { mutableStateOf(false) }
     val localeOptions = mapOf(
         stringResource(R.string.default_language) to "default",
@@ -106,15 +105,11 @@ fun SettingsScreen(
         stringResource(R.string.russian_language) to "ru",
         stringResource(R.string.uzbek_language) to "uz"
     ).mapKeys { it.key }
-
     LaunchedEffect(key1 = Int) {
         delay(100L)
-        viewModel.getStatus()
         viewModel.getIndex()
-        themeStatus.value = sharedPrefs.sharedPreferences.getBoolean(KEY_THEME_STATUS, true)
         themeIndex.intValue = sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)
     }
-
     val colorTheme = if (themeIndex.intValue == 0) Color.Black else Color.White
     val themeColor = remember { mutableStateOf(colorTheme) }
     if (colorTheme == Color.Black) {
@@ -201,8 +196,6 @@ fun SettingsScreen(
                             fontColor.value = Color.White
                             sharedPrefs.sharedPreferences.edit()
                                 .putInt(KEY_INDEX, themeIndex.intValue).apply()
-                            sharedPrefs.sharedPreferences.edit()
-                                .putBoolean(KEY_THEME_STATUS, themeStatus.value).apply()
                         }
                     } else {
                         coroutineScope.launch(Dispatchers.Main) {
@@ -231,7 +224,8 @@ fun SettingsScreen(
         )
         Row(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(10.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -242,18 +236,27 @@ fun SettingsScreen(
                 fontSize = 18.sp
             )
             ExposedDropdownMenuBox(
+                modifier = Modifier
+                    .background(color = Color.Transparent),
                 expanded = isExpanded.value,
                 onExpandedChange = { isExpanded.value = !isExpanded.value }
             ) {
-                TextField(
-                    value = stringResource(id = R.string.english_language),
-                    onValueChange = {},
-                    readOnly = true,
-                    modifier = Modifier
-                        .menuAnchor(),
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded.value) }
-                )
+                    OutlinedTextField(
+                        value = "",
+                        onValueChange = {},
+                        readOnly = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                          focusedContainerColor = Color.Transparent,
+                          unfocusedContainerColor = Color.Transparent
+                        ),
+                        modifier = Modifier
+                            .menuAnchor()
+                            .background(color = Color.Transparent),
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded.value) }
+                    )
                 ExposedDropdownMenu(
+                    modifier = Modifier
+                        .background(color = Color.Transparent),
                     expanded = isExpanded.value,
                     onDismissRequest = {
                         isExpanded.value = false
@@ -401,25 +404,6 @@ fun SettingsScreen(
         ) {
             ProgressButton(
                 content = {
-                    when (languageIndex.intValue) {
-                        0 -> {
-                            sharedPrefs.sharedPreferences.edit().putInt(KEY_LANGUAGES, 0).apply()
-                        }
-
-                        1 -> {
-                            sharedPrefs.sharedPreferences.edit().putInt(KEY_LANGUAGES, 1).apply()
-                        }
-
-                        2 -> {
-                            sharedPrefs.sharedPreferences.edit().putInt(KEY_LANGUAGES, 2).apply()
-                        }
-
-                        3 -> {
-                            sharedPrefs.sharedPreferences.edit().putInt(KEY_LANGUAGES, 3).apply()
-                        }
-
-                        else -> {}
-                    }
                     sharedPrefs.sharedPreferences.edit().putInt(KEY_FONT_SIZE, fontSize.intValue)
                         .apply()
                     Handler(Looper.getMainLooper()).postDelayed({

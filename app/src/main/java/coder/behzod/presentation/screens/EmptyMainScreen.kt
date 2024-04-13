@@ -34,11 +34,9 @@ fun EmptyMainScreen(
     navController: NavController,
     sharedPrefs: SharedPreferenceInstance
 ) {
-    Log.d("BBB", "EmptyScreens: is started")
     val lottieComposition = rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(resId = R.raw.empty_list)
     )
-    val ctx = LocalContext.current.applicationContext
     val themeIndex = remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX,0)) }
     val colorTheme = if (themeIndex.intValue == 0) Color.Black else Color.White
     val themeColor = remember { mutableStateOf(colorTheme) }
@@ -54,6 +52,7 @@ fun EmptyMainScreen(
     } else {
         fontColor.value = Color.Black
     }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
