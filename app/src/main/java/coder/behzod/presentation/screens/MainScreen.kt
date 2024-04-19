@@ -24,13 +24,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
+import coder.behzod.domain.utils.NoteOrder
+import coder.behzod.domain.utils.OrderType
 import coder.behzod.presentation.items.MainScreenItem
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.utils.constants.KEY_INDEX
+import coder.behzod.presentation.utils.helpers.NotesEvent
+import coder.behzod.presentation.viewModels.MainViewModel
 import coder.behzod.presentation.views.MainTopAppBar
 import coder.behzod.presentation.views.SwipeToDeleteContainer
 
@@ -38,7 +43,8 @@ import coder.behzod.presentation.views.SwipeToDeleteContainer
 fun MainScreen(
     navController: NavController,
     notesModel: NotesModel?,
-    sharedPrefs: SharedPreferenceInstance
+    sharedPrefs: SharedPreferenceInstance,
+    viewModel:MainViewModel = hiltViewModel()
 ) {
 
     Log.d("BBB", "MainScreens: is started")
@@ -59,6 +65,7 @@ fun MainScreen(
         fontColor.value = Color.Black
     }
     val notesList: ArrayList<NotesModel> = ArrayList()
+    val state = viewModel.state.value
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -71,7 +78,9 @@ fun MainScreen(
         ) {
             MainTopAppBar(
                 navController = navController,
-                onOrderChange = {},
+                onOrderChange = {
+                    viewModel.onEvent(NotesEvent.Order(it))
+                },
                 backgroundColor = themeColor.value,
                 fontColor = fontColor.value
             )

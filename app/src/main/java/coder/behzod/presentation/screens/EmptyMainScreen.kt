@@ -1,6 +1,7 @@
 package coder.behzod.presentation.screens
 
-import android.util.Log
+import android.os.Handler
+import android.os.Looper
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,13 +11,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -27,16 +28,22 @@ import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.views.MainTopAppBar
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import kotlinx.coroutines.delay
 
 @Composable
 fun EmptyMainScreen(
     navController: NavController,
     sharedPrefs: SharedPreferenceInstance
 ) {
-    val lottieComposition = rememberLottieComposition(
+    val emptyListAnimation = rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(resId = R.raw.empty_list)
     )
+    val btnAddAnimation = rememberLottieComposition(
+        spec = LottieCompositionSpec.RawRes(resId = R.raw.btn_add)
+    )
+    val isPlaying = remember { mutableStateOf( false ) }
     val themeIndex = remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX,0)) }
     val colorTheme = if (themeIndex.intValue == 0) Color.Black else Color.White
     val themeColor = remember { mutableStateOf(colorTheme) }
@@ -74,8 +81,9 @@ fun EmptyMainScreen(
                 .fillMaxSize(),
         ) {
             LottieAnimation(
-                composition = lottieComposition.value,
+                composition = emptyListAnimation.value,
                 alignment = Alignment.Center,
+                iterations = LottieConstants.IterateForever
             )
             FloatingActionButton(
                 modifier = Modifier
@@ -84,14 +92,26 @@ fun EmptyMainScreen(
                 shape = CircleShape,
                 containerColor = Color.Magenta,
                 onClick = {
-                    navController.navigate(ScreensRouter.NewNoteScreenRoute.route)
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        navController.navigate(ScreensRouter.NewNoteScreenRoute.route)
+                    },900)
+                    isPlaying.value = true
                 }
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_add),
-                    contentDescription = "button add",
-                    tint = fontColor.value
-                )
+                if (isPlaying.value){
+                    LottieAnimation(
+                        modifier = Modifier
+                            .matchParentSize(),
+                        composition = btnAddAnimation.value,
+                        iterations = LottieConstants.IterateForever
+                    )
+                }else {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_add),
+                        contentDescription = "button add",
+                        tint = fontColor.value
+                    )
+                }
             }
         }
     }

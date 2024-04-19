@@ -1,5 +1,7 @@
 package coder.behzod.presentation.views
 
+import android.os.Handler
+import android.os.Looper
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -25,6 +27,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.os.postDelayed
 import androidx.navigation.NavController
 import coder.behzod.R
 import coder.behzod.domain.utils.NoteOrder
@@ -32,15 +35,23 @@ import coder.behzod.domain.utils.OrderType
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.utils.events.PassDataEvents
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 
 @Composable
 fun MainTopAppBar(
     navController: NavController,
     backgroundColor: Color,
     fontColor: Color,
-    onOrderChange:(NoteOrder)->Unit
+    onOrderChange: (NoteOrder) -> Unit
 ) {
     val isOpened = remember { mutableStateOf(false) }
+    val btnSettingsAnimation = rememberLottieComposition(
+        spec = LottieCompositionSpec.RawRes(R.raw.settings_black)
+    )
+    val isPlaying = remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -102,13 +113,23 @@ fun MainTopAppBar(
         ) {
             IconButton(
                 onClick = {
-                    navController.navigate(ScreensRouter.SettingsScreenRoute.route)
+                    isPlaying.value = true
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        navController.navigate(ScreensRouter.SettingsScreenRoute.route)
+                    },1500)
                 }) {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    tint = fontColor,
-                    contentDescription = "icon more settings"
-                )
+                if (isPlaying.value) {
+                    LottieAnimation(
+                        composition = btnSettingsAnimation.value,
+                        iterations = LottieConstants.IterateForever
+                        )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        tint = fontColor,
+                        contentDescription = "icon more settings"
+                    )
+                }
             }
         }
     }
