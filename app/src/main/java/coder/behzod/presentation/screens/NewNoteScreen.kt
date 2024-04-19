@@ -1,25 +1,27 @@
 package coder.behzod.presentation.screens
 
-import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -29,8 +31,7 @@ import coder.behzod.domain.model.NotesModel
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.views.FunctionalTopAppBar
-import java.text.SimpleDateFormat
-import java.util.Date
+import coder.behzod.presentation.views.SpeedDialFAB
 
 @Composable
 fun NewNoteScreen(
@@ -38,11 +39,8 @@ fun NewNoteScreen(
     notesModel: NotesModel?,
     sharedPrefs: SharedPreferenceInstance
 ) {
-    Log.d("BBB", "NewNoteScreens: is started")
     val newNote = remember { mutableStateOf("") }
     val newTitle = remember { mutableStateOf("") }
-    val simpleDataFormat = SimpleDateFormat("'dd-MM-yyyy'")
-    val currentData = simpleDataFormat.format(Date())
     val themeIndex =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
     val colorTheme = if (themeIndex.intValue == 0) Color.Black else Color.White
@@ -60,83 +58,106 @@ fun NewNoteScreen(
         fontColor.value = Color.Black
     }
 
-    Column(
+    Box(
         modifier = Modifier
-            .fillMaxSize()
-            .background(themeColor.value)
+            .fillMaxSize(),
+        contentAlignment = Alignment.BottomEnd
     ) {
-        FunctionalTopAppBar(
-            onSave = {
-//                this will save notes in database
-            },
-            onShare = {
-
-            }
-        )
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 10.dp)
+                .background(themeColor.value)
         ) {
-            OutlinedTextField(
-                singleLine = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(color = Color.White, width = 2.dp)
-                    .background(Color.Black),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.Black,
-                    unfocusedContainerColor = Color.Black
-                ),
-                textStyle = TextStyle(
-                    color = Color.White,
-                    fontSize = 25.sp,
-                    textAlign = TextAlign.Center,
-                    fontFamily = FontFamily(fontAmidoneGrotesk)
-                ),
-                value = newTitle.value,
-                onValueChange = {
-                    newTitle.value = it
-                },
-                placeholder = {
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        text = stringResource(id = R.string.title),
-                        fontSize = 25.sp,
-                        textAlign = TextAlign.Center,
-                        color = Color.Gray,
-                        fontFamily = FontFamily(fontAmidoneGrotesk)
-                    )
-                }
+            FunctionalTopAppBar(
+                themeColor = themeColor.value,
+                fontColor = fontColor.value,
+                navController
             )
-            OutlinedTextField(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(top = 10.dp)
-                    .border(width = 2.dp, color = Color.White),
-                value = newNote.value,
-                onValueChange = {
-                    newNote.value = it
-                },
-                textStyle = TextStyle(
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    fontFamily = FontFamily(fontAmidoneGrotesk),
-                    textAlign = TextAlign.Start
-                ),
-                placeholder = {
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        text = stringResource(R.string.note),
+            ) {
+                OutlinedTextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(5.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = themeColor.value,
+                        unfocusedContainerColor = themeColor.value
+                    ),
+                    textStyle = TextStyle(
+                        color = fontColor.value,
+                        fontSize = 32.sp,
                         textAlign = TextAlign.Center,
-                        fontSize = 25.sp,
-                        color = Color.Gray,
-                        fontFamily = FontFamily(fontAmidoneGrotesk)
-                    )
-                }
-            )
+                    ),
+                    singleLine = true,
+                    value = newTitle.value,
+                    onValueChange = {
+                        newTitle.value = it
+                    },
+                    placeholder = {
+                        Text(
+                            text = stringResource(id = R.string.title),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            fontFamily = FontFamily(fontAmidoneGrotesk),
+                            fontSize = 25.sp,
+                            color = fontColor.value
+                        )
+                    }
+                )
+                OutlinedTextField(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 10.dp)
+                        .padding(5.dp)
+                        .align(Alignment.Start),
+                    value = newNote.value,
+                    onValueChange = {
+                        newNote.value = it
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = themeColor.value,
+                        unfocusedContainerColor = themeColor.value
+                    ),
+                    singleLine = true,
+                    textStyle = TextStyle(
+                        color = Color.White,
+                        fontSize = 18.sp,
+                        textAlign = TextAlign.Start
+                    ),
+                    placeholder = {
+                        Text(
+                            text = stringResource(id = R.string.note),
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            fontFamily = FontFamily(fontAmidoneGrotesk),
+                            fontSize = 25.sp,
+                            color = fontColor.value
+                        )
+                    }
+                )
+            }
+        }
+        SpeedDialFAB(modifier = Modifier
+            .padding(bottom = 20.dp, end = 20.dp),
+            onSave = {
+
+            }) {
+
         }
     }
+}
+
+@Preview
+@Composable
+private fun PreviewNewNote() {
+    val ctx = LocalContext.current
+    NewNoteScreen(
+        navController = NavController(ctx),
+        notesModel = null,
+        sharedPrefs = SharedPreferenceInstance(ctx)
+    )
 }

@@ -1,6 +1,5 @@
 package coder.behzod.presentation.screens
 
-//import coder.behzod.presentation.utils.helpers.restartApp
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Handler
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,12 +27,10 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MenuItemColors
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -63,7 +59,6 @@ import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.utils.constants.KEY_FONT_SIZE
 import coder.behzod.presentation.utils.constants.KEY_INDEX
-import coder.behzod.presentation.utils.constants.KEY_LANGUAGES
 import coder.behzod.presentation.utils.constants.KEY_THEME_STATUS
 import coder.behzod.presentation.utils.helpers.restartApp
 import coder.behzod.presentation.viewModels.SettingsViewModel

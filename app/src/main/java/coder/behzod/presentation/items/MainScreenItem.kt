@@ -2,6 +2,7 @@ package coder.behzod.presentation.items
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,11 +10,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coder.behzod.domain.model.NotesModel
@@ -22,34 +26,44 @@ import coder.behzod.presentation.theme.fontAmidoneGrotesk
 @Composable
 fun MainScreenItem(
     notesModel: NotesModel,
-    backgroundColor: Color,
-    fontColor: Color
+    fontColor: Color,
+    onClick:(Int)->Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(80.dp)
-            .background(backgroundColor)
-            .border(width = 1.dp, color = fontColor)
+            .clip(RoundedCornerShape(20.dp))
+            .height(150.dp)
+            .background(Color(notesModel.color))
+            .border(width = 1.dp, color = fontColor, shape = RoundedCornerShape(20.dp))
+            .clickable { onClick(notesModel.id!!) }
     ) {
-        Column {
+        Column (
+            modifier = Modifier
+                .clickable { onClick(notesModel.id!!) }
+        ){
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp),
+                    .padding(10.dp)
+                    .clickable { onClick(notesModel.id!!) },
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
 //          This is notes title
                 notesModel.title?.let {
                     Text(
+                        modifier = Modifier
+                            .clickable { onClick(notesModel.id!!) },
                         text = it,
                         color = fontColor,
-                        fontSize = 22.sp,
+                        fontSize = 25.sp,
                         fontFamily = FontFamily(fontAmidoneGrotesk)
                     )
                 }
 //          This is notes data added
                 Text(
+                    modifier = Modifier
+                        .clickable { onClick(notesModel.id!!) },
                     text = notesModel.dataAdded.toString(),
                     color = Color.Gray,
                     fontSize = 18.sp,
@@ -58,25 +72,36 @@ fun MainScreenItem(
             }
             Row(
                 modifier = Modifier
+                    .clickable { notesModel.id}
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
 //          This is notes text
                 Text(
                     modifier = Modifier
-                        .padding(start = 10.dp),
+                        .padding(start = 10.dp)
+                        .clickable { notesModel.id },
                     text = notesModel.note,
                     color = Color.Gray,
                     fontSize = 18.sp,
                     fontFamily = FontFamily(fontAmidoneGrotesk)
                 )
-                Column(
-                    modifier = Modifier
-                        .size(50.dp)
-                ) {
-
-                }
             }
         }
     }
+}
+
+@Preview
+@Composable
+private fun PreviewItem() {
+    MainScreenItem(
+        NotesModel(
+            title = "Behzod" ,
+            note = "Xudaybergenovdkjfbgfbvjkfdgbvfdgkbnvfdgsjkbnvksfdgjbjngsfdjkbngksfdjbnsfgkjbngsfskfbnfskbjnfjkbngkfjbngfjkb",
+            color = 0xFF0000FF,
+            dataAdded = 0xFFFFFF
+        ),
+        fontColor = Color.Black,
+        onClick = {}
+    )
 }

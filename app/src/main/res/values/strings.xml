@@ -19,4 +19,7 @@
     <string name="english_language">English</string>
     <string name="russian_language">Russian</string>
     <string name="uzbek_language">Uzbek</string>
+    <string name="save">Save</string>
+    <string name="share">Share</string>
+    <string name="creating_note">Creating note…</string>
 </resources>

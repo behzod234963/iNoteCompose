@@ -20,4 +20,7 @@
     <string name="english_language">Английский</string>
     <string name="russian_language">Русский</string>
     <string name="uzbek_language">Узбекский</string>
+    <string name="save">Сохранить</string>
+    <string name="share">Поделится</string>
+    <string name="creating_note">Cоздание заметки…</string>
 </resources>

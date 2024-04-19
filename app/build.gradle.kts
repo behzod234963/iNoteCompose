@@ -97,4 +97,7 @@ dependencies {
 
 //    SSJetPackComposeProgressButton
     implementation(libs.ss.progressButton)
+
+//    SpeedDialFloatingActionButton
+    implementation(libs.speedDialFabCompose)
 }

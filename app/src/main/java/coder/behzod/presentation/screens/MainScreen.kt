@@ -1,5 +1,7 @@
 package coder.behzod.presentation.screens
 
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,8 +31,6 @@ import androidx.navigation.NavController
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
-import coder.behzod.domain.utils.NoteOrder
-import coder.behzod.domain.utils.OrderType
 import coder.behzod.presentation.items.MainScreenItem
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.utils.constants.KEY_INDEX
@@ -38,6 +38,10 @@ import coder.behzod.presentation.utils.helpers.NotesEvent
 import coder.behzod.presentation.viewModels.MainViewModel
 import coder.behzod.presentation.views.MainTopAppBar
 import coder.behzod.presentation.views.SwipeToDeleteContainer
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 
 @Composable
 fun MainScreen(
@@ -66,6 +70,10 @@ fun MainScreen(
     }
     val notesList: ArrayList<NotesModel> = ArrayList()
     val state = viewModel.state.value
+    val btnAddAnimation = rememberLottieComposition(
+        spec = LottieCompositionSpec.RawRes(resId = R.raw.btn_add)
+    )
+    val isPlaying = remember { mutableStateOf( false ) }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -96,8 +104,8 @@ fun MainScreen(
                     }) {
                         MainScreenItem(
                             notesModel = it,
-                            backgroundColor = themeColor.value,
-                            fontColor = fontColor.value
+                            fontColor = fontColor.value,
+                            onClick = {}
                         )
                     }
                 }
@@ -110,14 +118,26 @@ fun MainScreen(
             containerColor = Color.Magenta,
             shape = CircleShape,
             onClick = {
-                navController.navigate(ScreensRouter.NewNoteScreenRoute.route)
+                Handler(Looper.getMainLooper()).postDelayed({
+                    navController.navigate(ScreensRouter.NewNoteScreenRoute.route)
+                },900)
+                isPlaying.value = true
             }
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_add),
-                contentDescription = "mainScreen_buttonAdd",
-                tint = fontColor.value
-            )
+            if (isPlaying.value) {
+                LottieAnimation(
+                    modifier = Modifier
+                        .matchParentSize(),
+                    composition = btnAddAnimation.value,
+                    iterations = LottieConstants.IterateForever
+                )
+            } else {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_add),
+                    contentDescription = "button add",
+                    tint = fontColor.value
+                )
+            }
         }
     }
 }
