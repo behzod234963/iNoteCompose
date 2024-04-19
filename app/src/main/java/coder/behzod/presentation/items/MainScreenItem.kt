@@ -90,18 +90,3 @@ fun MainScreenItem(
         }
     }
 }
-
-@Preview
-@Composable
-private fun PreviewItem() {
-    MainScreenItem(
-        NotesModel(
-            title = "Behzod" ,
-            note = "Xudaybergenovdkjfbgfbvjkfdgbvfdgkbnvfdgsjkbnvksfdgjbjngsfdjkbngksfdjbnsfgkjbngsfskfbnfskbjnfjkbngkfjbngfjkb",
-            color = 0xFF0000FF,
-            dataAdded = 0xFFFFFF
-        ),
-        fontColor = Color.Black,
-        onClick = {}
-    )
-}

@@ -21,6 +21,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavHost
+import androidx.navigation.NavHostController
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.presentation.navigation.ScreensRouter
@@ -34,7 +36,7 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun EmptyMainScreen(
-    navController: NavController,
+    navController: NavHostController,
     sharedPrefs: SharedPreferenceInstance
 ) {
     val emptyListAnimation = rememberLottieComposition(
@@ -83,6 +85,7 @@ fun EmptyMainScreen(
             LottieAnimation(
                 composition = emptyListAnimation.value,
                 alignment = Alignment.Center,
+                restartOnPlay = true,
                 iterations = LottieConstants.IterateForever
             )
             FloatingActionButton(

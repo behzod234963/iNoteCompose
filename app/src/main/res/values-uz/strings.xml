@@ -21,6 +21,7 @@
     <string name="russian_language">Ruscha</string>
     <string name="uzbek_language">O\'zbekcha</string>
     <string name="save">Saqlash</string>
-    <string name="share">Ulashish</string>
+    <string name="share">Ulashish &amp; ulashish</string>
     <string name="creating_note">Qayd yaratish…</string>
+    <string name="share_via">Orqali ulashish</string>
 </resources>

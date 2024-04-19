@@ -5,6 +5,7 @@ import android.os.Looper
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -70,7 +71,8 @@ fun SplashScreens(
 
     Column(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .background(themeColor.value),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -94,11 +96,12 @@ fun SplashScreens(
             isPlaying = true,
         )
     }
-    Handler(Looper.getMainLooper()).postDelayed({
+    LaunchedEffect(key1 = list) {
+        delay(2500)
         if (list.isEmpty()) {
             navController.navigate(ScreensRouter.EmptyMainScreenRoute.route)
         } else {
             navController.navigate(ScreensRouter.MainScreenRoute.route)
         }
-    }, 2500)
+    }
 }

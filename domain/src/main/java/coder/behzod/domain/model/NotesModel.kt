@@ -1,5 +1,6 @@
 package coder.behzod.domain.model
 
+import android.graphics.Color
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -9,6 +10,6 @@ data class NotesModel(
     val id:Int? = null,
     val title:String? = null,
     val note:String,
-    val color:Long,
-    val dataAdded:Long
+    val color:Int,
+    val dataAdded:String
 )

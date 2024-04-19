@@ -21,6 +21,7 @@
     <string name="russian_language">Русский</string>
     <string name="uzbek_language">Узбекский</string>
     <string name="save">Сохранить</string>
-    <string name="share">Поделится</string>
+    <string name="share">Поделится &amp; сохранить</string>
     <string name="creating_note">Cоздание заметки…</string>
+    <string name="share_via">Поделится через</string>
 </resources>

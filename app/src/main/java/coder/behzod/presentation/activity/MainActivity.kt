@@ -11,7 +11,6 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("BBB", "MainActivity: is started")
         setContent {
             NavGraph()
         }

@@ -24,6 +24,7 @@ import androidx.navigation.NavController
 import coder.behzod.R
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
+import coder.behzod.presentation.utils.constants.notes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,7 +50,11 @@ fun FunctionalTopAppBar(
         },
         navigationIcon = {
             IconButton(onClick = {
-                navController.navigate(ScreensRouter.MainScreenRoute.route)
+                if (notes.isEmpty()){
+                    navController.navigate(ScreensRouter.EmptyMainScreenRoute.route)
+                }else{
+                    navController.navigate(ScreensRouter.MainScreenRoute.route)
+                }
             }) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,

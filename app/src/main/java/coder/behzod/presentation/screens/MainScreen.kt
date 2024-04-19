@@ -34,6 +34,7 @@ import coder.behzod.domain.model.NotesModel
 import coder.behzod.presentation.items.MainScreenItem
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.utils.constants.KEY_INDEX
+import coder.behzod.presentation.utils.constants.notes
 import coder.behzod.presentation.utils.helpers.NotesEvent
 import coder.behzod.presentation.viewModels.MainViewModel
 import coder.behzod.presentation.views.MainTopAppBar
@@ -51,7 +52,6 @@ fun MainScreen(
     viewModel:MainViewModel = hiltViewModel()
 ) {
 
-    Log.d("BBB", "MainScreens: is started")
     val themeIndex =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
     val colorTheme = if (themeIndex.intValue == 0) Color.Black else Color.White
@@ -68,12 +68,12 @@ fun MainScreen(
     } else {
         fontColor.value = Color.Black
     }
-    val notesList: ArrayList<NotesModel> = ArrayList()
     val state = viewModel.state.value
     val btnAddAnimation = rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(resId = R.raw.btn_add)
     )
     val isPlaying = remember { mutableStateOf( false ) }
+    val list = notes
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -97,10 +97,10 @@ fun MainScreen(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                items(notesList) { item ->
+                items(list) { item ->
                     SwipeToDeleteContainer(item = item, onDelete = { deleteItem ->
-                        notesList.remove(deleteItem)
-                        notesList.addAll(notesList)
+                        list.remove(deleteItem)
+                        list.addAll(list)
                     }) {
                         MainScreenItem(
                             notesModel = it,

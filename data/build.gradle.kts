@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    id("kotlin-kapt")
 }
 
 android {
@@ -44,6 +45,8 @@ dependencies {
 //  Room
     implementation(libs.androidx.room.common)
     implementation(libs.androidx.room.coroutines)
+    kapt(libs.room.kapt.compiler)
+
 
 //  DataStore
     implementation(libs.androidx.dataStore)
