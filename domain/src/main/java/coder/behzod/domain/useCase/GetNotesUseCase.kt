@@ -11,7 +11,8 @@ class GetNotesUseCase(private val repository: NotesRepository) {
     operator fun invoke(
         model: NotesModel? = null,
         noteOrder: NoteOrder = NoteOrder.Date(OrderType.Descending)
-    ): Flow<List<NotesModel>> {
+    ): Flow<List<NotesModel>>
+    {
         return repository.getNotes().map { notes ->
             when(noteOrder.orderType){
                 is OrderType.Ascending->{
@@ -27,7 +28,13 @@ class GetNotesUseCase(private val repository: NotesRepository) {
                 }
                 is OrderType.Descending->{
                     when(noteOrder){
-                        is NoteOrder.Title-> notes.sortedByDescending { it.title?.lowercase() }
+                        is NoteOrder.Title-> {
+                            if (model?.title == null){
+                                notes.sortedByDescending { it.note.lowercase() }
+                            }else{
+                                notes.sortedByDescending { it.title?.lowercase() }
+                            }
+                        }
                         is NoteOrder.Date-> notes.sortedByDescending { it.dataAdded }
                         is NoteOrder.Color-> notes.sortedByDescending { it.color }
                     }

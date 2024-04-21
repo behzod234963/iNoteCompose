@@ -1,8 +1,8 @@
 package coder.behzod.presentation.screens
 
+import android.annotation.SuppressLint
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -17,12 +17,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,24 +31,19 @@ import androidx.navigation.NavController
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
-import coder.behzod.domain.utils.NoteOrder
-import coder.behzod.domain.utils.OrderType
 import coder.behzod.presentation.items.MainScreenItem
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.utils.constants.KEY_INDEX
-import coder.behzod.presentation.utils.constants.notes
 import coder.behzod.presentation.utils.helpers.NotesEvent
 import coder.behzod.presentation.viewModels.MainViewModel
-import coder.behzod.presentation.views.ActionSnackbar
 import coder.behzod.presentation.views.MainTopAppBar
 import coder.behzod.presentation.views.SwipeToDeleteContainer
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun MainScreen(
     navController: NavController,
@@ -58,6 +51,7 @@ fun MainScreen(
     sharedPrefs: SharedPreferenceInstance,
     viewModel:MainViewModel = hiltViewModel()
 ) {
+
 
     val themeIndex =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
@@ -75,13 +69,12 @@ fun MainScreen(
     } else {
         fontColor.value = Color.Black
     }
-    val state = viewModel.state.value
+    val state = viewModel.state
+    viewModel.getNotes(state.value.noteOrder)
     val btnAddAnimation = rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(resId = R.raw.btn_add)
     )
     val isPlaying = remember { mutableStateOf( false ) }
-    val list = viewModel.getNotes(NoteOrder.Date(OrderType.Descending))
-    val coroutineScope = rememberCoroutineScope()
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -103,29 +96,14 @@ fun MainScreen(
             Spacer(modifier = Modifier.height(5.dp))
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
             ) {
-                items(state.notesModel) {
-                    SwipeToDeleteContainer(item = it, onDelete = {deletedItem->
-                        state.notesModel.remove(deletedItem)
-                        viewModel.onEvent(NotesEvent.DeleteNote(deletedItem))
-                        coroutineScope.launch {
-                            ActionSnackbar(
-                                themeColor = themeColor.value,
-                                fontColor = fontColor.value
-                            ) {
-                                viewModel.onEvent(NotesEvent.RestoreNote)
-                            }
-                        }
-                        state.notesModel.addAll(state.notesModel)
-                    }) {item->
-                        MainScreenItem(
-                            notesModel = it,
-                            fontColor = fontColor.value,
-                            onClick = {
+                items(state.value.notes){
+                    MainScreenItem(
+                        notesModel = it,
+                        fontColor = fontColor.value
+                    ) {
 
-                            }
-                        )
                     }
                 }
             }

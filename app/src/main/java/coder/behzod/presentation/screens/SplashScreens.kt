@@ -99,10 +99,11 @@ fun SplashScreens(
     }
     LaunchedEffect(key1 = Unit) {
         delay(2500)
-        if (viewModel.state.value.notesModel.isEmpty()){
-            navController.navigate(ScreensRouter.EmptyMainScreenRoute.route)
-        }else{
-            navController.navigate(ScreensRouter.MainScreenRoute.route)
-        }
+        navController.navigate(ScreensRouter.MainScreenRoute.route)
+//        if (viewModel.state.value.notes.isEmpty()){
+//            navController.navigate(ScreensRouter.EmptyMainScreenRoute.route)
+//        }else{
+//
+//        }
     }
 }

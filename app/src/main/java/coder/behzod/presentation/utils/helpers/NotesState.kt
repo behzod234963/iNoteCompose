@@ -6,5 +6,5 @@ import coder.behzod.domain.utils.OrderType
 
 data class NotesState(
     val noteOrder: NoteOrder = NoteOrder.Date(orderType = OrderType.Descending),
-    val notesModel:ArrayList<NotesModel> = ArrayList()
+    val notes:List<NotesModel> = emptyList()
 )

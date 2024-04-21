@@ -59,6 +59,7 @@ class MainViewModel @Inject constructor(
         getNotesJob = useCases.getNotesUseCase(noteOrder = notesOrder)
             .onEach {
                 _state.value = state.value.copy(
+                    notes = it,
                     noteOrder = notesOrder,
                 )
             }.launchIn(viewModelScope)
