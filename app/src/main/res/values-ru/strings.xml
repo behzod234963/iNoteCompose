@@ -24,4 +24,6 @@
     <string name="share">Поделится &amp; сохранить</string>
     <string name="creating_note">Cоздание заметки…</string>
     <string name="share_via">Поделится через</string>
+    <string name="note_deleted">Заметка удалена</string>
+    <string name="undo">Вернуть</string>
 </resources>

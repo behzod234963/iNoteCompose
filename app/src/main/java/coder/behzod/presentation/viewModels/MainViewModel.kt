@@ -54,7 +54,7 @@ class MainViewModel @Inject constructor(
             }
         }
     }
-    private fun getNotes(notesOrder:NoteOrder){
+    fun getNotes(notesOrder:NoteOrder){
         getNotesJob?.cancel()
         getNotesJob = useCases.getNotesUseCase(noteOrder = notesOrder)
             .onEach {

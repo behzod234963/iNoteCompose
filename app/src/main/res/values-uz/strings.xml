@@ -24,4 +24,6 @@
     <string name="share">Ulashish &amp; ulashish</string>
     <string name="creating_note">Qayd yaratish…</string>
     <string name="share_via">Orqali ulashish</string>
+    <string name="note_deleted">Qayd o\'chirildi</string>
+    <string name="undo">Qaytarish</string>
 </resources>

@@ -17,10 +17,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,18 +33,23 @@ import androidx.navigation.NavController
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
+import coder.behzod.domain.utils.NoteOrder
+import coder.behzod.domain.utils.OrderType
 import coder.behzod.presentation.items.MainScreenItem
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.constants.notes
 import coder.behzod.presentation.utils.helpers.NotesEvent
 import coder.behzod.presentation.viewModels.MainViewModel
+import coder.behzod.presentation.views.ActionSnackbar
 import coder.behzod.presentation.views.MainTopAppBar
 import coder.behzod.presentation.views.SwipeToDeleteContainer
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun MainScreen(
@@ -73,7 +80,8 @@ fun MainScreen(
         spec = LottieCompositionSpec.RawRes(resId = R.raw.btn_add)
     )
     val isPlaying = remember { mutableStateOf( false ) }
-    val list = notes
+    val list = viewModel.getNotes(NoteOrder.Date(OrderType.Descending))
+    val coroutineScope = rememberCoroutineScope()
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -97,15 +105,26 @@ fun MainScreen(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                items(list) { item ->
-                    SwipeToDeleteContainer(item = item, onDelete = { deleteItem ->
-                        list.remove(deleteItem)
-                        list.addAll(list)
-                    }) {
+                items(state.notesModel) {
+                    SwipeToDeleteContainer(item = it, onDelete = {deletedItem->
+                        state.notesModel.remove(deletedItem)
+                        viewModel.onEvent(NotesEvent.DeleteNote(deletedItem))
+                        coroutineScope.launch {
+                            ActionSnackbar(
+                                themeColor = themeColor.value,
+                                fontColor = fontColor.value
+                            ) {
+                                viewModel.onEvent(NotesEvent.RestoreNote)
+                            }
+                        }
+                        state.notesModel.addAll(state.notesModel)
+                    }) {item->
                         MainScreenItem(
                             notesModel = it,
                             fontColor = fontColor.value,
-                            onClick = {}
+                            onClick = {
+
+                            }
                         )
                     }
                 }

@@ -23,4 +23,6 @@
     <string name="share">Share &amp; save</string>
     <string name="creating_note">Creating note…</string>
     <string name="share_via">Share via</string>
+    <string name="note_deleted">Note deleted</string>
+    <string name="undo">Undo</string>
 </resources>

@@ -1,10 +1,7 @@
 package coder.behzod.presentation.screens
 
-import android.os.Handler
-import android.os.Looper
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,14 +21,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
-import coder.behzod.domain.model.NotesModel
+import coder.behzod.domain.utils.NoteOrder
+import coder.behzod.domain.utils.OrderType
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.utils.constants.KEY_INDEX
-import coder.behzod.presentation.utils.constants.notes
+import coder.behzod.presentation.viewModels.MainViewModel
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
@@ -40,13 +39,15 @@ import kotlinx.coroutines.delay
 @Composable
 fun SplashScreens(
     navController: NavController,
+    viewModel: MainViewModel = hiltViewModel(),
     sharedPrefs: SharedPreferenceInstance
 ) {
 
     val notesAnimComposition = rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(resId = R.raw.notes)
     )
-    val list = notes
+
+    val list = viewModel.getNotes(NoteOrder.Date(OrderType.Descending))
     val themeIndex =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
     val colorTheme = if (themeIndex.intValue == 0) Color.Black else Color.White
@@ -63,7 +64,7 @@ fun SplashScreens(
     } else {
         fontColor.value = Color.Black
     }
-    val isVisible = remember { mutableStateOf( false ) }
+    val isVisible = remember { mutableStateOf(false) }
     LaunchedEffect(key1 = Boolean) {
         delay(1500L)
         isVisible.value = true
@@ -96,11 +97,11 @@ fun SplashScreens(
             isPlaying = true,
         )
     }
-    LaunchedEffect(key1 = list) {
+    LaunchedEffect(key1 = Unit) {
         delay(2500)
-        if (list.isEmpty()) {
+        if (viewModel.state.value.notesModel.isEmpty()){
             navController.navigate(ScreensRouter.EmptyMainScreenRoute.route)
-        } else {
+        }else{
             navController.navigate(ScreensRouter.MainScreenRoute.route)
         }
     }
