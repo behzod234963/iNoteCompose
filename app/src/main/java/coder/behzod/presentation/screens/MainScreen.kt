@@ -98,12 +98,21 @@ fun MainScreen(
                 modifier = Modifier
                     .fillMaxSize()
             ) {
-                items(state.value.notes){
-                    MainScreenItem(
-                        notesModel = it,
-                        fontColor = fontColor.value
-                    ) {
+                items(
+                    items = state.value.notes,
+                    key = { it.toString() }){notes->
+                    SwipeToDeleteContainer(
+                        item = notes,
+                        onDelete = {
+                            viewModel.onEvent(NotesEvent.DeleteNote(it))
+                        }
+                    ) {item->
+                        MainScreenItem(
+                            notesModel = item,
+                            fontColor = fontColor.value
+                        ) {
 
+                        }
                     }
                 }
             }

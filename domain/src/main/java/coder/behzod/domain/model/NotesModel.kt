@@ -1,6 +1,5 @@
 package coder.behzod.domain.model
 
-import android.graphics.Color
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 

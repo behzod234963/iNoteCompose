@@ -45,7 +45,6 @@ import coder.behzod.presentation.viewModels.NewNoteViewModel
 import coder.behzod.presentation.views.FunctionalTopAppBar
 import coder.behzod.presentation.views.SpeedDialFAB
 import java.time.LocalDate
-import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -182,8 +181,8 @@ fun NewNoteScreen(
                     NotesModel(
                         title = title.value,
                         note = note.value,
-                        dataAdded = date.value.toString(),
-                        color = color.value.toArgb()
+                        color = color.value.toArgb(),
+                        dataAdded = date.value.toString()
                     )
                 )
                 navController.navigate(ScreensRouter.MainScreenRoute.route)
@@ -192,8 +191,8 @@ fun NewNoteScreen(
                 NotesModel(
                     title = title.value,
                     note = note.value,
-                    dataAdded = date.value.toString(),
-                    color = color.value.toArgb()
+                    color = color.value.toArgb(),
+                    dataAdded = date.value.toString()
                 ),
                 text = "$title" +
                         "$note",
