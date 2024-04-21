@@ -1,11 +1,13 @@
 package coder.behzod.presentation.items
 
+import android.widget.Space
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -29,63 +31,71 @@ fun MainScreenItem(
     fontColor: Color,
     onClick:(Int)->Unit
 ) {
-    Row(
+    Row (
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .height(150.dp)
-            .background(Color(notesModel.color))
-            .border(width = 1.dp, color = fontColor, shape = RoundedCornerShape(20.dp))
-            .clickable { onClick(notesModel.id!!) }
-    ) {
-        Column (
+            .height(170.dp)
+            .padding(top = 10.dp)
+    ){
+        Spacer(modifier = Modifier.height(10.dp ))
+        Row(
             modifier = Modifier
+                .fillMaxWidth()
+                .height(150.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .background(Color(notesModel.color))
+                .border(width = 1.dp, color = fontColor, shape = RoundedCornerShape(20.dp))
                 .clickable { onClick(notesModel.id!!) }
-        ){
-            Row(
+        ) {
+            Column (
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-                    .clickable { onClick(notesModel.id!!) },
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+                    .clickable { onClick(notesModel.id!!) }
+            ){
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                        .clickable { onClick(notesModel.id!!) },
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
 //          This is notes title
-                notesModel.title?.let {
+                    notesModel.title?.let {
+                        Text(
+                            modifier = Modifier
+                                .clickable { onClick(notesModel.id!!) },
+                            text = it,
+                            color = fontColor,
+                            fontSize = 25.sp,
+                            fontFamily = FontFamily(fontAmidoneGrotesk)
+                        )
+                    }
+//          This is notes data added
                     Text(
                         modifier = Modifier
                             .clickable { onClick(notesModel.id!!) },
-                        text = it,
-                        color = fontColor,
-                        fontSize = 25.sp,
+                        text = notesModel.dataAdded.toString(),
+                        color = Color.Gray,
+                        fontSize = 18.sp,
                         fontFamily = FontFamily(fontAmidoneGrotesk)
                     )
                 }
-//          This is notes data added
-                Text(
+                Row(
                     modifier = Modifier
-                        .clickable { onClick(notesModel.id!!) },
-                    text = notesModel.dataAdded.toString(),
-                    color = Color.Gray,
-                    fontSize = 18.sp,
-                    fontFamily = FontFamily(fontAmidoneGrotesk)
-                )
-            }
-            Row(
-                modifier = Modifier
-                    .clickable { notesModel.id}
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+                        .clickable { notesModel.id }
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
 //          This is notes text
-                Text(
-                    modifier = Modifier
-                        .padding(start = 10.dp)
-                        .clickable { notesModel.id },
-                    text = notesModel.note,
-                    color = Color.Gray,
-                    fontSize = 18.sp,
-                    fontFamily = FontFamily(fontAmidoneGrotesk)
-                )
+                    Text(
+                        modifier = Modifier
+                            .padding(start = 10.dp)
+                            .clickable { notesModel.id },
+                        text = notesModel.note,
+                        color = Color.Gray,
+                        fontSize = 18.sp,
+                        fontFamily = FontFamily(fontAmidoneGrotesk)
+                    )
+                }
             }
         }
     }

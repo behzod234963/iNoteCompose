@@ -83,7 +83,7 @@ fun MainScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(themeColor.value)
-                .border(width = 1.dp, color = fontColor.value)
+                .padding(10.dp)
         ) {
             MainTopAppBar(
                 navController = navController,
