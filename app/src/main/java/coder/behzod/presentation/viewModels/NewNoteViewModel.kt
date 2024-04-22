@@ -2,8 +2,9 @@ package coder.behzod.presentation.viewModels
 
 import android.content.Context
 import android.content.Intent
-import androidx.core.content.ContextCompat.getString
 import androidx.core.content.ContextCompat.startActivity
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coder.behzod.R
@@ -15,8 +16,20 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NewNoteViewModel@Inject constructor(
-    private val useCases: UseCases,
+    private val useCases: UseCases
 ):ViewModel() {
+
+    private val _title = MutableLiveData("")
+    val title :LiveData<String> = _title
+
+    private val _note = MutableLiveData("")
+    val note :LiveData<String> = _note
+    fun getNote(id:Int) = viewModelScope.launch {
+        useCases.getNoteUseCase(id).also {
+            _title.value = it.title
+            _note.value = it.note
+        }
+    }
     fun saveNote(note:NotesModel) = viewModelScope.launch {
         useCases.saveNoteUseCase(note)
     }

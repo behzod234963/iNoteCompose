@@ -91,11 +91,12 @@ fun MainScreen(
         ) {
             MainTopAppBar(
                 navController = navController,
+                backgroundColor = themeColor.value,
+                fontColor = fontColor.value,
+                noteOrder = state.value.noteOrder,
                 onOrderChange = {
                     viewModel.onEvent(NotesEvent.Order(it))
-                },
-                backgroundColor = themeColor.value,
-                fontColor = fontColor.value
+                }
             )
             Spacer(modifier = Modifier.height(5.dp))
             LazyColumn(
@@ -113,10 +114,10 @@ fun MainScreen(
                     ) {item->
                         MainScreenItem(
                             notesModel = item,
-                            fontColor = fontColor.value
-                        ) {
-
-                        }
+                            fontColor = fontColor.value,
+                            onClick = {
+                            }
+                        )
                     }
                 }
             }

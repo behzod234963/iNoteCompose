@@ -29,7 +29,7 @@ import coder.behzod.presentation.theme.fontAmidoneGrotesk
 fun MainScreenItem(
     notesModel: NotesModel,
     fontColor: Color,
-    onClick:(Int)->Unit
+    onClick:()->Unit
 ) {
     Row (
         modifier = Modifier
@@ -45,24 +45,24 @@ fun MainScreenItem(
                 .clip(RoundedCornerShape(20.dp))
                 .background(Color(notesModel.color))
                 .border(width = 1.dp, color = fontColor, shape = RoundedCornerShape(20.dp))
-                .clickable { onClick(notesModel.id!!) }
+                .clickable { onClick() }
         ) {
             Column (
                 modifier = Modifier
-                    .clickable { onClick(notesModel.id!!) }
+                    .clickable { onClick() }
             ){
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(10.dp)
-                        .clickable { onClick(notesModel.id!!) },
+                        .clickable { onClick() },
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
 //          This is notes title
                     notesModel.title?.let {
                         Text(
                             modifier = Modifier
-                                .clickable { onClick(notesModel.id!!) },
+                                .clickable { onClick() },
                             text = it,
                             color = fontColor,
                             fontSize = 25.sp,
@@ -72,7 +72,7 @@ fun MainScreenItem(
 //          This is notes data added
                     Text(
                         modifier = Modifier
-                            .clickable { onClick(notesModel.id!!) },
+                            .clickable { onClick() },
                         text = notesModel.dataAdded.toString(),
                         color = Color.Gray,
                         fontSize = 18.sp,

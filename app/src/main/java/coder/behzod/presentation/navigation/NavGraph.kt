@@ -24,7 +24,10 @@ fun NavGraph() {
         startDestination = ScreensRouter.SplashScreenRoute.route
     ) {
         composable(ScreensRouter.SplashScreenRoute.route) {
-            SplashScreens(navController = navController, sharedPrefs = SharedPreferenceInstance(ctx))
+            SplashScreens(
+                navController = navController,
+                sharedPrefs = SharedPreferenceInstance(ctx)
+            )
         }
         composable(ScreensRouter.SettingsScreenRoute.route) {
             SettingsScreen(navController, sharedPrefs = SharedPreferenceInstance(ctx))
@@ -33,10 +36,16 @@ fun NavGraph() {
             MainScreen(navController, SharedPreferenceInstance(ctx))
         }
         composable(ScreensRouter.EmptyMainScreenRoute.route) {
-            EmptyMainScreen(navController,SharedPreferenceInstance(ctx))
+            EmptyMainScreen(navController, SharedPreferenceInstance(ctx))
         }
-        composable(ScreensRouter.NewNoteScreenRoute.route) {
-            NewNoteScreen(navController = navController,null, sharedPrefs = SharedPreferenceInstance(ctx))
+        composable(
+            route = ScreensRouter.NewNoteScreenRoute.route
+        ) {
+            NewNoteScreen(
+                navController = navController,
+                notesModel = null,
+                sharedPrefs = SharedPreferenceInstance(ctx)
+            )
         }
     }
 }
