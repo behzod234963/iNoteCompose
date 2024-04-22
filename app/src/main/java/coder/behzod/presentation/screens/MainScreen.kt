@@ -4,12 +4,10 @@ import android.annotation.SuppressLint
 import android.os.Handler
 import android.os.Looper
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,10 +28,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
-import coder.behzod.domain.model.NotesModel
 import coder.behzod.presentation.items.MainScreenItem
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.utils.constants.KEY_INDEX
+import coder.behzod.presentation.utils.constants.KEY_LIST_STATUS
 import coder.behzod.presentation.utils.helpers.NotesEvent
 import coder.behzod.presentation.viewModels.MainViewModel
 import coder.behzod.presentation.views.MainTopAppBar
@@ -47,7 +45,6 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 @Composable
 fun MainScreen(
     navController: NavController,
-    notesModel: NotesModel?,
     sharedPrefs: SharedPreferenceInstance,
     viewModel:MainViewModel = hiltViewModel()
 ) {
@@ -75,6 +72,13 @@ fun MainScreen(
         spec = LottieCompositionSpec.RawRes(resId = R.raw.btn_add)
     )
     val isPlaying = remember { mutableStateOf( false ) }
+    val isEmpty = remember { mutableStateOf( false ) }
+    if (state.value.notes.isEmpty()) {
+        isEmpty.value = true
+    }else{
+        isEmpty.value = false
+    }
+    sharedPrefs.sharedPreferences.edit().putBoolean(KEY_LIST_STATUS,isEmpty.value).apply()
     Box(
         modifier = Modifier
             .fillMaxSize()

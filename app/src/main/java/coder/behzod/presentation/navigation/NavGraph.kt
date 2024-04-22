@@ -1,7 +1,6 @@
 package coder.behzod.presentation.navigation
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
@@ -31,7 +30,7 @@ fun NavGraph() {
             SettingsScreen(navController, sharedPrefs = SharedPreferenceInstance(ctx))
         }
         composable(ScreensRouter.MainScreenRoute.route) {
-            MainScreen(navController, null,SharedPreferenceInstance(ctx))
+            MainScreen(navController, SharedPreferenceInstance(ctx))
         }
         composable(ScreensRouter.EmptyMainScreenRoute.route) {
             EmptyMainScreen(navController,SharedPreferenceInstance(ctx))

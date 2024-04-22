@@ -6,8 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.presentation.utils.constants.KEY_INDEX
-import coder.behzod.presentation.utils.constants.KEY_LANGUAGES
-import coder.behzod.presentation.utils.constants.KEY_THEME_STATUS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject

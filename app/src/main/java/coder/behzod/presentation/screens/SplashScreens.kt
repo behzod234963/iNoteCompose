@@ -25,11 +25,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
-import coder.behzod.domain.utils.NoteOrder
-import coder.behzod.domain.utils.OrderType
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.utils.constants.KEY_INDEX
+import coder.behzod.presentation.utils.constants.KEY_LIST_STATUS
 import coder.behzod.presentation.viewModels.MainViewModel
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -46,8 +45,6 @@ fun SplashScreens(
     val notesAnimComposition = rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(resId = R.raw.notes)
     )
-
-    val list = viewModel.getNotes(NoteOrder.Date(OrderType.Descending))
     val themeIndex =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
     val colorTheme = if (themeIndex.intValue == 0) Color.Black else Color.White
@@ -68,6 +65,9 @@ fun SplashScreens(
     LaunchedEffect(key1 = Boolean) {
         delay(1500L)
         isVisible.value = true
+    }
+    val isEmpty = remember {
+        mutableStateOf(sharedPrefs.sharedPreferences.getBoolean(KEY_LIST_STATUS, true))
     }
 
     Column(
@@ -99,11 +99,10 @@ fun SplashScreens(
     }
     LaunchedEffect(key1 = Unit) {
         delay(2500)
-        navController.navigate(ScreensRouter.MainScreenRoute.route)
-//        if (viewModel.state.value.notes.isEmpty()){
-//            navController.navigate(ScreensRouter.EmptyMainScreenRoute.route)
-//        }else{
-//
-//        }
+        if (isEmpty.value) {
+            navController.navigate(ScreensRouter.EmptyMainScreenRoute.route)
+        } else {
+            navController.navigate(ScreensRouter.MainScreenRoute.route)
+        }
     }
 }
