@@ -1,6 +1,7 @@
 package coder.behzod.presentation.screens
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -28,7 +29,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -50,13 +50,14 @@ import java.time.LocalDate
 @Composable
 fun NewNoteScreen(
     navController: NavController,
+    id:Int?,
     notesModel: NotesModel?,
     sharedPrefs: SharedPreferenceInstance,
     viewModel: NewNoteViewModel = hiltViewModel()
 ) {
     val ctx = LocalContext.current.applicationContext
-    val note = remember { mutableStateOf("") }
-    val title = remember { mutableStateOf("") }
+    val note = remember { mutableStateOf( "" ) }
+    var title = remember { mutableStateOf( "" ) }
     val date = remember { mutableStateOf(LocalDate.now()) }
     val themeIndex =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
@@ -76,6 +77,11 @@ fun NewNoteScreen(
     }
     val color = remember { mutableStateOf(themeColor.value) }
     val scriptColor = remember { mutableStateOf(fontColor.value) }
+    if (id != -1){
+        title.value = viewModel.title.value.toString()
+        note.value = viewModel.note.value.toString()
+    }
+    Log.d("debug", "$id screen")
     Box(
         modifier = Modifier
             .fillMaxSize(),
@@ -90,7 +96,8 @@ fun NewNoteScreen(
             FunctionalTopAppBar(
                 themeColor = color.value,
                 fontColor = scriptColor.value,
-                navController
+                navController = navController,
+                sharedPrefs = sharedPrefs
             )
             Column(
                 modifier = Modifier
@@ -200,16 +207,4 @@ fun NewNoteScreen(
             )
         }
     }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview
-@Composable
-private fun PreviewNewNote() {
-    val ctx = LocalContext.current
-    NewNoteScreen(
-        navController = NavController(ctx),
-        notesModel = null,
-        sharedPrefs = SharedPreferenceInstance(ctx)
-    )
 }

@@ -3,6 +3,7 @@ package coder.behzod.presentation.screens
 import android.annotation.SuppressLint
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
+import coder.behzod.domain.model.NotesModel
 import coder.behzod.presentation.items.MainScreenItem
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.utils.constants.KEY_INDEX
@@ -40,13 +42,15 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import kotlin.math.log
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun MainScreen(
+    model: NotesModel? = null,
     navController: NavController,
     sharedPrefs: SharedPreferenceInstance,
-    viewModel:MainViewModel = hiltViewModel()
+    viewModel: MainViewModel = hiltViewModel()
 ) {
 
 
@@ -71,14 +75,14 @@ fun MainScreen(
     val btnAddAnimation = rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(resId = R.raw.btn_add)
     )
-    val isPlaying = remember { mutableStateOf( false ) }
-    val isEmpty = remember { mutableStateOf( false ) }
+    val isPlaying = remember { mutableStateOf(false) }
+    val isEmpty = remember { mutableStateOf(false) }
     if (state.value.notes.isEmpty()) {
         isEmpty.value = true
-    }else{
+    } else {
         isEmpty.value = false
     }
-    sharedPrefs.sharedPreferences.edit().putBoolean(KEY_LIST_STATUS,isEmpty.value).apply()
+    sharedPrefs.sharedPreferences.edit().putBoolean(KEY_LIST_STATUS, isEmpty.value).apply()
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -105,17 +109,18 @@ fun MainScreen(
             ) {
                 items(
                     items = state.value.notes,
-                    key = { it.toString() }){notes->
+                    key = { it.toString() }) { notes ->
                     SwipeToDeleteContainer(
                         item = notes,
                         onDelete = {
                             viewModel.onEvent(NotesEvent.DeleteNote(it))
                         }
-                    ) {item->
+                    ) { item ->
                         MainScreenItem(
                             notesModel = item,
                             fontColor = fontColor.value,
                             onClick = {
+                                navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/${item.id}")
                             }
                         )
                     }
@@ -130,8 +135,9 @@ fun MainScreen(
             shape = CircleShape,
             onClick = {
                 Handler(Looper.getMainLooper()).postDelayed({
-                    navController.navigate(ScreensRouter.NewNoteScreenRoute.route)
-                },900)
+                    navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/{${model?.id}}")
+                    Log.d("debug", "MainScreen: ${model?.id}")
+                }, 900)
                 isPlaying.value = true
             }
         ) {

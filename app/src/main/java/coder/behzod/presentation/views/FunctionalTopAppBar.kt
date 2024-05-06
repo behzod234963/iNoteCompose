@@ -12,6 +12,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -22,8 +24,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coder.behzod.R
+import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
+import coder.behzod.presentation.utils.constants.KEY_LIST_STATUS
 import coder.behzod.presentation.utils.constants.notes
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,8 +35,12 @@ import coder.behzod.presentation.utils.constants.notes
 fun FunctionalTopAppBar(
     themeColor: Color,
     fontColor: Color,
+    sharedPrefs:SharedPreferenceInstance,
     navController: NavController
 ) {
+    val isEmpty = remember {
+        mutableStateOf(sharedPrefs.sharedPreferences.getBoolean(KEY_LIST_STATUS, true))
+    }
     TopAppBar(
         modifier = Modifier
             .padding(2.dp)
@@ -50,7 +58,7 @@ fun FunctionalTopAppBar(
         },
         navigationIcon = {
             IconButton(onClick = {
-                if (notes.isEmpty()){
+                if (isEmpty.value){
                     navController.navigate(ScreensRouter.EmptyMainScreenRoute.route)
                 }else{
                     navController.navigate(ScreensRouter.MainScreenRoute.route)
@@ -63,15 +71,5 @@ fun FunctionalTopAppBar(
                 )
             }
         }
-    )
-}
-
-@Preview
-@Composable
-private fun PreviewFTAB() {
-    FunctionalTopAppBar(
-        Color.Black,
-        Color.White,
-        navController = NavController(LocalContext.current)
     )
 }

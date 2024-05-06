@@ -36,6 +36,9 @@ fun MainScreenItem(
             .fillMaxWidth()
             .height(170.dp)
             .padding(top = 10.dp)
+            .clickable {
+                onClick.invoke()
+            }
     ){
         Spacer(modifier = Modifier.height(10.dp ))
         Row(
@@ -45,24 +48,20 @@ fun MainScreenItem(
                 .clip(RoundedCornerShape(20.dp))
                 .background(Color(notesModel.color))
                 .border(width = 1.dp, color = fontColor, shape = RoundedCornerShape(20.dp))
-                .clickable { onClick() }
         ) {
             Column (
                 modifier = Modifier
-                    .clickable { onClick() }
+                    .clickable { onClick.invoke() }
             ){
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(10.dp)
-                        .clickable { onClick() },
+                        .padding(10.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
 //          This is notes title
                     notesModel.title?.let {
                         Text(
-                            modifier = Modifier
-                                .clickable { onClick() },
                             text = it,
                             color = fontColor,
                             fontSize = 25.sp,
@@ -71,8 +70,6 @@ fun MainScreenItem(
                     }
 //          This is notes data added
                     Text(
-                        modifier = Modifier
-                            .clickable { onClick() },
                         text = notesModel.dataAdded.toString(),
                         color = Color.Gray,
                         fontSize = 18.sp,
@@ -81,7 +78,6 @@ fun MainScreenItem(
                 }
                 Row(
                     modifier = Modifier
-                        .clickable { notesModel.id }
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
