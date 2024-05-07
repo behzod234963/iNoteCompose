@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
-import coder.behzod.domain.model.NotesModel
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.views.MainTopAppBar
@@ -34,7 +33,6 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 @Composable
 fun EmptyMainScreen(
     navController: NavHostController,
-    model:NotesModel? = null,
     sharedPrefs: SharedPreferenceInstance
 ) {
     val emptyListAnimation = rememberLottieComposition(
@@ -92,9 +90,8 @@ fun EmptyMainScreen(
                 shape = CircleShape,
                 containerColor = Color.Magenta,
                 onClick = {
-                    val id = model?.id
                     Handler(Looper.getMainLooper()).postDelayed({
-                        navController.navigate(route = ScreensRouter.NewNoteScreenRoute.route + "/{$id}")
+                        navController.navigate(route = ScreensRouter.NewNoteScreenRoute.route + "/-1")
                     },900)
                     isPlaying.value = true
                 }

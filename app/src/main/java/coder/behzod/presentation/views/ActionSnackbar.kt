@@ -6,6 +6,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -16,6 +17,7 @@ import coder.behzod.presentation.theme.fontAmidoneGrotesk
 
 @Composable
 fun ActionSnackbar(
+    modifier: Modifier = Modifier,
     themeColor: Color,
     fontColor: Color,
     onClick: () -> Unit

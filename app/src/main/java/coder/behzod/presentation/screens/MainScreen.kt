@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,13 +38,13 @@ import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.constants.KEY_LIST_STATUS
 import coder.behzod.presentation.utils.helpers.NotesEvent
 import coder.behzod.presentation.viewModels.MainViewModel
+import coder.behzod.presentation.views.ActionSnackbar
 import coder.behzod.presentation.views.MainTopAppBar
 import coder.behzod.presentation.views.SwipeToDeleteContainer
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
-import kotlin.math.log
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
@@ -82,6 +84,7 @@ fun MainScreen(
     } else {
         isEmpty.value = false
     }
+    val isDeleted = remember { mutableStateOf(false) }
     sharedPrefs.sharedPreferences.edit().putBoolean(KEY_LIST_STATUS, isEmpty.value).apply()
     Box(
         modifier = Modifier
@@ -114,6 +117,7 @@ fun MainScreen(
                         item = notes,
                         onDelete = {
                             viewModel.onEvent(NotesEvent.DeleteNote(it))
+                            isDeleted.value = true
                         }
                     ) { item ->
                         MainScreenItem(
@@ -135,7 +139,7 @@ fun MainScreen(
             shape = CircleShape,
             onClick = {
                 Handler(Looper.getMainLooper()).postDelayed({
-                    navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/{${model?.id}}")
+                    navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/-1")
                     Log.d("debug", "MainScreen: ${model?.id}")
                 }, 900)
                 isPlaying.value = true
@@ -154,6 +158,22 @@ fun MainScreen(
                     contentDescription = "button add",
                     tint = fontColor.value
                 )
+            }
+        }
+        Box(modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.BottomEnd
+        ){
+            ActionSnackbar(
+                themeColor = themeColor.value,
+                fontColor = fontColor.value
+            ) {
+                viewModel.onEvent(NotesEvent.RestoreNote)
+                isDeleted.value = false
+            }
+            if (isDeleted.value){
+                Handler().postDelayed({
+                    isDeleted.value = false
+                },2000)
             }
         }
     }

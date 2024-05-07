@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.presentation.screens.EmptyMainScreen
 import coder.behzod.presentation.screens.MainScreen
@@ -45,21 +46,23 @@ fun NavGraph() {
             EmptyMainScreen(navController, sharedPrefs = SharedPreferenceInstance(ctx))
         }
         composable(
-            route = ScreensRouter.NewNoteScreenRoute.route +"/{note_id}",
+            ScreensRouter.NewNoteScreenRoute.route + "/{id}",
             arguments = listOf(
-                navArgument("{note_id}") {
-                    this.type = NavType.IntType
-                    this.defaultValue = -1
-                    this.build()
+                navArgument(
+                    name = "id"
+                ) {
+                    type = NavType.IntType
+                    defaultValue = -1
                 }
             )
-        ) {navBackStackEntry->
-                NewNoteScreen(
-                    navController = navController,
-                    notesModel = null,
-                    id = navBackStackEntry.arguments?.getInt("{note_id}",-1)!!,
-                    sharedPrefs = SharedPreferenceInstance(ctx)
-                )
+        ) { entry ->
+            val id = entry.arguments?.getInt("id") ?: -1
+            NewNoteScreen(
+                navController = navController,
+                arguments = Arguments(id),
+                notesModel = null,
+                sharedPrefs = SharedPreferenceInstance(ctx)
+            )
         }
     }
 }

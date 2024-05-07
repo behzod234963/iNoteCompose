@@ -1,5 +1,6 @@
 package coder.behzod.data.implementations
 
+import androidx.lifecycle.LiveData
 import coder.behzod.data.local.room.NotesDao
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.repository.NotesRepository

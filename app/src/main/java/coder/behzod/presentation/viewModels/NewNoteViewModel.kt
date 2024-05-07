@@ -27,7 +27,7 @@ class NewNoteViewModel @Inject constructor(
     private val _note = MutableLiveData("")
     val note: LiveData<String> = _note
 
-    private fun getNote(id: Int) = viewModelScope.launch {
+    fun getNote(id: Int) = viewModelScope.launch {
         useCases.getNoteUseCase(id).also {
             _title.value = it.title
             _note.value = it.note

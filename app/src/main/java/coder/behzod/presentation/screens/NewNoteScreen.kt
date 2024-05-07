@@ -37,6 +37,7 @@ import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.presentation.items.ColorsItem
+import coder.behzod.presentation.navigation.Arguments
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.utils.constants.KEY_INDEX
@@ -50,14 +51,14 @@ import java.time.LocalDate
 @Composable
 fun NewNoteScreen(
     navController: NavController,
-    id:Int?,
+    arguments: Arguments,
     notesModel: NotesModel?,
     sharedPrefs: SharedPreferenceInstance,
     viewModel: NewNoteViewModel = hiltViewModel()
 ) {
     val ctx = LocalContext.current.applicationContext
     val note = remember { mutableStateOf( "" ) }
-    var title = remember { mutableStateOf( "" ) }
+    val title = remember { mutableStateOf( "" ) }
     val date = remember { mutableStateOf(LocalDate.now()) }
     val themeIndex =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
@@ -77,11 +78,16 @@ fun NewNoteScreen(
     }
     val color = remember { mutableStateOf(themeColor.value) }
     val scriptColor = remember { mutableStateOf(fontColor.value) }
-    if (id != -1){
+
+    if (arguments.id != -1){
+        viewModel.getNote(arguments.id)
         title.value = viewModel.title.value.toString()
         note.value = viewModel.note.value.toString()
+    }else{
+        title.value = ""
+        note.value = ""
     }
-    Log.d("debug", "$id screen")
+    Log.d("debug", "id: ${arguments.id}")
     Box(
         modifier = Modifier
             .fillMaxSize(),
@@ -184,27 +190,52 @@ fun NewNoteScreen(
             .align(Alignment.BottomEnd)
             .padding(bottom = 20.dp, end = 20.dp),
             onSave = {
-                viewModel.saveNote(
+                if (arguments.id != -1){
+                    viewModel.saveNote(
+                        NotesModel(
+                            id = arguments.id,
+                            title = title.value,
+                            note = note.value,
+                            color = color.value.toArgb(),
+                            dataAdded = date.value.toString()
+                        )
+                    )
+                }else{
+                    viewModel.saveNote(
+                        NotesModel(
+                            title = title.value,
+                            note = note.value,
+                            color = color.value.toArgb(),
+                            dataAdded = date.value.toString()
+                        )
+                    )
+                }
+                navController.navigate(ScreensRouter.MainScreenRoute.route)
+            }) {
+            if (arguments.id != -1){
+                viewModel.shareAndSaveNote(
+                    NotesModel(
+                        id = arguments.id,
+                        title = title.value,
+                        note = note.value,
+                        color = color.value.toArgb(),
+                        dataAdded = date.value.toString()
+                    ),
+                    text = "$title $note",
+                    ctx = ctx
+                )
+            }else{
+                viewModel.shareAndSaveNote(
                     NotesModel(
                         title = title.value,
                         note = note.value,
                         color = color.value.toArgb(),
                         dataAdded = date.value.toString()
-                    )
+                    ),
+                    text = "$title $note",
+                    ctx = ctx
                 )
-                navController.navigate(ScreensRouter.MainScreenRoute.route)
-            }) {
-            viewModel.shareAndSaveNote(
-                NotesModel(
-                    title = title.value,
-                    note = note.value,
-                    color = color.value.toArgb(),
-                    dataAdded = date.value.toString()
-                ),
-                text = "$title" +
-                        "$note",
-                ctx
-            )
+            }
         }
     }
 }
