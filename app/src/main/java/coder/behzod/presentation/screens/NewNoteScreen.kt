@@ -1,7 +1,6 @@
 package coder.behzod.presentation.screens
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -52,7 +51,6 @@ import java.time.LocalDate
 fun NewNoteScreen(
     navController: NavController,
     arguments: Arguments,
-    notesModel: NotesModel?,
     sharedPrefs: SharedPreferenceInstance,
     viewModel: NewNoteViewModel = hiltViewModel()
 ) {
@@ -60,34 +58,37 @@ fun NewNoteScreen(
     val note = remember { mutableStateOf( "" ) }
     val title = remember { mutableStateOf( "" ) }
     val date = remember { mutableStateOf(LocalDate.now()) }
+
     val themeIndex =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
     val colorTheme = if (themeIndex.intValue == 0) Color.Black else Color.White
     val themeColor = remember { mutableStateOf(colorTheme) }
+
     if (colorTheme == Color.Black) {
         themeColor.value = Color.Black
     } else {
         themeColor.value = Color.White
     }
+
     val colorFont = if (themeColor.value == Color.Black) Color.White else Color.Black
     val fontColor = remember { mutableStateOf(colorFont) }
+
     if (colorFont == Color.White) {
         fontColor.value = Color.White
     } else {
         fontColor.value = Color.Black
     }
+
     val color = remember { mutableStateOf(themeColor.value) }
     val scriptColor = remember { mutableStateOf(fontColor.value) }
 
     if (arguments.id != -1){
-        viewModel.getNote(arguments.id)
         title.value = viewModel.title.value.toString()
         note.value = viewModel.note.value.toString()
     }else{
-        title.value = ""
-        note.value = ""
+
     }
-    Log.d("debug", "id: ${arguments.id}")
+
     Box(
         modifier = Modifier
             .fillMaxSize(),
@@ -129,6 +130,7 @@ fun NewNoteScreen(
                 }
                 OutlinedTextField(
                     modifier = Modifier
+                        .fillMaxWidth()
                         .padding(5.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = color.value,

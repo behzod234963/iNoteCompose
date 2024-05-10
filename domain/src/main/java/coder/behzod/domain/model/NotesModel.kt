@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 data class NotesModel(
     @PrimaryKey(autoGenerate = true)
     val id:Int? = null,
-    val title:String? = null,
+    val title:String,
     val note:String,
     val color:Int,
     val dataAdded:String

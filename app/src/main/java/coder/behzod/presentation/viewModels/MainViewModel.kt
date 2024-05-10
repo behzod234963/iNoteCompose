@@ -1,10 +1,7 @@
 package coder.behzod.presentation.viewModels
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coder.behzod.domain.model.NotesModel
@@ -56,7 +53,7 @@ class MainViewModel @Inject constructor(
     }
     fun getNotes(notesOrder:NoteOrder){
         getNotesJob?.cancel()
-        getNotesJob = useCases.getNotesUseCase(noteOrder = notesOrder)
+        getNotesJob = useCases.getNotesUseCase.invoke(noteOrder = notesOrder)
             .onEach {
                 _state.value = state.value.copy(
                     notes = it,

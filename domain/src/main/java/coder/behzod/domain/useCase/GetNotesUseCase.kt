@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.map
 
 class GetNotesUseCase(private val repository: NotesRepository) {
     operator fun invoke(
-        model: NotesModel? = null,
         noteOrder: NoteOrder = NoteOrder.Date(OrderType.Descending)
     ): Flow<List<NotesModel>>
     {
@@ -17,24 +16,14 @@ class GetNotesUseCase(private val repository: NotesRepository) {
             when(noteOrder.orderType){
                 is OrderType.Ascending->{
                     when(noteOrder){
-                        is NoteOrder.Title-> if (model?.title == null){
-                            notes.sortedBy { it.note.lowercase() }
-                        }else{
-                            notes.sortedBy { it.title?.lowercase() }
-                        }
+                        is NoteOrder.Title-> notes.sortedBy { it.title}
                         is NoteOrder.Date-> notes.sortedBy { it.dataAdded }
                         is NoteOrder.Color-> notes.sortedBy { it.color }
                     }
                 }
                 is OrderType.Descending->{
                     when(noteOrder){
-                        is NoteOrder.Title-> {
-                            if (model?.title == null){
-                                notes.sortedByDescending { it.note.lowercase() }
-                            }else{
-                                notes.sortedByDescending { it.title?.lowercase() }
-                            }
-                        }
+                        is NoteOrder.Title-> { notes .sortedByDescending { it.title }}
                         is NoteOrder.Date-> notes.sortedByDescending { it.dataAdded }
                         is NoteOrder.Color-> notes.sortedByDescending { it.color }
                     }

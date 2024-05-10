@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coder.behzod.R
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.useCase.UseCases
@@ -27,11 +28,18 @@ class NewNoteViewModel @Inject constructor(
     private val _note = MutableLiveData("")
     val note: LiveData<String> = _note
 
-    fun getNote(id: Int) = viewModelScope.launch {
-        useCases.getNoteUseCase(id).also {
-            _title.value = it.title
-            _note.value = it.note
-        }
+    init {
+
+       viewModelScope.launch {
+           savedStateHandle.get<Int>("id")?.let {
+               if (it != -1){
+                   useCases.getNoteUseCase(it).also {notes->
+                       _title.value = notes.title
+                       _note.value = notes.note
+                   }
+               }
+           }
+       }
     }
 
     fun saveNote(note: NotesModel) = viewModelScope.launch {
