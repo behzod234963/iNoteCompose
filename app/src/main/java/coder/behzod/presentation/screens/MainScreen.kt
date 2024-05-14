@@ -9,19 +9,24 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Scaffold
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,7 +41,7 @@ import coder.behzod.presentation.items.MainScreenItem
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.constants.KEY_LIST_STATUS
-import coder.behzod.presentation.utils.helpers.NotesEvent
+import coder.behzod.presentation.utils.events.NotesEvent
 import coder.behzod.presentation.viewModels.MainViewModel
 import coder.behzod.presentation.views.ActionSnackbar
 import coder.behzod.presentation.views.MainTopAppBar
@@ -45,8 +50,10 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import kotlinx.coroutines.launch
 
-@SuppressLint("CoroutineCreationDuringComposition")
+
+@SuppressLint("CoroutineCreationDuringComposition", "UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun MainScreen(
     model: NotesModel? = null,
@@ -54,7 +61,6 @@ fun MainScreen(
     sharedPrefs: SharedPreferenceInstance,
     viewModel: MainViewModel = hiltViewModel()
 ) {
-
 
     val themeIndex =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
@@ -84,57 +90,22 @@ fun MainScreen(
     } else {
         isEmpty.value = false
     }
+
+    val coroutineScope = rememberCoroutineScope()
+    val scaffoldState = rememberScaffoldState()
+    val snackbarHostState = remember { SnackbarHostState() }
     val isDeleted = remember { mutableStateOf(false) }
     sharedPrefs.sharedPreferences.edit().putBoolean(KEY_LIST_STATUS, isEmpty.value).apply()
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(themeColor.value)
-                .padding(10.dp)
-        ) {
-            MainTopAppBar(
-                navController = navController,
-                backgroundColor = themeColor.value,
-                fontColor = fontColor.value,
-                noteOrder = state.value.noteOrder,
-                onOrderChange = {
-                    viewModel.onEvent(NotesEvent.Order(it))
-                }
-            )
-            Spacer(modifier = Modifier.height(5.dp))
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                items(
-                    items = state.value.notes,
-                    key = { it.toString() }) { notes ->
-                    SwipeToDeleteContainer(
-                        item = notes,
-                        onDelete = {
-                            viewModel.onEvent(NotesEvent.DeleteNote(it))
-                            isDeleted.value = true
-                        }
-                    ) { item ->
-                        MainScreenItem(
-                            notesModel = item,
-                            fontColor = fontColor.value,
-                            onClick = {
-                                navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/${item.id}")
-                            }
-                        )
-                    }
-                }
-            }
-        }
-        FloatingActionButton(
-            modifier = Modifier
-                .align(alignment = Alignment.BottomEnd)
-                .padding(end = 30.dp, bottom = 30.dp),
+    Scaffold(topBar = {
+        MainTopAppBar(navController = navController,
+            backgroundColor = themeColor.value,
+            fontColor = fontColor.value,
+            noteOrder = state.value.noteOrder,
+            onOrderChange = {
+                viewModel.onEvent(NotesEvent.Order(it))
+            })
+    }, floatingActionButton = {
+        FloatingActionButton(modifier = Modifier.padding(end = 30.dp, bottom = 30.dp),
             containerColor = Color.Magenta,
             shape = CircleShape,
             onClick = {
@@ -143,12 +114,10 @@ fun MainScreen(
                     Log.d("debug", "MainScreen: ${model?.id}")
                 }, 900)
                 isPlaying.value = true
-            }
-        ) {
+            }) {
             if (isPlaying.value) {
                 LottieAnimation(
-                    modifier = Modifier
-                        .matchParentSize(),
+                    modifier = Modifier,
                     composition = btnAddAnimation.value,
                     iterations = LottieConstants.IterateForever
                 )
@@ -160,20 +129,68 @@ fun MainScreen(
                 )
             }
         }
-        Box(modifier = Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.BottomEnd
-        ){
-            ActionSnackbar(
-                themeColor = themeColor.value,
-                fontColor = fontColor.value
+    },
+        scaffoldState = scaffoldState
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(themeColor.value)
+                    .padding(10.dp)
             ) {
-                viewModel.onEvent(NotesEvent.RestoreNote)
-                isDeleted.value = false
+                Spacer(modifier = Modifier.height(5.dp))
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(items = state.value.notes, key = { it.toString() }) { notes ->
+                        SwipeToDeleteContainer(item = notes, onDelete = {
+                            viewModel.onEvent(NotesEvent.DeleteNote(it))
+                            coroutineScope.launch {
+                                val result = snackbarHostState.showSnackbar(
+                                    message = "Snackbar Example",
+                                    actionLabel = "Action",
+                                    withDismissAction = true,
+                                    duration = SnackbarDuration.Short
+                                )
+                                when(result){
+                                    SnackbarResult.ActionPerformed->{
+                                        ActionSnackbar(
+                                            themeColor = themeColor.value,
+                                            fontColor = fontColor.value
+                                        ) {
+                                            viewModel.onEvent(NotesEvent.RestoreNote)
+                                        }
+                                    }
+                                    SnackbarResult.Dismissed->{
+
+                                    }
+                                }
+                            }
+                        }) { item ->
+                            MainScreenItem(
+                                notesModel = item,
+                                fontColor = fontColor.value,
+                                onClick = {
+                                    navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/${item.id}")
+                                })
+                        }
+                    }
+                }
             }
             if (isDeleted.value){
-                Handler().postDelayed({
-                    isDeleted.value = false
-                },2000)
+                SnackbarHost(
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                    hostState = snackbarHostState,
+                    snackbar = {
+                        ActionSnackbar(
+                            themeColor = themeColor.value,
+                            fontColor = fontColor.value
+                        ) {
+                            viewModel.onEvent(NotesEvent.RestoreNote)
+                        }
+                    }
+                )
             }
         }
     }

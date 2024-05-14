@@ -52,7 +52,7 @@ fun NavGraph() {
                 ) {
                     type = NavType.IntType
                     defaultValue = -1
-                }
+                },
             )
         ) { entry ->
             val id = entry.arguments?.getInt("id") ?: -1

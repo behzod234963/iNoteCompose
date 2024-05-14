@@ -26,4 +26,6 @@
     <string name="share_via">Поделится через</string>
     <string name="note_deleted">Заметка удалена</string>
     <string name="undo">Вернуть</string>
+    <string name="the_title_cannot_be_empty">Заголовок не можеть быть пустым</string>
+    <string name="note_is_cannot_be_empty">Заметка не может быть пустым</string>
 </resources>

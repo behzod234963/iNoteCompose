@@ -26,4 +26,6 @@
     <string name="share_via">Orqali ulashish</string>
     <string name="note_deleted">Qayd o\'chirildi</string>
     <string name="undo">Qaytarish</string>
+    <string name="the_title_cannot_be_empty">Sarlavha bo\'sh bo\'lishi mumkin emas</string>
+    <string name="note_is_cannot_be_empty">Qayd bo\'sh bo\'lishi mumkin emas</string>
 </resources>

@@ -57,7 +57,6 @@ fun MainTopAppBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(5.dp)
             .height(if (isOpened.value) 145.dp else 60.dp)
             .background(backgroundColor)
             .border(color = fontColor, width = 1.dp, shape = RoundedCornerShape(10.dp))

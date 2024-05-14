@@ -8,7 +8,7 @@ import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.useCase.UseCases
 import coder.behzod.domain.utils.NoteOrder
 import coder.behzod.domain.utils.OrderType
-import coder.behzod.presentation.utils.helpers.NotesEvent
+import coder.behzod.presentation.utils.events.NotesEvent
 import coder.behzod.presentation.utils.helpers.NotesState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -28,7 +28,7 @@ class MainViewModel @Inject constructor(
     init {
         getNotes(NoteOrder.Date(OrderType.Descending))
     }
-    fun onEvent(event:NotesEvent){
+    fun onEvent(event: NotesEvent){
         when(event){
             is NotesEvent.Order->{
                 if (state.value.noteOrder::class == event.noteOrder::class &&

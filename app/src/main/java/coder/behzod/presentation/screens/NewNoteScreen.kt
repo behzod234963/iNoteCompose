@@ -1,10 +1,10 @@
 package coder.behzod.presentation.screens
 
+import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Scaffold
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -19,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,11 +44,14 @@ import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.constants.colorList
+import coder.behzod.presentation.utils.events.NewNoteEvent
 import coder.behzod.presentation.viewModels.NewNoteViewModel
 import coder.behzod.presentation.views.FunctionalTopAppBar
 import coder.behzod.presentation.views.SpeedDialFAB
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NewNoteScreen(
@@ -54,9 +60,17 @@ fun NewNoteScreen(
     sharedPrefs: SharedPreferenceInstance,
     viewModel: NewNoteViewModel = hiltViewModel()
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    val scaffoldState = rememberScaffoldState()
+
     val ctx = LocalContext.current.applicationContext
-    val note = remember { mutableStateOf( "" ) }
-    val title = remember { mutableStateOf( "" ) }
+
+    val note = viewModel.note.value
+
+    val title = viewModel.title.value
+
+    val vmColor = viewModel.color.value
+
     val date = remember { mutableStateOf(LocalDate.now()) }
 
     val themeIndex =
@@ -82,162 +96,197 @@ fun NewNoteScreen(
     val color = remember { mutableStateOf(themeColor.value) }
     val scriptColor = remember { mutableStateOf(fontColor.value) }
 
-    if (arguments.id != -1){
-        title.value = viewModel.title.value.toString()
-        note.value = viewModel.note.value.toString()
-    }else{
 
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize(),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color.value),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+    Scaffold(
+        modifier = Modifier.background(if (arguments.id != -1) Color(vmColor) else themeColor.value),
+        floatingActionButton = {
+            SpeedDialFAB(modifier = Modifier.padding(bottom = 20.dp, end = 20.dp), onSave = {
+                if (title.text == "" && title.text.isBlank() ||
+                    note.text == "" && note.text.isBlank()
+                ) {
+                    coroutineScope.launch {
+                        scaffoldState.snackbarHostState.showSnackbar(
+                            message = if (title.text == "" && title.text.isBlank())
+                                ctx.getString(R.string.the_title_cannot_be_empty) else
+                                    ctx.getString(R.string.note_is_cannot_be_empty),
+                        )
+                    }
+                } else {
+                    if (arguments.id != -1) {
+                        viewModel.saveNote(
+                            NotesModel(
+                                id = arguments.id,
+                                title = title.text,
+                                note = note.text,
+                                color = color.value.toArgb(),
+                                dataAdded = date.value.toString()
+                            )
+                        )
+                    } else {
+                        viewModel.saveNote(
+                            NotesModel(
+                                title = title.text,
+                                note = note.text,
+                                color = color.value.toArgb(),
+                                dataAdded = date.value.toString()
+                            )
+                        )
+                    }
+                    navController.navigate(ScreensRouter.MainScreenRoute.route)
+                }
+            }) {
+                if (title.text == "" && title.text.isBlank() ||
+                    note.text == "" && note.text.isBlank()) {
+                    coroutineScope.launch {
+                        scaffoldState.snackbarHostState.showSnackbar(
+                            message = if (title.text == "" && title.text.isBlank())
+                                ctx.getString(R.string.the_title_cannot_be_empty) else
+                                ctx.getString(R.string.note_is_cannot_be_empty),
+                        )
+                    }
+                } else {
+                    if (arguments.id != -1) {
+                        viewModel.shareAndSaveNote(
+                            NotesModel(
+                                id = arguments.id,
+                                title = title.text,
+                                note = note.text,
+                                color = color.value.toArgb(),
+                                dataAdded = date.value.toString()
+                            ), text = "$title $note", ctx = ctx
+                        )
+                    } else {
+                        viewModel.shareAndSaveNote(
+                            NotesModel(
+                                title = title.text,
+                                note = note.text,
+                                color = color.value.toArgb(),
+                                dataAdded = date.value.toString()
+                            ), text = "$title $note", ctx = ctx
+                        )
+                    }
+                    navController.navigate(ScreensRouter.MainScreenRoute.route)
+                }
+            }
+        },
+        topBar = {
             FunctionalTopAppBar(
-                themeColor = color.value,
+                themeColor = if (arguments.id != -1) Color(vmColor) else color.value,
                 fontColor = scriptColor.value,
                 navController = navController,
                 sharedPrefs = sharedPrefs
             )
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = 10.dp),
+        },
+        scaffoldState = scaffoldState
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(if (arguments.id != -1) Color(vmColor) else color.value),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            LazyRow(
+                modifier = Modifier.height(70.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
             ) {
-                LazyRow(
-                    modifier = Modifier
-                        .height(70.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    items(colorList) {
-                        ColorsItem(color = it, fontColor = scriptColor.value, onClick = {
+                items(colorList) {
+                    ColorsItem(color = it, fontColor = scriptColor.value, onClick = {
+                        coroutineScope.launch {
                             color.value = it
-                            scriptColor.value = if (it == Color.White) {
-                                Color.Black
-                            } else {
-                                Color.White
+                            viewModel.newNoteEvent(NewNoteEvent.NoteBackground(it.toArgb()))
+                            when (it) {
+                                Color.Black -> {
+                                    scriptColor.value = Color.White
+                                }
+
+                                Color.White -> {
+                                    scriptColor.value = Color.Black
+                                }
+
+                                Color.Red -> {
+                                    scriptColor.value = Color.Black
+                                }
+
+                                Color.Magenta -> {
+                                    scriptColor.value = Color.Black
+                                }
+
+                                Color.Blue -> {
+                                    scriptColor.value = Color.White
+                                }
+
+                                Color.Cyan -> {
+                                    scriptColor.value = Color.Black
+                                }
+
+                                Color.DarkGray -> {
+                                    scriptColor.value = Color.White
+                                }
+
+                                Color.Green -> {
+                                    scriptColor.value = Color.Black
+                                }
+
+                                Color.Yellow -> {
+                                    scriptColor.value = Color.Black
+                                }
                             }
-                        })
-                    }
+                        }
+                    })
                 }
-                OutlinedTextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(5.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = color.value,
-                        unfocusedContainerColor = color.value
-                    ),
-                    textStyle = TextStyle(
-                        color = scriptColor.value,
-                        fontSize = 32.sp,
-                        textAlign = TextAlign.Companion.Left,
-                    ),
-                    value = title.value,
-                    onValueChange = {
-                        title.value = it
-                    },
-                    placeholder = {
-                        Text(
-                            text = stringResource(id = R.string.title),
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            fontFamily = FontFamily(fontAmidoneGrotesk),
-                            fontSize = 25.sp,
-                            color = fontColor.value
-                        )
-                    }
-                )
-                OutlinedTextField(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = 10.dp)
-                        .padding(5.dp),
-                    value = note.value,
-                    onValueChange = {
-                        note.value = it
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = color.value,
-                        unfocusedContainerColor = color.value
-                    ),
-                    textStyle = TextStyle(
-                        color = scriptColor.value,
-                        fontSize = 18.sp,
-                        textAlign = TextAlign.Start
-                    ),
-                    placeholder = {
-                        Text(
-                            text = stringResource(id = R.string.note),
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            fontSize = 25.sp,
-                            color = scriptColor.value,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                )
             }
-        }
-        SpeedDialFAB(modifier = Modifier
-            .align(Alignment.BottomEnd)
-            .padding(bottom = 20.dp, end = 20.dp),
-            onSave = {
-                if (arguments.id != -1){
-                    viewModel.saveNote(
-                        NotesModel(
-                            id = arguments.id,
-                            title = title.value,
-                            note = note.value,
-                            color = color.value.toArgb(),
-                            dataAdded = date.value.toString()
-                        )
+            OutlinedTextField(modifier = Modifier
+                .fillMaxWidth()
+                .padding(5.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = if (arguments.id != -1) Color(vmColor) else color.value,
+                    unfocusedContainerColor = if (arguments.id != -1) Color(vmColor) else color.value
+                ),
+                textStyle = TextStyle(
+                    color = scriptColor.value,
+                    fontSize = 32.sp,
+                    textAlign = TextAlign.Companion.Left,
+                ),
+                value = title.text,
+                onValueChange = {
+                    viewModel.newNoteEvent(NewNoteEvent.ChangedTitle(it))
+                },
+                placeholder = {
+                    Text(
+                        text = stringResource(id = R.string.title),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
+                        fontFamily = FontFamily(fontAmidoneGrotesk),
+                        fontSize = 25.sp,
+                        color = scriptColor.value
                     )
-                }else{
-                    viewModel.saveNote(
-                        NotesModel(
-                            title = title.value,
-                            note = note.value,
-                            color = color.value.toArgb(),
-                            dataAdded = date.value.toString()
-                        )
+                })
+            OutlinedTextField(modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 10.dp)
+                .padding(5.dp),
+                value = note.text,
+                onValueChange = {
+                    viewModel.newNoteEvent(NewNoteEvent.ChangedNote(it))
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = if (arguments.id != -1) Color(vmColor) else color.value,
+                    unfocusedContainerColor = if (arguments.id != -1) Color(vmColor) else color.value
+                ),
+                textStyle = TextStyle(
+                    color = scriptColor.value, fontSize = 18.sp, textAlign = TextAlign.Start
+                ),
+                placeholder = {
+                    Text(
+                        text = stringResource(id = R.string.note),
+                        modifier = Modifier.fillMaxWidth(),
+                        fontSize = 25.sp,
+                        color = scriptColor.value,
+                        textAlign = TextAlign.Center
                     )
-                }
-                navController.navigate(ScreensRouter.MainScreenRoute.route)
-            }) {
-            if (arguments.id != -1){
-                viewModel.shareAndSaveNote(
-                    NotesModel(
-                        id = arguments.id,
-                        title = title.value,
-                        note = note.value,
-                        color = color.value.toArgb(),
-                        dataAdded = date.value.toString()
-                    ),
-                    text = "$title $note",
-                    ctx = ctx
-                )
-            }else{
-                viewModel.shareAndSaveNote(
-                    NotesModel(
-                        title = title.value,
-                        note = note.value,
-                        color = color.value.toArgb(),
-                        dataAdded = date.value.toString()
-                    ),
-                    text = "$title $note",
-                    ctx = ctx
-                )
-            }
+                })
         }
     }
 }

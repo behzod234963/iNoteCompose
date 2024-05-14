@@ -25,4 +25,6 @@
     <string name="share_via">Share via</string>
     <string name="note_deleted">Note deleted</string>
     <string name="undo">Undo</string>
+    <string name="the_title_cannot_be_empty">Title cannot be empty</string>
+    <string name="note_is_cannot_be_empty">Note is cannot be empty</string>
 </resources>
