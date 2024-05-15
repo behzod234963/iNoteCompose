@@ -40,7 +40,10 @@ fun <T> SwipeToDeleteContainer(
             if (value == SwipeToDismissBoxValue.EndToStart) {
                 isRemoved.value = true
                 true
-            } else false
+            } else {
+                isRemoved.value = false
+                false
+            }
         }
     )
     LaunchedEffect(key1 = isRemoved.value) {

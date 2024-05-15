@@ -51,6 +51,10 @@ class MainViewModel @Inject constructor(
             }
         }
     }
+
+    fun saveNote(note:NotesModel) = viewModelScope.launch {
+        useCases.saveNoteUseCase(note)
+    }
     fun getNotes(notesOrder:NoteOrder){
         getNotesJob?.cancel()
         getNotesJob = useCases.getNotesUseCase.invoke(noteOrder = notesOrder)

@@ -91,6 +91,11 @@ fun MainScreen(
         isEmpty.value = false
     }
 
+    val id = remember { mutableIntStateOf(0) }
+    val title = remember { mutableStateOf("") }
+    val note = remember { mutableStateOf("") }
+    val data = remember { mutableStateOf("") }
+    val color = remember { mutableIntStateOf(0) }
     val coroutineScope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -146,24 +151,27 @@ fun MainScreen(
                     items(items = state.value.notes, key = { it.toString() }) { notes ->
                         SwipeToDeleteContainer(item = notes, onDelete = {
                             viewModel.onEvent(NotesEvent.DeleteNote(it))
-                            coroutineScope.launch {
-                                val result = snackbarHostState.showSnackbar(
-                                    message = "Snackbar Example",
-                                    actionLabel = "Action",
-                                    withDismissAction = true,
-                                    duration = SnackbarDuration.Short
-                                )
-                                when(result){
-                                    SnackbarResult.ActionPerformed->{
-                                        ActionSnackbar(
-                                            themeColor = themeColor.value,
-                                            fontColor = fontColor.value
-                                        ) {
-                                            viewModel.onEvent(NotesEvent.RestoreNote)
+                            isDeleted.value = true
+                            if (isDeleted.value) {
+                                coroutineScope.launch {
+                                    val result = snackbarHostState.showSnackbar(
+                                        message = "Snackbar Example",
+                                        actionLabel = "Action",
+                                        withDismissAction = true,
+                                        duration = SnackbarDuration.Short
+                                    )
+                                    when (result) {
+                                        SnackbarResult.ActionPerformed -> {
+                                            id.intValue = notes.id!!
+                                            title.value = notes.title
+                                            note.value = notes.note
+                                            color.intValue = notes.color
+                                            data.value = notes.dataAdded
                                         }
-                                    }
-                                    SnackbarResult.Dismissed->{
 
+                                        SnackbarResult.Dismissed -> {
+
+                                        }
                                     }
                                 }
                             }
@@ -178,7 +186,7 @@ fun MainScreen(
                     }
                 }
             }
-            if (isDeleted.value){
+            if (isDeleted.value) {
                 SnackbarHost(
                     modifier = Modifier.align(Alignment.BottomCenter),
                     hostState = snackbarHostState,
@@ -187,7 +195,15 @@ fun MainScreen(
                             themeColor = themeColor.value,
                             fontColor = fontColor.value
                         ) {
-                            viewModel.onEvent(NotesEvent.RestoreNote)
+                            viewModel.saveNote(
+                                NotesModel(
+                                    id = id.intValue,
+                                    title = title.value,
+                                    note = note.value,
+                                    color = color.intValue,
+                                    dataAdded = data.value
+                                )
+                            )
                         }
                     }
                 )
