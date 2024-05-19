@@ -2,6 +2,7 @@ package coder.behzod.presentation.viewModels
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coder.behzod.domain.model.NotesModel
@@ -19,14 +20,16 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val useCases: UseCases
+    private val useCases: UseCases,
 ):ViewModel(){
     private val _state = mutableStateOf(NotesState())
     val state : State<NotesState> = _state
-    private var recentlyDeleted:NotesModel? = null
     private var getNotesJob: Job? = null
+    private var _recentlyDeleted: NotesModel? = null
+
     init {
         getNotes(NoteOrder.Date(OrderType.Descending))
+        _recentlyDeleted
     }
     fun onEvent(event: NotesEvent){
         when(event){
@@ -40,13 +43,13 @@ class MainViewModel @Inject constructor(
             is NotesEvent.DeleteNote->{
                 viewModelScope.launch {
                     useCases.deleteUseCase(event.note)
-                    recentlyDeleted = event.note
+                    _recentlyDeleted = event.note
                 }
             }
             is NotesEvent.RestoreNote->{
                 viewModelScope.launch {
-                    useCases.saveNoteUseCase(recentlyDeleted ?: return@launch)
-                    recentlyDeleted = null
+                    useCases.saveNoteUseCase(_recentlyDeleted!!)
+                    _recentlyDeleted = null
                 }
             }
         }

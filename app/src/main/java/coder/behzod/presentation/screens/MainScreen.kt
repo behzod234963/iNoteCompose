@@ -157,16 +157,11 @@ fun MainScreen(
                                     val result = snackbarHostState.showSnackbar(
                                         message = "Snackbar Example",
                                         actionLabel = "Action",
-                                        withDismissAction = true,
                                         duration = SnackbarDuration.Short
                                     )
                                     when (result) {
                                         SnackbarResult.ActionPerformed -> {
-                                            id.intValue = notes.id!!
-                                            title.value = notes.title
-                                            note.value = notes.note
-                                            color.intValue = notes.color
-                                            data.value = notes.dataAdded
+                                            viewModel.onEvent(NotesEvent.RestoreNote)
                                         }
 
                                         SnackbarResult.Dismissed -> {
@@ -195,15 +190,7 @@ fun MainScreen(
                             themeColor = themeColor.value,
                             fontColor = fontColor.value
                         ) {
-                            viewModel.saveNote(
-                                NotesModel(
-                                    id = id.intValue,
-                                    title = title.value,
-                                    note = note.value,
-                                    color = color.intValue,
-                                    dataAdded = data.value
-                                )
-                            )
+                           viewModel.onEvent(NotesEvent.RestoreNote)
                         }
                     }
                 )

@@ -28,4 +28,8 @@
     <string name="undo">Вернуть</string>
     <string name="the_title_cannot_be_empty">Заголовок не можеть быть пустым</string>
     <string name="note_is_cannot_be_empty">Заметка не может быть пустым</string>
+    <string name="draft">Корзина</string>
+    <string name="deleted_notes">Удаленные заметки</string>
+    <string name="delete_selected_notes">Удалить выбранные заметки?</string>
+    <string name="cancel">Отмена</string>
 </resources>

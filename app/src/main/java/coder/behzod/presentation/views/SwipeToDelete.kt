@@ -62,6 +62,7 @@ fun <T> SwipeToDeleteContainer(
         SwipeToDismissBox(
             state = state,
             enableDismissFromEndToStart = true,
+            enableDismissFromStartToEnd = true,
             backgroundContent = {
                 DeleteBackground(swipeDismissState = state)
             }) {

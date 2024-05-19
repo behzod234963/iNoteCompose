@@ -28,4 +28,8 @@
     <string name="undo">Qaytarish</string>
     <string name="the_title_cannot_be_empty">Sarlavha bo\'sh bo\'lishi mumkin emas</string>
     <string name="note_is_cannot_be_empty">Qayd bo\'sh bo\'lishi mumkin emas</string>
+    <string name="draft">Savat</string>
+    <string name="deleted_notes">O\'chirilgan qaydlar</string>
+    <string name="delete_selected_notes">Tanlangan qaydlar o\'chirilsinmi?</string>
+    <string name="cancel">Rad etish</string>
 </resources>

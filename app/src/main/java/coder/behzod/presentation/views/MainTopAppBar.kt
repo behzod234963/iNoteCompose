@@ -9,14 +9,22 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +49,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MainTopAppBar(
     navController: NavController,
@@ -50,10 +59,15 @@ fun MainTopAppBar(
     onOrderChange: (NoteOrder) -> Unit
 ) {
     val isOpened = remember { mutableStateOf(false) }
+    val btnTrashAnimation = rememberLottieComposition(
+        spec = LottieCompositionSpec.RawRes(R.raw.btn_trash)
+    )
     val btnSettingsAnimation = rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(R.raw.settings_black)
     )
-    val isPlaying = remember { mutableStateOf(false) }
+    val isSettingsPlaying = remember { mutableStateOf(false) }
+    val isTrashPlaying = remember { mutableStateOf(false) }
+    val isExpanded = remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -72,6 +86,7 @@ fun MainTopAppBar(
                     is PassDataEvents.PassStatus -> {
                         isOpened.value = event.status
                     }
+                    is PassDataEvents.PassDeleteState -> TODO()
                 }
                 Column(
                     modifier = Modifier
@@ -83,15 +98,15 @@ fun MainTopAppBar(
                             .fillMaxWidth()
                             .background(backgroundColor)
                     ) {
-                        Row (
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceAround,
                             verticalAlignment = Alignment.CenterVertically
-                        ){
-                            Row (
+                        ) {
+                            Row(
                                 verticalAlignment = Alignment.CenterVertically
-                            ){
+                            ) {
                                 RadioButtonSkeleton(
                                     selected = noteOrder is NoteOrder.Title,
                                     onSelect = { onOrderChange(NoteOrder.Title(noteOrder.orderType)) },
@@ -105,9 +120,9 @@ fun MainTopAppBar(
                                     fontFamily = FontFamily(fontAmidoneGrotesk)
                                 )
                             }
-                            Row (
+                            Row(
                                 verticalAlignment = Alignment.CenterVertically
-                            ){
+                            ) {
                                 RadioButtonSkeleton(
                                     selected = noteOrder is NoteOrder.Date,
                                     onSelect = { onOrderChange(NoteOrder.Date(noteOrder.orderType)) },
@@ -121,9 +136,9 @@ fun MainTopAppBar(
                                     fontFamily = FontFamily(fontAmidoneGrotesk)
                                 )
                             }
-                            Row (
+                            Row(
                                 verticalAlignment = Alignment.CenterVertically
-                            ){
+                            ) {
                                 RadioButtonSkeleton(
                                     selected = noteOrder is NoteOrder.Color,
                                     onSelect = { onOrderChange(NoteOrder.Color(noteOrder.orderType)) },
@@ -138,14 +153,14 @@ fun MainTopAppBar(
                                 )
                             }
                         }
-                        Row (
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceAround,
-                        ){
-                            Row (
+                        ) {
+                            Row(
                                 verticalAlignment = Alignment.CenterVertically
-                            ){
+                            ) {
                                 RadioButtonSkeleton(
                                     selected = noteOrder.orderType is OrderType.Ascending,
                                     onSelect = { onOrderChange(noteOrder.copy(OrderType.Ascending)) },
@@ -159,9 +174,9 @@ fun MainTopAppBar(
                                     fontFamily = FontFamily(fontAmidoneGrotesk)
                                 )
                             }
-                            Row (
+                            Row(
                                 verticalAlignment = Alignment.CenterVertically
-                            ){
+                            ) {
                                 RadioButtonSkeleton(
                                     selected = noteOrder.orderType is OrderType.Descending,
                                     onSelect = { onOrderChange(noteOrder.copy(OrderType.Descending)) },
@@ -196,30 +211,131 @@ fun MainTopAppBar(
         }
         Box(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(top = 5.dp),
             contentAlignment = Alignment.CenterEnd
         ) {
-            IconButton(
-                onClick = {
-                    isPlaying.value = true
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        navController.navigate(ScreensRouter.SettingsScreenRoute.route)
-                    },1500)
-                }) {
-                if (isPlaying.value) {
-                    LottieAnimation(
-                        composition = btnSettingsAnimation.value,
-                        iterations = LottieConstants.IterateForever
-                        )
-                } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                IconButton(
+                    modifier = Modifier
+                        .align(Alignment.End),
+                    onClick = {
+                        isExpanded.value = true
+                    }
+                ) {
                     Icon(
-                        imageVector = Icons.Default.Settings,
-                        tint = fontColor,
-                        contentDescription = "icon more settings"
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "more functions",
+                        tint = fontColor
                     )
+                }
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.End)
+                ) {
+                    DropdownMenu(
+                        modifier = Modifier
+                            .width(150.dp)
+                            .align(Alignment.End),
+                        expanded = isExpanded.value,
+                        onDismissRequest = { isExpanded.value = false }
+                    ) {
+                        DropdownMenuItem(
+                            leadingIcon = {
+                                IconButton(
+                                    onClick = {
+                                        isTrashPlaying.value = true
+                                        if (isTrashPlaying.value) {
+                                            Handler(Looper.getMainLooper()).postDelayed({
+                                                navController.navigate(ScreensRouter.SettingsScreenRoute.route)
+                                                isTrashPlaying.value = false
+                                            }, 1000)
+                                        }
+                                    }
+                                ) {
+                                    if (isTrashPlaying.value) {
+                                        LottieAnimation(
+                                            modifier = Modifier
+                                                .size(35.dp),
+                                            composition = btnTrashAnimation.value,
+                                            iterations = LottieConstants.IterateForever
+                                        )
+                                    } else {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            tint = Color.Black,
+                                            contentDescription = "icon more settings"
+                                        )
+                                    }
+                                }
+                            },
+                            text = {
+                                Text(text = stringResource(R.string.draft))
+                            },
+                            onClick = {
+                                isTrashPlaying.value = true
+                                if (isTrashPlaying.value) {
+                                    Handler(Looper.getMainLooper()).postDelayed({
+                                        navController.navigate(ScreensRouter.SettingsScreenRoute.route)
+                                        isTrashPlaying.value = false
+                                    }, 1000)
+                                }
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = {
+                                Text(text = stringResource(R.string.draft))
+                            },
+                            onClick = {
+                                isSettingsPlaying.value = true
+                                if (isSettingsPlaying.value) {
+                                    Handler(Looper.getMainLooper()).postDelayed({
+                                        navController.navigate(ScreensRouter.SettingsScreenRoute.route)
+                                        isSettingsPlaying.value = false
+                                    }, 1500)
+                                }
+                            },
+                            leadingIcon = {
+                                IconButton(
+                                    onClick = {
+                                        isSettingsPlaying.value = true
+                                        if (isSettingsPlaying.value) {
+                                            Handler(Looper.getMainLooper()).postDelayed({
+                                                navController.navigate(ScreensRouter.SettingsScreenRoute.route)
+                                                isSettingsPlaying.value = false
+                                            }, 1500)
+                                        }
+                                    }
+                                ) {
+                                    if (isSettingsPlaying.value) {
+                                        LottieAnimation(
+                                            modifier = Modifier
+                                                .size(35.dp),
+                                            composition = btnSettingsAnimation.value,
+                                            iterations = LottieConstants.IterateForever
+                                        )
+                                    } else {
+                                        Icon(
+                                            imageVector = Icons.Default.Settings,
+                                            tint = Color.Black,
+                                            contentDescription = "icon more settings"
+                                        )
+                                    }
+                                }
+                            }
+                        )
+                    }
                 }
             }
         }
     }
 }
+//IconButton(
+//                onClick = {
+//
+//                }) {
+//
+//            }

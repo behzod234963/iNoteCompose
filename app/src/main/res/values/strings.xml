@@ -27,4 +27,8 @@
     <string name="undo">Undo</string>
     <string name="the_title_cannot_be_empty">Title cannot be empty</string>
     <string name="note_is_cannot_be_empty">Note is cannot be empty</string>
+    <string name="draft">Draft</string>
+    <string name="deleted_notes">Deleted notes</string>
+    <string name="delete_selected_notes">Delete selected notes?</string>
+    <string name="cancel">Cancel</string>
 </resources>
