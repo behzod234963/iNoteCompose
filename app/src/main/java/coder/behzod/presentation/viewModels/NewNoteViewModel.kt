@@ -12,7 +12,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coder.behzod.R
 import coder.behzod.domain.model.NotesModel
-import coder.behzod.domain.useCase.UseCases
+import coder.behzod.domain.useCase.notesUseCases.UseCases
 import coder.behzod.presentation.utils.constants.colorList
 import coder.behzod.presentation.utils.events.NewNoteEvent
 import coder.behzod.presentation.utils.helpers.NewNotesState

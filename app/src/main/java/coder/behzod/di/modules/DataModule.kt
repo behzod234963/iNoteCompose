@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.room.Room
 import coder.behzod.data.local.room.NotesDao
 import coder.behzod.data.local.room.RoomInstance
+import coder.behzod.data.local.room.TrashDao
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import dagger.Module
 import dagger.Provides
@@ -27,8 +28,11 @@ class DataModule {
 
     @Provides
     @Singleton
-    fun provideNotesDao(room:RoomInstance): NotesDao = room.dao
+    fun provideNotesDao(room:RoomInstance): NotesDao = room.notesdDao
 
+    @Provides
+    @Singleton
+    fun provideTrashDao(room:RoomInstance):TrashDao = room.trashDao
     @Provides
     @Singleton
     fun provideSharedPreferenceInstance(@ApplicationContext ctx: Context): SharedPreferenceInstance = SharedPreferenceInstance(

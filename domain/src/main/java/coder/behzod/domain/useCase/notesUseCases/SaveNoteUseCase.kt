@@ -1,4 +1,4 @@
-package coder.behzod.domain.useCase
+package coder.behzod.domain.useCase.notesUseCases
 
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.repository.NotesRepository

@@ -2,11 +2,10 @@ package coder.behzod.presentation.viewModels
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coder.behzod.domain.model.NotesModel
-import coder.behzod.domain.useCase.UseCases
+import coder.behzod.domain.useCase.notesUseCases.UseCases
 import coder.behzod.domain.utils.NoteOrder
 import coder.behzod.domain.utils.OrderType
 import coder.behzod.presentation.utils.events.NotesEvent
@@ -55,9 +54,6 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun saveNote(note:NotesModel) = viewModelScope.launch {
-        useCases.saveNoteUseCase(note)
-    }
     fun getNotes(notesOrder:NoteOrder){
         getNotesJob?.cancel()
         getNotesJob = useCases.getNotesUseCase.invoke(noteOrder = notesOrder)

@@ -1,4 +1,4 @@
-package coder.behzod.domain.useCase
+package coder.behzod.domain.useCase.notesUseCases
 
 data class UseCases(
     val deleteUseCase: DeleteNoteUseCase,

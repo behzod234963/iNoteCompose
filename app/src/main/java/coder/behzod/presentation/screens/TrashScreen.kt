@@ -3,28 +3,30 @@ package coder.behzod.presentation.screens
 import android.annotation.SuppressLint
 import android.os.Handler
 import android.os.Looper
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -46,11 +48,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.DialogProperties
+import androidx.hilt.navigation.compose.hiltViewModel
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
+import coder.behzod.domain.model.TrashModel
+import coder.behzod.presentation.items.TrashScreenItem
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.utils.constants.KEY_INDEX
+import coder.behzod.presentation.viewModels.TrashViewModel
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -61,9 +66,14 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 @Composable
 fun TrashScreen(
     sharedPrefs: SharedPreferenceInstance,
-    isSelected: Boolean = true
+    model: TrashModel,
+    viewModel: TrashViewModel = hiltViewModel(),
+    isSelected: Boolean = false
 ) {
 
+    val btnAddAnimation = rememberLottieComposition(
+        spec = LottieCompositionSpec.RawRes(resId = R.raw.btn_add)
+    )
     val btnCloseAnim = rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(R.raw.btn_close)
     )
@@ -87,22 +97,46 @@ fun TrashScreen(
         fontColor.value = Color.Black
     }
     val isTrashPlaying = remember { mutableStateOf(false) }
-    val selectedItems: ArrayList<String> = ArrayList()
+    val selectedItems: ArrayList<TrashModel> = ArrayList()
     val selectedItemsStatus = remember { mutableStateOf(false) }
-    val isItemsSelected = remember { mutableStateOf(isSelected) }
-    val isDialogVisible = remember { mutableStateOf(true) }
+    val isDialogVisible = remember { mutableStateOf(false) }
+    val isPlaying = remember { mutableStateOf(false) }
+    val isSelectedState = remember { mutableStateOf( isSelected ) }
 
     Scaffold(
         containerColor = themeColor.value,
         floatingActionButton = {
             if (isDialogVisible.value) {
-
+                FloatingActionButton(modifier = Modifier
+                    .padding(end = 30.dp, bottom = 30.dp),
+                    containerColor = Color.Magenta,
+                    shape = CircleShape,
+                    onClick = {
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            viewModel.deleteAll(selectedItems)
+                        }, 1000)
+                        isPlaying.value = true
+                    }) {
+                    if (isPlaying.value) {
+                        LottieAnimation(
+                            modifier = Modifier,
+                            composition = btnTrashAnimation.value,
+                            iterations = LottieConstants.IterateForever
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "button add",
+                            tint = fontColor.value
+                        )
+                    }
+                }
             }
         },
         modifier = Modifier
             .fillMaxSize(),
         topBar = {
-            if (isSelected) {
+            if (isSelectedState.value) {
                 TopAppBar(
                     modifier = Modifier
                         .border(
@@ -188,8 +222,8 @@ fun TrashScreen(
                                 isTrashPlaying.value = true
                                 if (isTrashPlaying.value) {
                                     Handler(Looper.getMainLooper()).postDelayed({
-                                        isDialogVisible.value = true
                                         isTrashPlaying.value = false
+                                        isDialogVisible.value = true
                                     }, 1000)
                                 }
                             }) {
@@ -203,7 +237,7 @@ fun TrashScreen(
                             } else {
                                 Icon(
                                     imageVector = Icons.Default.Delete,
-                                    tint = Color.Black,
+                                    tint = fontColor.value,
                                     contentDescription = "icon more settings"
                                 )
                             }
@@ -269,7 +303,7 @@ fun TrashScreen(
                                 ),
                                 shape = RoundedCornerShape(10.dp),
                                 onClick = {
-                                    /*TODO*/
+                                    isDialogVisible.value = false
                                 }
                             ) {
                                 Text(
@@ -300,6 +334,16 @@ fun TrashScreen(
                     }
                 )
             }
+        }else{
+            LazyColumn {
+                items(selectedItems){
+                    TrashScreenItem(
+                        model = model,
+                        fontColor = fontColor.value,
+                        isItemsChecked = it.isSelected
+                    )
+                }
+            }
         }
     }
 }
@@ -307,5 +351,8 @@ fun TrashScreen(
 @Preview
 @Composable
 private fun PreviewTrashScreen() {
-    TrashScreen(sharedPrefs = SharedPreferenceInstance(LocalContext.current))
+    TrashScreen(
+        sharedPrefs = SharedPreferenceInstance(LocalContext.current),
+        model = TrashModel(1, "", "", 1, "")
+    )
 }
