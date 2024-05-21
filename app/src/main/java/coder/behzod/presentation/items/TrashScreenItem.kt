@@ -3,7 +3,6 @@ package coder.behzod.presentation.items
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,19 +17,22 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import coder.behzod.R
 import coder.behzod.domain.model.TrashModel
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
+import coder.behzod.presentation.utils.events.TrashEvent
+import coder.behzod.presentation.viewModels.TrashViewModel
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -38,19 +40,15 @@ import coder.behzod.presentation.theme.fontAmidoneGrotesk
 fun TrashScreenItem(
     model: TrashModel,
     fontColor: Color,
-    isSelected: Boolean = true,
-    isItemsChecked: Boolean
+    viewModel: TrashViewModel = hiltViewModel()
 ) {
-    val isItemChecked = remember { mutableStateOf(isItemsChecked) }
+    val isSelected = viewModel.isSelected.value
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(170.dp)
             .padding(top = 10.dp)
-            .clickable {
-
-            }
     ) {
         Spacer(modifier = Modifier.height(10.dp))
         Row(
@@ -64,9 +62,9 @@ fun TrashScreenItem(
             Column(
                 modifier = Modifier
                     .combinedClickable (onLongClick = {
-                        isSelected = true
+                        viewModel.onEvent(TrashEvent.IsSelected(true))
                     }){
-
+                        return@combinedClickable
                     }
             ) {
                 Row(
@@ -82,9 +80,8 @@ fun TrashScreenItem(
                         fontSize = 25.sp,
                         fontFamily = FontFamily(fontAmidoneGrotesk)
                     )
-//          This is notes data added
                     Text(
-                        text = model.daysLeft,
+                        text = stringResource(R.string.days, model.daysLeft),
                         color = if (model.color == Color.Gray.toArgb()) Color.White else Color.Gray,
                         fontSize = 18.sp,
                         fontFamily = FontFamily(fontAmidoneGrotesk)
@@ -99,8 +96,10 @@ fun TrashScreenItem(
                     Text(
                         modifier = Modifier
                             .padding(start = 10.dp)
-                            .clickable {
-                                /*TODO*/
+                            .combinedClickable (onLongClick = {
+                                viewModel.onEvent(TrashEvent.IsSelected(true))
+                            }){
+                                return@combinedClickable
                             },
                         text = model.content,
                         color = fontColor,
@@ -119,7 +118,7 @@ fun TrashScreenItem(
                 Checkbox(
                     modifier = Modifier
                         .padding(end = 15.dp, bottom = 15.dp),
-                    checked = isItemChecked.value,
+                    checked = model.isSelected,
                     onCheckedChange = {
                         model.isSelected = it
                     }
@@ -134,8 +133,7 @@ fun TrashScreenItem(
 private fun PreviewTSI() {
     TrashScreenItem(
         model =
-        TrashModel(1, "dtyjnthy", "netynt", 1, "mnyju"),
-        fontColor = Color.White,
-        isItemsChecked = false
+        TrashModel(1, "dtyjnthy", "netynt", 1, 30),
+        fontColor = Color.White
     )
 }

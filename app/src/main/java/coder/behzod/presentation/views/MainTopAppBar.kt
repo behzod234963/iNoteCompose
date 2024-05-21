@@ -86,7 +86,6 @@ fun MainTopAppBar(
                     is PassDataEvents.PassStatus -> {
                         isOpened.value = event.status
                     }
-                    is PassDataEvents.PassDeleteState -> TODO()
                 }
                 Column(
                     modifier = Modifier
@@ -250,7 +249,7 @@ fun MainTopAppBar(
                                         isTrashPlaying.value = true
                                         if (isTrashPlaying.value) {
                                             Handler(Looper.getMainLooper()).postDelayed({
-                                                navController.navigate(ScreensRouter.SettingsScreenRoute.route)
+                                                navController.navigate(ScreensRouter.TrashScreen.route)
                                                 isTrashPlaying.value = false
                                             }, 1000)
                                         }
@@ -279,7 +278,7 @@ fun MainTopAppBar(
                                 isTrashPlaying.value = true
                                 if (isTrashPlaying.value) {
                                     Handler(Looper.getMainLooper()).postDelayed({
-                                        navController.navigate(ScreensRouter.SettingsScreenRoute.route)
+                                        navController.navigate(ScreensRouter.TrashScreen.route)
                                         isTrashPlaying.value = false
                                     }, 1000)
                                 }
@@ -287,7 +286,7 @@ fun MainTopAppBar(
                         )
                         DropdownMenuItem(
                             text = {
-                                Text(text = stringResource(R.string.draft))
+                                Text(text = stringResource(R.string.settings))
                             },
                             onClick = {
                                 isSettingsPlaying.value = true
@@ -333,9 +332,3 @@ fun MainTopAppBar(
         }
     }
 }
-//IconButton(
-//                onClick = {
-//
-//                }) {
-//
-//            }

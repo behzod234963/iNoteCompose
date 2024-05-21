@@ -1,7 +1,10 @@
 package coder.behzod.presentation.viewModels
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coder.behzod.domain.model.TrashModel
@@ -17,15 +20,22 @@ class TrashViewModel @Inject constructor (
 ): ViewModel() {
 
 
-    private val _isSelected = mutableStateOf(TrashEvent())
-    val isSelected: State<TrashEvent.IsSelected> = _isSelected
+    private val _isSelected = mutableStateOf(false)
+    val isSelected: State<Boolean> = _isSelected
+
+    private val _trashedNotes = MutableLiveData<ArrayList<TrashModel>>()
+    val trashedNotes:LiveData<ArrayList<TrashModel>> = _trashedNotes
     init {
         getNotes()
     }
 
     private fun getNotes() {
+        Log.d("fix", "TrashScreen: ${trashedNotes.value?.size}")
         viewModelScope.launch {
-            useCases.getTrashedNotes()
+            useCases.getTrashedNotes().collect{
+                it as ArrayList<TrashModel>
+                _trashedNotes.value = it
+            }
         }
     }
     fun delete(note:TrashModel) = viewModelScope.launch {
@@ -37,7 +47,7 @@ class TrashViewModel @Inject constructor (
     fun onEvent(event:TrashEvent){
         when(event){
             is TrashEvent.IsSelected->{
-                event.isSelected = true
+                _isSelected.value = event.isSelected
             }
         }
     }

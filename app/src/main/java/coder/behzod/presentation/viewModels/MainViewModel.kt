@@ -5,7 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coder.behzod.domain.model.NotesModel
+import coder.behzod.domain.model.TrashModel
 import coder.behzod.domain.useCase.notesUseCases.UseCases
+import coder.behzod.domain.useCase.trashUseCases.SaveToTrashUseCase
+import coder.behzod.domain.useCase.trashUseCases.TrashUseCases
 import coder.behzod.domain.utils.NoteOrder
 import coder.behzod.domain.utils.OrderType
 import coder.behzod.presentation.utils.events.NotesEvent
@@ -20,15 +23,14 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val useCases: UseCases,
+    private val trashUseCase: TrashUseCases
 ):ViewModel(){
     private val _state = mutableStateOf(NotesState())
     val state : State<NotesState> = _state
     private var getNotesJob: Job? = null
-    private var _recentlyDeleted: NotesModel? = null
 
     init {
         getNotes(NoteOrder.Date(OrderType.Descending))
-        _recentlyDeleted
     }
     fun onEvent(event: NotesEvent){
         when(event){
@@ -42,18 +44,14 @@ class MainViewModel @Inject constructor(
             is NotesEvent.DeleteNote->{
                 viewModelScope.launch {
                     useCases.deleteUseCase(event.note)
-                    _recentlyDeleted = event.note
-                }
-            }
-            is NotesEvent.RestoreNote->{
-                viewModelScope.launch {
-                    useCases.saveNoteUseCase(_recentlyDeleted!!)
-                    _recentlyDeleted = null
                 }
             }
         }
     }
 
+    fun saveToTrash(note: TrashModel) = viewModelScope.launch {
+        trashUseCase.saveToTrash(note)
+    }
     fun getNotes(notesOrder:NoteOrder){
         getNotesJob?.cancel()
         getNotesJob = useCases.getNotesUseCase.invoke(noteOrder = notesOrder)

@@ -21,4 +21,5 @@ interface NotesDao {
 
     @Query("SELECT * FROM notes WHERE id = :id")
     suspend fun getNote(id: Int): NotesModel
+
 }

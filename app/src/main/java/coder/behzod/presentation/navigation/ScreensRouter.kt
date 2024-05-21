@@ -6,4 +6,5 @@ sealed class ScreensRouter (val route:String){
     object SettingsScreenRoute: ScreensRouter("settings_screen")
     object SplashScreenRoute: ScreensRouter("splash_screen")
     object NewNoteScreenRoute: ScreensRouter("new_note_screen")
+    object TrashScreen:ScreensRouter("trash_screen_route")
 }

@@ -15,6 +15,7 @@ import coder.behzod.presentation.screens.MainScreen
 import coder.behzod.presentation.screens.NewNoteScreen
 import coder.behzod.presentation.screens.SettingsScreen
 import coder.behzod.presentation.screens.SplashScreens
+import coder.behzod.presentation.screens.TrashScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -60,6 +61,14 @@ fun NavGraph() {
                 navController = navController,
                 arguments = Arguments(id),
                 sharedPrefs = SharedPreferenceInstance(ctx)
+            )
+        }
+        composable(
+            ScreensRouter.TrashScreen.route
+        ){
+            TrashScreen(
+                sharedPrefs = SharedPreferenceInstance(ctx),
+                model = null
             )
         }
     }

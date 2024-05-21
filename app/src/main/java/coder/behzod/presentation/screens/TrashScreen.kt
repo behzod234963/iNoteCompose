@@ -3,6 +3,7 @@ package coder.behzod.presentation.screens
 import android.annotation.SuppressLint
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +24,7 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -66,7 +68,7 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 @Composable
 fun TrashScreen(
     sharedPrefs: SharedPreferenceInstance,
-    model: TrashModel,
+    model: TrashModel?,
     viewModel: TrashViewModel = hiltViewModel(),
     isSelected: Boolean = false
 ) {
@@ -98,6 +100,7 @@ fun TrashScreen(
     }
     val isTrashPlaying = remember { mutableStateOf(false) }
     val selectedItems: ArrayList<TrashModel> = ArrayList()
+    val trashedNotes = viewModel.trashedNotes.value
     val selectedItemsStatus = remember { mutableStateOf(false) }
     val isDialogVisible = remember { mutableStateOf(false) }
     val isPlaying = remember { mutableStateOf(false) }
@@ -321,7 +324,7 @@ fun TrashScreen(
                                 ),
                                 shape = RoundedCornerShape(10.dp),
                                 onClick = {
-                                    /*TODO*/
+                                    viewModel.deleteAll(selectedItems)
                                 }
                             ) {
                                 Text(
@@ -335,13 +338,20 @@ fun TrashScreen(
                 )
             }
         }else{
-            LazyColumn {
-                items(selectedItems){
-                    TrashScreenItem(
-                        model = model,
-                        fontColor = fontColor.value,
-                        isItemsChecked = it.isSelected
-                    )
+            Column (
+                verticalArrangement = Arrangement.SpaceAround
+            ){
+                LazyColumn {
+                    if(trashedNotes != null){
+                        Log.d("fix", "TrashScreen: ${trashedNotes.size}")
+                        items(trashedNotes) {
+                            Log.d("fix", "TrashScreen: ${trashedNotes.size}")
+                            TrashScreenItem(
+                                model = it,
+                                fontColor = fontColor.value
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -353,6 +363,6 @@ fun TrashScreen(
 private fun PreviewTrashScreen() {
     TrashScreen(
         sharedPrefs = SharedPreferenceInstance(LocalContext.current),
-        model = TrashModel(1, "", "", 1, "")
+        model = TrashModel(1, "", "", 1, 30)
     )
 }

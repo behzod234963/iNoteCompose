@@ -15,4 +15,7 @@ class TrashRepositoryImpl(private val trashDao: TrashDao) :TrashRepository {
     }
 
     override fun getTrashedNotes(): Flow<List<TrashModel>> = trashDao.getTrashedNotes()
+    override suspend fun saveToTrash(notesModel: TrashModel) {
+        trashDao.saveToTrash(notesModel)
+    }
 }

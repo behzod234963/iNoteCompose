@@ -32,4 +32,5 @@
     <string name="deleted_notes">Удаленные заметки</string>
     <string name="delete_selected_notes">Удалить выбранные заметки?</string>
     <string name="cancel">Отмена</string>
+    <string name="days">%1$s день</string>
 </resources>
