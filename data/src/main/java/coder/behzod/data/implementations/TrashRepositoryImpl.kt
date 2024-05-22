@@ -10,7 +10,7 @@ class TrashRepositoryImpl(private val trashDao: TrashDao) :TrashRepository {
         trashDao.delete(note)
     }
 
-    override suspend fun deleteAll(notes: ArrayList<TrashModel>) {
+    override suspend fun deleteAll(notes: List<TrashModel>) {
         trashDao.deleteAll(notes)
     }
 

@@ -4,11 +4,14 @@ import android.annotation.SuppressLint
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,7 +27,6 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -57,20 +59,21 @@ import coder.behzod.domain.model.TrashModel
 import coder.behzod.presentation.items.TrashScreenItem
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.utils.constants.KEY_INDEX
+import coder.behzod.presentation.utils.events.TrashEvent
 import coder.behzod.presentation.viewModels.TrashViewModel
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import kotlin.math.log
 
-@OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "MutableCollectionMutableState")
 @Composable
 fun TrashScreen(
     sharedPrefs: SharedPreferenceInstance,
     model: TrashModel?,
     viewModel: TrashViewModel = hiltViewModel(),
-    isSelected: Boolean = false
 ) {
 
     val btnAddAnimation = rememberLottieComposition(
@@ -99,30 +102,34 @@ fun TrashScreen(
         fontColor.value = Color.Black
     }
     val isTrashPlaying = remember { mutableStateOf(false) }
-    val selectedItems: ArrayList<TrashModel> = ArrayList()
+    val selectedItems = remember { mutableStateOf(ArrayList<TrashModel>()) }
+    selectedItems.value = ArrayList()
     val trashedNotes = viewModel.trashedNotes.value
     val selectedItemsStatus = remember { mutableStateOf(false) }
     val isDialogVisible = remember { mutableStateOf(false) }
     val isPlaying = remember { mutableStateOf(false) }
-    val isSelectedState = remember { mutableStateOf( isSelected ) }
+    val isSelected = viewModel.isSelected.value
 
     Scaffold(
         containerColor = themeColor.value,
         floatingActionButton = {
-            if (isDialogVisible.value) {
+            if (isSelected) {
                 FloatingActionButton(modifier = Modifier
                     .padding(end = 30.dp, bottom = 30.dp),
                     containerColor = Color.Magenta,
                     shape = CircleShape,
                     onClick = {
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            viewModel.deleteAll(selectedItems)
-                        }, 1000)
                         isPlaying.value = true
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            isPlaying.value = false
+                            isDialogVisible.value = true
+                            viewModel.deleteAll(selectedItems.value)
+                        }, 1000)
                     }) {
                     if (isPlaying.value) {
                         LottieAnimation(
-                            modifier = Modifier,
+                            modifier = Modifier
+                                .size(35.dp),
                             composition = btnTrashAnimation.value,
                             iterations = LottieConstants.IterateForever
                         )
@@ -139,7 +146,7 @@ fun TrashScreen(
         modifier = Modifier
             .fillMaxSize(),
         topBar = {
-            if (isSelectedState.value) {
+            if (isSelected) {
                 TopAppBar(
                     modifier = Modifier
                         .border(
@@ -153,7 +160,7 @@ fun TrashScreen(
                     ),
                     title = {
                         Text(
-                            text = "${selectedItems.size} items selected",
+                            text = "${selectedItems.value.size} items selected",
                             color = fontColor.value,
                             fontSize = 18.sp,
                             fontFamily = FontFamily(fontAmidoneGrotesk)
@@ -173,7 +180,7 @@ fun TrashScreen(
                                     selectedItemsStatus.value = false
                                 }, 1000)
                             }
-                            selectedItems.clear()
+                            selectedItems.value.clear()
                         }) {
                             if (selectedItemsStatus.value) {
                                 LottieAnimation(
@@ -291,6 +298,7 @@ fun TrashScreen(
                     },
                     onDismissRequest = {
                         isDialogVisible.value = false
+                        viewModel.onEvent(TrashEvent.IsSelected(false))
                     },
                     buttons = {
                         Row(
@@ -307,6 +315,7 @@ fun TrashScreen(
                                 shape = RoundedCornerShape(10.dp),
                                 onClick = {
                                     isDialogVisible.value = false
+                                    viewModel.onEvent(TrashEvent.IsSelected(false))
                                 }
                             ) {
                                 Text(
@@ -324,7 +333,8 @@ fun TrashScreen(
                                 ),
                                 shape = RoundedCornerShape(10.dp),
                                 onClick = {
-                                    viewModel.deleteAll(selectedItems)
+                                    viewModel.deleteAll(selectedItems.value)
+                                    isDialogVisible.value = false
                                 }
                             ) {
                                 Text(
@@ -341,15 +351,28 @@ fun TrashScreen(
             Column (
                 verticalArrangement = Arrangement.SpaceAround
             ){
-                LazyColumn {
+                Spacer(modifier = Modifier.height(60.dp))
+                LazyColumn (
+                    modifier = Modifier
+                        .combinedClickable (onLongClick = {
+                            viewModel.onEvent(TrashEvent.IsSelected(true))
+                        }){
+                            return@combinedClickable
+                        }
+                ){
                     if(trashedNotes != null){
-                        Log.d("fix", "TrashScreen: ${trashedNotes.size}")
-                        items(trashedNotes) {
-                            Log.d("fix", "TrashScreen: ${trashedNotes.size}")
+                        items(trashedNotes) {model->
                             TrashScreenItem(
-                                model = it,
-                                fontColor = fontColor.value
+                                model = model,
+                                fontColor = fontColor.value,
+                                isSelected = isSelected
                             )
+                            trashedNotes.forEach{
+                                if (it.isSelected){
+                                    selectedItems.value.add(it)
+                                    Log.d("fix", "TrashScreen: ${selectedItems.value.size}")
+                                }
+                            }
                         }
                     }
                 }

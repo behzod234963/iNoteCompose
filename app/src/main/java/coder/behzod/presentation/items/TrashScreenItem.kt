@@ -3,7 +3,6 @@ package coder.behzod.presentation.items
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +16,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,12 +28,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import coder.behzod.R
 import coder.behzod.domain.model.TrashModel
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
-import coder.behzod.presentation.utils.events.TrashEvent
-import coder.behzod.presentation.viewModels.TrashViewModel
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -40,10 +38,10 @@ import coder.behzod.presentation.viewModels.TrashViewModel
 fun TrashScreenItem(
     model: TrashModel,
     fontColor: Color,
-    viewModel: TrashViewModel = hiltViewModel()
+    isSelected: Boolean = false
 ) {
-    val isSelected = viewModel.isSelected.value
 
+    val isItemSelected = remember { mutableStateOf( false ) }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -59,14 +57,7 @@ fun TrashScreenItem(
                 .background(Color(model.color))
                 .border(width = 1.dp, color = fontColor, shape = RoundedCornerShape(20.dp))
         ) {
-            Column(
-                modifier = Modifier
-                    .combinedClickable (onLongClick = {
-                        viewModel.onEvent(TrashEvent.IsSelected(true))
-                    }){
-                        return@combinedClickable
-                    }
-            ) {
+            Column {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -95,12 +86,7 @@ fun TrashScreenItem(
 //          This is notes text
                     Text(
                         modifier = Modifier
-                            .padding(start = 10.dp)
-                            .combinedClickable (onLongClick = {
-                                viewModel.onEvent(TrashEvent.IsSelected(true))
-                            }){
-                                return@combinedClickable
-                            },
+                            .padding(start = 10.dp),
                         text = model.content,
                         color = fontColor,
                         fontSize = 18.sp,
@@ -118,9 +104,10 @@ fun TrashScreenItem(
                 Checkbox(
                     modifier = Modifier
                         .padding(end = 15.dp, bottom = 15.dp),
-                    checked = model.isSelected,
+                    checked = isItemSelected.value,
                     onCheckedChange = {
-                        model.isSelected = it
+                        isItemSelected.value = it
+                        model.isSelected = isItemSelected.value
                     }
                 )
             }
