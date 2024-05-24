@@ -22,5 +22,4 @@ data class TrashModel(
     val content: String,
     val color: Int,
     val daysLeft: Int,
-    var isSelected:Boolean = false
 )

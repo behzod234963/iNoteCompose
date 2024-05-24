@@ -44,12 +44,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -59,13 +57,11 @@ import coder.behzod.domain.model.TrashModel
 import coder.behzod.presentation.items.TrashScreenItem
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.utils.constants.KEY_INDEX
-import coder.behzod.presentation.utils.events.TrashEvent
 import coder.behzod.presentation.viewModels.TrashViewModel
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
-import kotlin.math.log
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "MutableCollectionMutableState")
@@ -75,45 +71,43 @@ fun TrashScreen(
     model: TrashModel?,
     viewModel: TrashViewModel = hiltViewModel(),
 ) {
-
-    val btnAddAnimation = rememberLottieComposition(
-        spec = LottieCompositionSpec.RawRes(resId = R.raw.btn_add)
-    )
     val btnCloseAnim = rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(R.raw.btn_close)
     )
     val btnTrashAnimation = rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(R.raw.btn_trash)
     )
+
     val themeIndex =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
     val colorTheme = if (themeIndex.intValue == 0) Color.Black else Color.White
     val themeColor = remember { mutableStateOf(colorTheme) }
-    if (colorTheme == Color.Black) {
-        themeColor.value = Color.Black
-    } else {
-        themeColor.value = Color.White
-    }
+
+    if (colorTheme == Color.Black) themeColor.value = Color.Black else themeColor.value =
+        Color.White
+
     val colorFont = if (themeColor.value == Color.Black) Color.White else Color.Black
     val fontColor = remember { mutableStateOf(colorFont) }
-    if (colorFont == Color.White) {
-        fontColor.value = Color.White
-    } else {
-        fontColor.value = Color.Black
-    }
+
+    if (colorFont == Color.White) fontColor.value = Color.White else fontColor.value = Color.Black
+
     val isTrashPlaying = remember { mutableStateOf(false) }
-    val selectedItems = remember { mutableStateOf(ArrayList<TrashModel>()) }
-    selectedItems.value = ArrayList()
-    val trashedNotes = viewModel.trashedNotes.value
-    val selectedItemsStatus = remember { mutableStateOf(false) }
     val isDialogVisible = remember { mutableStateOf(false) }
     val isPlaying = remember { mutableStateOf(false) }
-    val isSelected = viewModel.isSelected.value
+
+    val selectedItems = viewModel.selectedItems.value
+    val selectedItemsCount = remember { mutableIntStateOf(0) }
+    val trashedNotes = viewModel.trashedNotes.value
+
+    val selectedItemsStatus = remember { mutableStateOf(false) }
+    val isSelected = remember { mutableStateOf( false ) }
+
+    val isTrashedNotesDeleted = remember { mutableStateOf( false ) }
 
     Scaffold(
         containerColor = themeColor.value,
         floatingActionButton = {
-            if (isSelected) {
+            if (isSelected.value) {
                 FloatingActionButton(modifier = Modifier
                     .padding(end = 30.dp, bottom = 30.dp),
                     containerColor = Color.Magenta,
@@ -123,7 +117,8 @@ fun TrashScreen(
                         Handler(Looper.getMainLooper()).postDelayed({
                             isPlaying.value = false
                             isDialogVisible.value = true
-                            viewModel.deleteAll(selectedItems.value)
+                            viewModel.deleteAll(selectedItems)
+                            isTrashedNotesDeleted.value = false
                         }, 1000)
                     }) {
                     if (isPlaying.value) {
@@ -146,7 +141,7 @@ fun TrashScreen(
         modifier = Modifier
             .fillMaxSize(),
         topBar = {
-            if (isSelected) {
+            if (isSelected.value) {
                 TopAppBar(
                     modifier = Modifier
                         .border(
@@ -160,7 +155,8 @@ fun TrashScreen(
                     ),
                     title = {
                         Text(
-                            text = "${selectedItems.value.size} items selected",
+                            text = if (selectedItemsCount.intValue == 0) "0 items selected"
+                            else "${selectedItemsCount.intValue} items selected",
                             color = fontColor.value,
                             fontSize = 18.sp,
                             fontFamily = FontFamily(fontAmidoneGrotesk)
@@ -175,12 +171,14 @@ fun TrashScreen(
                     },
                     actions = {
                         IconButton(onClick = {
+                            selectedItemsStatus.value = true
                             if (selectedItemsStatus.value) {
                                 Handler(Looper.getMainLooper()).postDelayed({
                                     selectedItemsStatus.value = false
+                                    isSelected.value = false
                                 }, 1000)
                             }
-                            selectedItems.value.clear()
+
                         }) {
                             if (selectedItemsStatus.value) {
                                 LottieAnimation(
@@ -234,6 +232,8 @@ fun TrashScreen(
                                     Handler(Looper.getMainLooper()).postDelayed({
                                         isTrashPlaying.value = false
                                         isDialogVisible.value = true
+                                        isTrashedNotesDeleted.value = true
+                                        viewModel.deleteAll(trashedNotes)
                                     }, 1000)
                                 }
                             }) {
@@ -298,7 +298,7 @@ fun TrashScreen(
                     },
                     onDismissRequest = {
                         isDialogVisible.value = false
-                        viewModel.onEvent(TrashEvent.IsSelected(false))
+                        isSelected.value = false
                     },
                     buttons = {
                         Row(
@@ -315,7 +315,7 @@ fun TrashScreen(
                                 shape = RoundedCornerShape(10.dp),
                                 onClick = {
                                     isDialogVisible.value = false
-                                    viewModel.onEvent(TrashEvent.IsSelected(false))
+                                    isSelected.value = false
                                 }
                             ) {
                                 Text(
@@ -333,7 +333,12 @@ fun TrashScreen(
                                 ),
                                 shape = RoundedCornerShape(10.dp),
                                 onClick = {
-                                    viewModel.deleteAll(selectedItems.value)
+                                    if(isTrashedNotesDeleted.value){
+                                        viewModel.deleteAll(trashedNotes)
+                                    }else{
+                                        viewModel.deleteAll(selectedItems)
+                                    }
+                                    selectedItemsCount.intValue = selectedItems.size
                                     isDialogVisible.value = false
                                 }
                             ) {
@@ -347,45 +352,38 @@ fun TrashScreen(
                     }
                 )
             }
-        }else{
-            Column (
+        } else {
+            Column(
                 verticalArrangement = Arrangement.SpaceAround
-            ){
+            ) {
                 Spacer(modifier = Modifier.height(60.dp))
-                LazyColumn (
+                LazyColumn(
                     modifier = Modifier
-                        .combinedClickable (onLongClick = {
-                            viewModel.onEvent(TrashEvent.IsSelected(true))
-                        }){
+                        .combinedClickable(onLongClick = {
+                            isSelected.value = true
+                        }) {
                             return@combinedClickable
                         }
-                ){
-                    if(trashedNotes != null){
-                        items(trashedNotes) {model->
-                            TrashScreenItem(
-                                model = model,
-                                fontColor = fontColor.value,
-                                isSelected = isSelected
-                            )
-                            trashedNotes.forEach{
-                                if (it.isSelected){
-                                    selectedItems.value.add(it)
-                                    Log.d("fix", "TrashScreen: ${selectedItems.value.size}")
+                ) {
+                    items(trashedNotes) { selectedModel ->
+                        TrashScreenItem(
+                            model = selectedModel,
+                            fontColor = fontColor.value,
+                            isSelected = isSelected.value,
+                            onChange = {
+                                if (it == 1) {
+                                    viewModel.addToList(selectedModel)
+                                    selectedItemsCount.intValue = selectedItems.size
+                                    Log.d("fix", "TrashScreen: ${selectedItems.size}")
+                                } else {
+                                    viewModel.removeFromList(selectedModel)
+                                    selectedItemsCount.intValue = selectedItems.size
                                 }
                             }
-                        }
+                        )
                     }
                 }
             }
         }
     }
-}
-
-@Preview
-@Composable
-private fun PreviewTrashScreen() {
-    TrashScreen(
-        sharedPrefs = SharedPreferenceInstance(LocalContext.current),
-        model = TrashModel(1, "", "", 1, 30)
-    )
 }

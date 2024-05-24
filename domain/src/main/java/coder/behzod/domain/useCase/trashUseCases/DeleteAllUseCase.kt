@@ -5,7 +5,7 @@ import coder.behzod.domain.repository.TrashRepository
 
 class DeleteAllUseCase (private val repository: TrashRepository){
 
-    suspend operator fun invoke(notes:List<TrashModel>){
+    suspend operator fun invoke(notes:ArrayList<TrashModel>){
         repository.deleteAll(notes)
     }
 }

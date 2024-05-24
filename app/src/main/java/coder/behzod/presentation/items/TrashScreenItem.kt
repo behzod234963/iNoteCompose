@@ -3,6 +3,7 @@ package coder.behzod.presentation.items
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,7 +26,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coder.behzod.R
@@ -38,10 +38,11 @@ import coder.behzod.presentation.theme.fontAmidoneGrotesk
 fun TrashScreenItem(
     model: TrashModel,
     fontColor: Color,
-    isSelected: Boolean = false
+    onChange: (Int) -> Unit,
+    isSelected: Boolean = false,
 ) {
 
-    val isItemSelected = remember { mutableStateOf( false ) }
+    val isItemSelected = remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -53,6 +54,7 @@ fun TrashScreenItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(150.dp)
+                .clickable {  }
                 .clip(RoundedCornerShape(20.dp))
                 .background(Color(model.color))
                 .border(width = 1.dp, color = fontColor, shape = RoundedCornerShape(20.dp))
@@ -107,20 +109,10 @@ fun TrashScreenItem(
                     checked = isItemSelected.value,
                     onCheckedChange = {
                         isItemSelected.value = it
-                        model.isSelected = isItemSelected.value
+                        onChange( if (it) 1 else 0 )
                     }
                 )
             }
         }
     }
-}
-
-@Preview
-@Composable
-private fun PreviewTSI() {
-    TrashScreenItem(
-        model =
-        TrashModel(1, "dtyjnthy", "netynt", 1, 30),
-        fontColor = Color.White
-    )
 }

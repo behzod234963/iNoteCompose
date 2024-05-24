@@ -44,7 +44,6 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -154,7 +153,8 @@ fun MainScreen(
                                 fontColor = fontColor.value,
                                 onClick = {
                                     navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/${item.id}")
-                                })
+                                }
+                            )
                         }
                     }
                 }
