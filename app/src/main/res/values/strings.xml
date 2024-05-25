@@ -32,4 +32,8 @@
     <string name="delete_selected_notes">Delete selected notes?</string>
     <string name="cancel">Cancel</string>
     <string name="days">%1$s days</string>
+    <string name="delete_all_notes">Delete all notes</string>
+    <string name="action_with_a_note">Action with a note</string>
+    <string name="delete">Delete</string>
+    <string name="restore">Restore</string>
 </resources>

@@ -39,6 +39,8 @@ fun TrashScreenItem(
     model: TrashModel,
     fontColor: Color,
     onChange: (Int) -> Unit,
+    isDialogVisible: (Boolean) -> Unit,
+    selectedContent: (Int) -> Unit,
     isSelected: Boolean = false,
 ) {
 
@@ -53,8 +55,11 @@ fun TrashScreenItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .clickable {
+                    isDialogVisible(true)
+                    selectedContent(3)
+                }
                 .height(150.dp)
-                .clickable {  }
                 .clip(RoundedCornerShape(20.dp))
                 .background(Color(model.color))
                 .border(width = 1.dp, color = fontColor, shape = RoundedCornerShape(20.dp))
@@ -68,12 +73,22 @@ fun TrashScreenItem(
                 ) {
 //          This is notes title
                     Text(
+                        modifier = Modifier
+                            .clickable {
+                                isDialogVisible(true)
+                                selectedContent(3)
+                            },
                         text = model.title,
                         color = fontColor,
                         fontSize = 25.sp,
                         fontFamily = FontFamily(fontAmidoneGrotesk)
                     )
                     Text(
+                        modifier = Modifier
+                            .clickable {
+                                isDialogVisible(true)
+                                selectedContent(3)
+                            },
                         text = stringResource(R.string.days, model.daysLeft),
                         color = if (model.color == Color.Gray.toArgb()) Color.White else Color.Gray,
                         fontSize = 18.sp,
@@ -88,7 +103,11 @@ fun TrashScreenItem(
 //          This is notes text
                     Text(
                         modifier = Modifier
-                            .padding(start = 10.dp),
+                            .padding(start = 10.dp)
+                            .clickable {
+                                isDialogVisible(true)
+                                selectedContent(3)
+                            },
                         text = model.content,
                         color = fontColor,
                         fontSize = 18.sp,
@@ -109,7 +128,7 @@ fun TrashScreenItem(
                     checked = isItemSelected.value,
                     onCheckedChange = {
                         isItemSelected.value = it
-                        onChange( if (it) 1 else 0 )
+                        onChange(if (it) 1 else 0)
                     }
                 )
             }

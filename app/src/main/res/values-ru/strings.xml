@@ -33,4 +33,8 @@
     <string name="delete_selected_notes">Удалить выбранные заметки?</string>
     <string name="cancel">Отмена</string>
     <string name="days">%1$s день</string>
+    <string name="delete_all_notes">Удалить все заметки ?</string>
+    <string name="action_with_a_note">Действие с заметкой</string>
+    <string name="delete">Удалить</string>
+    <string name="restore">Восстановить</string>
 </resources>

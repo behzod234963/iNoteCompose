@@ -1,13 +1,14 @@
 package coder.behzod.presentation.screens
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -53,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
+import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.model.TrashModel
 import coder.behzod.presentation.items.TrashScreenItem
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
@@ -62,7 +64,9 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import java.time.LocalDate
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "MutableCollectionMutableState")
 @Composable
@@ -100,9 +104,20 @@ fun TrashScreen(
     val trashedNotes = viewModel.trashedNotes.value
 
     val selectedItemsStatus = remember { mutableStateOf(false) }
-    val isSelected = remember { mutableStateOf( false ) }
+    val isSelected = remember { mutableStateOf(false) }
 
-    val isTrashedNotesDeleted = remember { mutableStateOf( false ) }
+    val isTrashedNotesDeleted = remember { mutableIntStateOf(1) }
+
+    val trashedNote = remember {
+        mutableStateOf(
+            TrashModel(
+                title = "",
+                content = "",
+                color = 1,
+                daysLeft = 1
+            )
+        )
+    }
 
     Scaffold(
         containerColor = themeColor.value,
@@ -118,7 +133,7 @@ fun TrashScreen(
                             isPlaying.value = false
                             isDialogVisible.value = true
                             viewModel.deleteAll(selectedItems)
-                            isTrashedNotesDeleted.value = false
+                            isTrashedNotesDeleted.intValue = 2
                         }, 1000)
                     }) {
                     if (isPlaying.value) {
@@ -232,8 +247,7 @@ fun TrashScreen(
                                     Handler(Looper.getMainLooper()).postDelayed({
                                         isTrashPlaying.value = false
                                         isDialogVisible.value = true
-                                        isTrashedNotesDeleted.value = true
-                                        viewModel.deleteAll(trashedNotes)
+                                        isTrashedNotesDeleted.intValue = 1
                                     }, 1000)
                                 }
                             }) {
@@ -289,7 +303,23 @@ fun TrashScreen(
                             )
                             Text(
                                 textAlign = TextAlign.Center,
-                                text = stringResource(R.string.delete_selected_notes),
+                                text = when (isTrashedNotesDeleted.intValue) {
+                                    1 -> {
+                                        stringResource(id = R.string.delete_all_notes)
+                                    }
+
+                                    2 -> {
+                                        stringResource(id = R.string.delete_selected_notes)
+                                    }
+
+                                    3 -> {
+                                        stringResource(R.string.action_with_a_note)
+                                    }
+
+                                    else -> {
+                                        ""
+                                    }
+                                },
                                 color = fontColor.value,
                                 fontSize = 23.sp,
                                 fontFamily = FontFamily(fontAmidoneGrotesk)
@@ -314,12 +344,28 @@ fun TrashScreen(
                                 ),
                                 shape = RoundedCornerShape(10.dp),
                                 onClick = {
-                                    isDialogVisible.value = false
-                                    isSelected.value = false
+                                    if (isTrashedNotesDeleted.intValue == 3) {
+                                        viewModel.restoreNote(
+                                            trashModel = trashedNote.value,
+                                            note = NotesModel(
+                                                id = trashedNote.value.id,
+                                                title = trashedNote.value.title,
+                                                note = trashedNote.value.content,
+                                                color = trashedNote.value.color,
+                                                dataAdded = LocalDate.now().toString()
+                                            )
+                                        )
+                                        isDialogVisible.value = false
+                                        isSelected.value = false
+                                    } else {
+                                        isDialogVisible.value = false
+                                        isSelected.value = false
+                                    }
                                 }
                             ) {
                                 Text(
-                                    text = stringResource(R.string.cancel),
+                                    text = if (isTrashedNotesDeleted.intValue != 3) stringResource(R.string.cancel)
+                                    else stringResource(R.string.restore),
                                     color = themeColor.value,
                                     fontSize = 18.sp
                                 )
@@ -333,17 +379,28 @@ fun TrashScreen(
                                 ),
                                 shape = RoundedCornerShape(10.dp),
                                 onClick = {
-                                    if(isTrashedNotesDeleted.value){
-                                        viewModel.deleteAll(trashedNotes)
-                                    }else{
-                                        viewModel.deleteAll(selectedItems)
+                                    when (isTrashedNotesDeleted.intValue) {
+                                        1 -> {
+                                            viewModel.deleteAll(trashedNotes)
+                                        }
+
+                                        2 -> {
+                                            viewModel.deleteAll(selectedItems)
+                                        }
+
+                                        3 -> {
+                                            viewModel.delete(trashedNote.value)
+                                        }
                                     }
                                     selectedItemsCount.intValue = selectedItems.size
                                     isDialogVisible.value = false
                                 }
                             ) {
                                 Text(
-                                    text = "Ok",
+                                    text = if (isTrashedNotesDeleted.intValue == 1
+                                        || isTrashedNotesDeleted.intValue == 2
+                                    ) "Ok"
+                                    else stringResource(R.string.delete),
                                     color = themeColor.value,
                                     fontSize = 18.sp
                                 )
@@ -359,17 +416,18 @@ fun TrashScreen(
                 Spacer(modifier = Modifier.height(60.dp))
                 LazyColumn(
                     modifier = Modifier
-                        .combinedClickable(onLongClick = {
-                            isSelected.value = true
-                        }) {
-                            return@combinedClickable
-                        }
+//                        .combinedClickable(
+//                            onLongClick = {
+//                                isSelected.value = true
+//                            }) {
+//                            return@combinedClickable
+//                        }
                 ) {
                     items(trashedNotes) { selectedModel ->
+                        trashedNote.value = selectedModel
                         TrashScreenItem(
                             model = selectedModel,
                             fontColor = fontColor.value,
-                            isSelected = isSelected.value,
                             onChange = {
                                 if (it == 1) {
                                     viewModel.addToList(selectedModel)
@@ -379,7 +437,10 @@ fun TrashScreen(
                                     viewModel.removeFromList(selectedModel)
                                     selectedItemsCount.intValue = selectedItems.size
                                 }
-                            }
+                            },
+                            isDialogVisible = { isDialogVisible.value = it },
+                            selectedContent = { isTrashedNotesDeleted.intValue = it },
+                            isSelected = isSelected.value
                         )
                     }
                 }

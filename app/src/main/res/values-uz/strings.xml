@@ -33,4 +33,8 @@
     <string name="delete_selected_notes">Tanlangan qaydlar o\'chirilsinmi?</string>
     <string name="cancel">Rad etish</string>
     <string name="days">kun</string>
+    <string name="delete_all_notes">Hamma qaydlarni o\'chirish</string>
+    <string name="action_with_a_note">Qayd bilan amal ?</string>
+    <string name="delete">O\'chirish</string>
+    <string name="restore">Qayta tiklash</string>
 </resources>
