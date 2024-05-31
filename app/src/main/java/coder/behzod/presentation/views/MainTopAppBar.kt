@@ -247,34 +247,6 @@ fun MainTopAppBar(
                         onDismissRequest = { isExpanded.value = false }
                     ) {
                         DropdownMenuItem(
-                            leadingIcon = {
-                                IconButton(
-                                    onClick = {
-                                        isTrashPlaying.value = true
-                                        if (isTrashPlaying.value) {
-                                            Handler(Looper.getMainLooper()).postDelayed({
-                                                navController.navigate(ScreensRouter.TrashScreen.route)
-                                                isTrashPlaying.value = false
-                                            }, 1000)
-                                        }
-                                    }
-                                ) {
-                                    if (isTrashPlaying.value) {
-                                        LottieAnimation(
-                                            modifier = Modifier
-                                                .size(35.dp),
-                                            composition = btnTrashAnimation.value,
-                                            iterations = LottieConstants.IterateForever
-                                        )
-                                    } else {
-                                        Icon(
-                                            imageVector = Icons.Default.Delete,
-                                            tint = Color.Black,
-                                            contentDescription = "icon more settings"
-                                        )
-                                    }
-                                }
-                            },
                             text = {
                                 Text(text = stringResource(R.string.draft))
                             },

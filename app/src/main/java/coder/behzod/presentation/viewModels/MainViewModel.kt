@@ -1,5 +1,6 @@
 package coder.behzod.presentation.viewModels
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -12,6 +13,7 @@ import coder.behzod.domain.useCase.trashUseCases.TrashUseCases
 import coder.behzod.domain.utils.NoteOrder
 import coder.behzod.domain.utils.OrderType
 import coder.behzod.presentation.utils.events.NotesEvent
+import coder.behzod.presentation.utils.events.TrashEvent
 import coder.behzod.presentation.utils.helpers.NotesState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -25,9 +27,18 @@ class MainViewModel @Inject constructor(
     private val useCases: UseCases,
     private val trashUseCase: TrashUseCases
 ):ViewModel(){
+
     private val _state = mutableStateOf(NotesState())
     val state : State<NotesState> = _state
+
     private var getNotesJob: Job? = null
+
+    private val _selectAllStatus = mutableStateOf( false )
+    val selectAllStatus:State<Boolean> = _selectAllStatus
+
+    @SuppressLint("MutableCollectionMutableState")
+    private val _selectedNotes = mutableStateOf( ArrayList<NotesModel>() )
+    val selectedNotes:State<ArrayList<NotesModel>> = _selectedNotes
 
     init {
         getNotes(NoteOrder.Date(OrderType.Descending))
@@ -46,7 +57,19 @@ class MainViewModel @Inject constructor(
                     useCases.deleteUseCase(event.note)
                 }
             }
+
+            is NotesEvent.SelectAllStatus -> {
+                _selectAllStatus.value = event.status
+            }
         }
+    }
+
+    fun addAllToList(notes:ArrayList<NotesModel>) = viewModelScope.launch {
+        _selectedNotes.value.addAll(notes)
+    }
+
+    fun addNoteToList(note:NotesModel) = viewModelScope.launch {
+        _selectedNotes.value.add(note)
     }
 
     fun saveToTrash(note: TrashModel) = viewModelScope.launch {

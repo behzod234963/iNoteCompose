@@ -1,9 +1,12 @@
 package coder.behzod.presentation.items
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,25 +14,39 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
+import coder.behzod.presentation.viewModels.MainViewModel
+import java.time.LocalDate
 
 @Composable
 fun MainScreenItem(
     notesModel: NotesModel,
     fontColor: Color,
-    onClick:()->Unit
+    isSelected:Boolean,
+    onCheckedChange:(Int)->Unit,
+    onClick:()->Unit,
+    viewModel:MainViewModel = hiltViewModel()
 ) {
+
+    val selectAllStatus = viewModel.selectAllStatus.value
+    val isItemSelected = remember { mutableStateOf( false ) }
+    val isAllItemsSelected = remember { mutableStateOf( true ) }
+
     val colorFont = remember { mutableStateOf(
         when(notesModel.color){
             -1->{
@@ -53,6 +70,7 @@ fun MainScreenItem(
             }
         }
     ) }
+
     Row (
         modifier = Modifier
             .fillMaxWidth()
@@ -114,5 +132,41 @@ fun MainScreenItem(
                 }
             }
         }
+        if (isSelected){
+            Box(
+                contentAlignment = Alignment.BottomEnd
+            ){
+                Checkbox(
+                    checked = if (selectAllStatus) isAllItemsSelected.value
+                    else isItemSelected.value,
+                    onCheckedChange = {
+                        if (selectAllStatus){
+                            isAllItemsSelected.value = it
+                        }else{
+                            isItemSelected.value = it
+                        }
+                        onCheckedChange(if (it) 0 else 1)
+                    }
+                )
+            }
+        }
     }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview
+@Composable
+private fun PreviewMSI() {
+    MainScreenItem(
+        notesModel = NotesModel(
+            title = "Behzod",
+            note = "Xudoybergenov",
+            dataAdded = LocalDate.now().toString(),
+            color = -1
+        ),
+        fontColor = Color.Black,
+        onClick = {},
+        onCheckedChange = {},
+        isSelected = true
+    )
 }

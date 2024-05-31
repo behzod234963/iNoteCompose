@@ -3,7 +3,10 @@ package coder.behzod.presentation.screens
 import android.annotation.SuppressLint
 import android.os.Handler
 import android.os.Looper
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -30,6 +33,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
+import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.model.TrashModel
 import coder.behzod.presentation.items.MainScreenItem
 import coder.behzod.presentation.navigation.ScreensRouter
@@ -50,6 +54,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @SuppressLint("CoroutineCreationDuringComposition", "UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun MainScreen(
@@ -62,13 +67,16 @@ fun MainScreen(
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
     val colorTheme = if (themeIndex.intValue == 0) Color.Black else Color.White
     val themeColor = remember { mutableStateOf(colorTheme) }
+
     if (colorTheme == Color.Black) {
         themeColor.value = Color.Black
     } else {
         themeColor.value = Color.White
     }
+
     val colorFont = if (themeColor.value == Color.Black) Color.White else Color.Black
     val fontColor = remember { mutableStateOf(colorFont) }
+
     if (colorFont == Color.White) {
         fontColor.value = Color.White
     } else {
@@ -77,19 +85,29 @@ fun MainScreen(
 
     val state = viewModel.state
     viewModel.getNotes(state.value.noteOrder)
+
     val btnAddAnimation = rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(resId = R.raw.btn_add)
     )
+
     val isPlaying = remember { mutableStateOf(false) }
     val isEmpty = remember { mutableStateOf(false) }
+
     if (state.value.notes.isEmpty()) {
         isEmpty.value = true
     } else {
         isEmpty.value = false
     }
+
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
     sharedPrefs.sharedPreferences.edit().putBoolean(KEY_LIST_STATUS, isEmpty.value).apply()
+
+    val isSelected = remember { mutableStateOf( false ) }
+
+    val selectedNotes = viewModel.selectedNotes.value
+    val selectedNotesCount = remember { mutableIntStateOf( 0 ) }
+
     Scaffold(
         bottomBar = {
             BottomNavigationView(
@@ -145,7 +163,15 @@ fun MainScreen(
             ) {
                 Spacer(modifier = Modifier.height(5.dp))
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .combinedClickable (
+                            onLongClick = {
+                                isSelected.value = true
+                            }
+                        ){
+                            return@combinedClickable
+                        }
                 ) {
                     items(items = state.value.notes, key = { it.toString() }) { notes ->
                         SwipeToDeleteContainer(item = notes, onDelete = {
@@ -166,8 +192,18 @@ fun MainScreen(
                             MainScreenItem(
                                 notesModel = item,
                                 fontColor = fontColor.value,
+                                isSelected = isSelected.value,
                                 onClick = {
                                     navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/${item.id}")
+                                },
+                                onCheckedChange = {
+                                    if (it == 0){
+                                        viewModel.addNoteToList(item)
+                                        selectedNotesCount.intValue = selectedNotes.size
+                                    }else{
+                                        viewModel.addAllToList(state.value.notes as ArrayList<NotesModel>)
+                                        selectedNotesCount.intValue = selectedNotes.size
+                                    }
                                 }
                             )
                         }
