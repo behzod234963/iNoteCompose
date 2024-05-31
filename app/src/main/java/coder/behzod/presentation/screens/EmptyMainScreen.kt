@@ -28,6 +28,7 @@ import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.utils.constants.KEY_INDEX
+import coder.behzod.presentation.views.BottomNavigationView
 import coder.behzod.presentation.views.MainTopAppBar
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -65,6 +66,13 @@ fun EmptyMainScreen(
 
     Scaffold (
         modifier = Modifier,
+        bottomBar = {
+          BottomNavigationView(
+              themeColor = themeColor.value,
+              fontColor = fontColor.value,
+              navController = navController
+          )
+        },
         topBar = {
             MainTopAppBar(
                 navController = navController,
@@ -74,8 +82,6 @@ fun EmptyMainScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                modifier = Modifier
-                    .padding(end = 15.dp, bottom = 15.dp),
                 shape = CircleShape,
                 containerColor = Color.Magenta,
                 onClick = {
@@ -102,6 +108,7 @@ fun EmptyMainScreen(
     ){
         Column(
             modifier = Modifier
+                .fillMaxSize()
                 .background(themeColor.value)
         ) {
             LottieAnimation(

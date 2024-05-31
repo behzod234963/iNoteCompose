@@ -2,14 +2,18 @@ package coder.behzod.presentation.views
 
 import android.os.Handler
 import android.os.Looper
+import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
+import androidx.compose.material.LocalContentColor
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -40,9 +44,15 @@ fun BottomNavigationView(
     navController: NavController
 ) {
 
+    val interactionSource = remember { MutableInteractionSource() }
+
     val isNotesAnimPlaying = remember { mutableStateOf(false) }
     val isTrashAnimPlaying = remember { mutableStateOf(false) }
     val isSettingsAnimPlaying = remember { mutableStateOf(false) }
+
+    val isNotesSelected = remember { mutableStateOf(false) }
+    val isTrashSelected = remember { mutableStateOf(false) }
+    val isSettingsSelected = remember { mutableStateOf(false) }
 
     val btnNotesAnimation = rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(R.raw.btn_notes)
@@ -54,10 +64,9 @@ fun BottomNavigationView(
         spec = LottieCompositionSpec.RawRes(R.raw.settings_black)
     )
 
-    val isNotesSelected = remember { mutableStateOf(true) }
-    val isTrashSelected = remember { mutableStateOf(false) }
-    val isSettingsSelected = remember { mutableStateOf(false) }
     BottomNavigation(
+        modifier = Modifier
+            .border(width = 1.dp, shape = RoundedCornerShape(10.dp), color = fontColor),
         backgroundColor = themeColor,
         contentColor = fontColor,
         elevation = 50.dp,
@@ -78,6 +87,8 @@ fun BottomNavigationView(
                     isSettingsSelected.value = false
 
                     isNotesAnimPlaying.value = true
+                    isTrashAnimPlaying.value = false
+                    isSettingsAnimPlaying.value = false
 
                     Handler(Looper.getMainLooper()).postDelayed({
                         isNotesAnimPlaying.value = false
@@ -88,14 +99,14 @@ fun BottomNavigationView(
                     if (isNotesAnimPlaying.value) {
                         LottieAnimation(
                             modifier = Modifier
-                                .size(30.dp),
+                                .size(40.dp),
                             composition = btnNotesAnimation.value,
                             iterations = LottieConstants.IterateForever
                         )
                     } else {
                         Icon(
                             modifier = Modifier
-                                .size(30.dp),
+                                .size(40.dp),
                             painter = painterResource(id = R.drawable.ic_notes),
                             contentDescription = "all notes",
                             tint = fontColor
@@ -107,8 +118,8 @@ fun BottomNavigationView(
                         text = stringResource(id = R.string.all_notes)
                     )
                 },
-                alwaysShowLabel = false,
-                selectedContentColor = fontColor,
+                alwaysShowLabel = true,
+                selectedContentColor = LocalContentColor.current,
                 unselectedContentColor = Color.Transparent
             )
             BottomNavigationItem(
@@ -120,6 +131,8 @@ fun BottomNavigationView(
                     isNotesSelected.value = false
 
                     isTrashAnimPlaying.value = true
+                    isNotesAnimPlaying.value = false
+                    isSettingsAnimPlaying.value = false
 
                     Handler(Looper.getMainLooper()).postDelayed({
                         isTrashAnimPlaying.value = false
@@ -130,14 +143,14 @@ fun BottomNavigationView(
                     if (isTrashAnimPlaying.value) {
                         LottieAnimation(
                             modifier = Modifier
-                                .size(30.dp),
+                                .size(40.dp),
                             composition = btnTrashAnimation.value,
                             iterations = LottieConstants.IterateForever
                         )
                     } else {
                         Icon(
                             modifier = Modifier
-                                .size(30.dp),
+                                .size(40.dp),
                             imageVector = Icons.Default.Delete,
                             contentDescription = "trashed notes",
                             tint = fontColor
@@ -149,8 +162,8 @@ fun BottomNavigationView(
                         text = stringResource(id = R.string.draft)
                     )
                 },
-                alwaysShowLabel = false,
-                selectedContentColor = fontColor,
+                alwaysShowLabel = true,
+                selectedContentColor = LocalContentColor.current,
                 unselectedContentColor = Color.Transparent
             )
             BottomNavigationItem(
@@ -160,10 +173,12 @@ fun BottomNavigationView(
                     isNotesSelected.value = false
                     isTrashSelected.value = false
 
-                    isNotesAnimPlaying.value = true
+                    isNotesAnimPlaying.value = false
+                    isTrashAnimPlaying.value = false
+                    isSettingsAnimPlaying.value = true
 
                     Handler(Looper.getMainLooper()).postDelayed({
-                        isNotesAnimPlaying.value = false
+                        isSettingsAnimPlaying.value = true
                         navController.navigate(route = ScreensRouter.SettingsScreenRoute.route)
                     }, 1000)
                 },
@@ -171,14 +186,14 @@ fun BottomNavigationView(
                     if (isSettingsAnimPlaying.value) {
                         LottieAnimation(
                             modifier = Modifier
-                                .size(30.dp),
+                                .size(40.dp),
                             composition = btnSettingsAnimation.value,
                             iterations = LottieConstants.IterateForever
                         )
                     } else {
                         Icon(
                             modifier = Modifier
-                                .size(30.dp),
+                                .size(40.dp),
                             imageVector = Icons.Default.Settings,
                             contentDescription = "all notes",
                             tint = fontColor
@@ -190,8 +205,8 @@ fun BottomNavigationView(
                         text = stringResource(id = R.string.settings)
                     )
                 },
-                alwaysShowLabel = false,
-                selectedContentColor = fontColor,
+                alwaysShowLabel = true,
+                selectedContentColor = LocalContentColor.current,
                 unselectedContentColor = Color.Transparent
             )
         }

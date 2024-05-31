@@ -70,8 +70,6 @@ fun SplashScreens(
     val isEmpty = remember {
         mutableStateOf(sharedPrefs.sharedPreferences.getBoolean(KEY_LIST_STATUS, true))
     }
-    val isSplashVisible = remember { mutableStateOf( true ) }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -103,12 +101,8 @@ fun SplashScreens(
         delay(2500)
         if (isEmpty.value) {
             navController.navigate(ScreensRouter.EmptyMainScreenRoute.route)
-            isSplashVisible.value = false
-            sharedPrefs.sharedPreferences.edit().putBoolean(KEY_SPLASH_VISIBILITY,isSplashVisible.value).apply()
         } else {
             navController.navigate(ScreensRouter.MainScreenRoute.route)
-            isSplashVisible.value = false
-            sharedPrefs.sharedPreferences.edit().putBoolean(KEY_SPLASH_VISIBILITY,isSplashVisible.value).apply()
         }
     }
 }

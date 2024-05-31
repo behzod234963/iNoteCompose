@@ -38,6 +38,7 @@ import coder.behzod.presentation.utils.constants.KEY_LIST_STATUS
 import coder.behzod.presentation.utils.constants.deletedNotes
 import coder.behzod.presentation.utils.events.NotesEvent
 import coder.behzod.presentation.viewModels.MainViewModel
+import coder.behzod.presentation.views.BottomNavigationView
 import coder.behzod.presentation.views.MainTopAppBar
 import coder.behzod.presentation.views.SwipeToDeleteContainer
 import com.airbnb.lottie.compose.LottieAnimation
@@ -90,41 +91,49 @@ fun MainScreen(
     val coroutineScope = rememberCoroutineScope()
     sharedPrefs.sharedPreferences.edit().putBoolean(KEY_LIST_STATUS, isEmpty.value).apply()
     Scaffold(
+        bottomBar = {
+            BottomNavigationView(
+                themeColor = themeColor.value,
+                fontColor = fontColor.value,
+                navController = navController
+            )
+        },
         topBar = {
-        MainTopAppBar(navController = navController,
-            backgroundColor = themeColor.value,
-            fontColor = fontColor.value,
-            noteOrder = state.value.noteOrder,
-            onOrderChange = {
-                viewModel.onEvent(NotesEvent.Order(it))
-            })
-    }, floatingActionButton = {
-        FloatingActionButton(
-            modifier = Modifier
-                .padding(end = 30.dp, bottom = 30.dp),
-            containerColor = Color.Magenta,
-            shape = CircleShape,
-            onClick = {
-                Handler(Looper.getMainLooper()).postDelayed({
-                    navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/-1")
-                }, 900)
-                isPlaying.value = true
-            }) {
-            if (isPlaying.value) {
-                LottieAnimation(
-                    modifier = Modifier,
-                    composition = btnAddAnimation.value,
-                    iterations = LottieConstants.IterateForever
-                )
-            } else {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_add),
-                    contentDescription = "button add",
-                    tint = fontColor.value
-                )
+            MainTopAppBar(navController = navController,
+                backgroundColor = themeColor.value,
+                fontColor = fontColor.value,
+                noteOrder = state.value.noteOrder,
+                onOrderChange = {
+                    viewModel.onEvent(NotesEvent.Order(it))
+                })
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                modifier = Modifier
+                    .padding(end = 30.dp, bottom = 30.dp),
+                containerColor = Color.Magenta,
+                shape = CircleShape,
+                onClick = {
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/-1")
+                    }, 900)
+                    isPlaying.value = true
+                }) {
+                if (isPlaying.value) {
+                    LottieAnimation(
+                        modifier = Modifier,
+                        composition = btnAddAnimation.value,
+                        iterations = LottieConstants.IterateForever
+                    )
+                } else {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_add),
+                        contentDescription = "button add",
+                        tint = fontColor.value
+                    )
+                }
             }
-        }
-    },
+        },
         scaffoldState = scaffoldState
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -148,7 +157,7 @@ fun MainScreen(
                                     daysLeft = 30,
                                 )
                             )
-                            coroutineScope.launch (Dispatchers.IO){
+                            coroutineScope.launch(Dispatchers.IO) {
                                 delay(1000)
                                 deletedNotes.add(it)
                                 viewModel.onEvent(NotesEvent.DeleteNote(it))

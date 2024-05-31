@@ -56,6 +56,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
@@ -67,6 +68,7 @@ import coder.behzod.presentation.utils.constants.deletedNotes
 import coder.behzod.presentation.utils.constants.notes
 import coder.behzod.presentation.utils.events.TrashEvent
 import coder.behzod.presentation.viewModels.TrashViewModel
+import coder.behzod.presentation.views.BottomNavigationView
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -82,7 +84,7 @@ import java.time.LocalDate
 @Composable
 fun TrashScreen(
     sharedPrefs: SharedPreferenceInstance,
-    trashModel: TrashModel?,
+    navController: NavController,
     viewModel: TrashViewModel = hiltViewModel(),
 ) {
     val btnCloseAnim = rememberLottieComposition(
@@ -106,7 +108,7 @@ fun TrashScreen(
     if (colorFont == Color.White) fontColor.value = Color.White else fontColor.value = Color.Black
 
     val isDialogVisible = remember { mutableStateOf(false) }
-    val isPlaying = remember { mutableStateOf( false ) }
+    val isPlaying = remember { mutableStateOf(false) }
 
     val selectedItems = viewModel.selectedItems.value
     val selectedItemsCount = remember { mutableIntStateOf(0) }
@@ -132,11 +134,18 @@ fun TrashScreen(
 
     Scaffold(
         containerColor = themeColor.value,
+        bottomBar = {
+            BottomNavigationView(
+                themeColor = themeColor.value,
+                fontColor =fontColor.value,
+                navController = navController
+            )
+        },
         floatingActionButton = {
             if (isSelected.value) {
                 FloatingActionButton(
                     modifier = Modifier
-                    .padding(end = 30.dp, bottom = 30.dp),
+                        .padding(end = 30.dp, bottom = 30.dp),
                     containerColor = Color.Magenta,
                     shape = CircleShape,
                     onClick = {
@@ -278,7 +287,7 @@ fun TrashScreen(
                                     )
                                 },
                                 onClick = {
-                                    viewModel.onEvent(TrashEvent.SelectAll(false),null)
+                                    viewModel.onEvent(TrashEvent.SelectAll(false), null)
                                     isSelected.value = true
                                     isExpanded.value = false
                                 }
@@ -296,7 +305,7 @@ fun TrashScreen(
                                 onClick = {
                                     isExpanded.value = false
                                     isSelected.value = true
-                                    viewModel.onEvent(TrashEvent.SelectAll(true),null)
+                                    viewModel.onEvent(TrashEvent.SelectAll(true), null)
                                 }
                             )
 //                            DropDownMenu Item for content "Restore all"
@@ -311,7 +320,10 @@ fun TrashScreen(
                                 },
                                 onClick = {
                                     isExpanded.value = false
-                                    viewModel.onEvent(TrashEvent.RestoreAllNotes(deletedNotes),notes)
+                                    viewModel.onEvent(
+                                        TrashEvent.RestoreAllNotes(deletedNotes),
+                                        notes
+                                    )
                                 }
                             )
 //                            DropDownMenu Item for content "Delete all"
@@ -479,12 +491,12 @@ fun TrashScreen(
                 verticalArrangement = Arrangement.SpaceAround
             ) {
                 Spacer(modifier = Modifier.height(60.dp))
-                LazyColumn (
+                LazyColumn(
                     modifier = Modifier
                         .clickable {
                             isSelected.value = true
                         }
-                ){
+                ) {
                     items(trashedNotes) { selectedModel ->
                         trashedNote.value = selectedModel
                         if (selectAllStatus) {

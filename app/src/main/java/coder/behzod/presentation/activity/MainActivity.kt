@@ -29,58 +29,11 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-
-    @Inject lateinit var navController: NavController
-    @Inject lateinit var sharedPrefs:SharedPreferenceInstance
-
-    @SuppressLint("UnusedMaterialScaffoldPaddingParameter",
-        "UnusedMaterial3ScaffoldPaddingParameter"
-    )
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val isSplashVisibility = sharedPrefs.sharedPreferences.getBoolean(
-            KEY_SPLASH_VISIBILITY,true)
         setContent {
-
-            val themeIndex =
-                remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
-            val colorTheme = if (themeIndex.intValue == 0) Color.Black else Color.White
-            val themeColor = remember { mutableStateOf(colorTheme) }
-            if (colorTheme == Color.Black) {
-                themeColor.value = Color.Black
-            } else {
-                themeColor.value = Color.White
-            }
-            val colorFont = if (themeColor.value == Color.Black) Color.White else Color.Black
-            val fontColor = remember { mutableStateOf(colorFont) }
-            if (colorFont == Color.White) {
-                fontColor.value = Color.White
-            } else {
-                fontColor.value = Color.Black
-            }
-
-            Scaffold (
-                modifier = Modifier
-                    .fillMaxSize(),
-                bottomBar = {
-                    if (!isSplashVisibility){
-                        BottomNavigationView(
-                            themeColor = themeColor.value,
-                            fontColor = fontColor.value,
-                            navController = navController
-                        )
-                    }
-                }
-            ){
-                Column (
-                    modifier = Modifier
-                        .fillMaxSize()
-                ){
-                    NavGraph()
-                }
-                Spacer(modifier = Modifier.height(70.dp))
-            }
+            NavGraph()
         }
     }
 }

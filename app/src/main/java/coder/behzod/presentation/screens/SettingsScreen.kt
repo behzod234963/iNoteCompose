@@ -62,6 +62,7 @@ import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.constants.KEY_THEME_STATUS
 import coder.behzod.presentation.utils.helpers.restartApp
 import coder.behzod.presentation.viewModels.SettingsViewModel
+import coder.behzod.presentation.views.BottomNavigationView
 import coder.behzod.presentation.views.ProgressButton
 import coder.behzod.presentation.views.SingleChoiceButtonRow
 import kotlinx.coroutines.Dispatchers
@@ -88,42 +89,52 @@ fun SettingsScreen(
             }
         )
     }
+
     val context = LocalContext.current as Activity
     val coroutineScope = rememberCoroutineScope()
+
     val themeStatus = remember { mutableStateOf(true) }
     val themeIndex = remember { mutableIntStateOf(0) }
     val isChanged = remember { mutableStateOf(false) }
     val isExpanded = remember { mutableStateOf(false) }
+
     val localeOptions = mapOf(
         stringResource(R.string.default_language) to "default",
         stringResource(R.string.english_language) to "en",
         stringResource(R.string.russian_language) to "ru",
         stringResource(R.string.uzbek_language) to "uz"
     ).mapKeys { it.key }
+
     LaunchedEffect(key1 = Int) {
         delay(100L)
         viewModel.getIndex()
         themeIndex.intValue = sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)
     }
+
     val colorTheme = if (themeIndex.intValue == 0) Color.Black else Color.White
     val themeColor = remember { mutableStateOf(colorTheme) }
+
     if (colorTheme == Color.Black) {
         themeColor.value = Color.Black
     } else {
         themeColor.value = Color.White
     }
+
     val colorFont = if (themeColor.value == Color.Black) Color.White else Color.Black
     val fontColor = remember { mutableStateOf(colorFont) }
+
     if (colorFont == Color.White) {
         fontColor.value = Color.White
     } else {
         fontColor.value = Color.Black
     }
+
     val themeColors = listOf(
         Pair(stringResource(R.string.dark), R.drawable.ic_dark), Pair(
             stringResource(R.string.light), R.drawable.ic_light
         )
     )
+
     val fontSize = remember { mutableIntStateOf(18) }
     val experimentalFontSize = remember { mutableStateOf(18.sp) }
     Column(
@@ -427,5 +438,16 @@ fun SettingsScreen(
                 )
             }
         }
+    }
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.Bottom,
+    ) {
+        BottomNavigationView(
+            themeColor = themeColor.value,
+            fontColor = fontColor.value,
+            navController = navController
+        )
     }
 }
