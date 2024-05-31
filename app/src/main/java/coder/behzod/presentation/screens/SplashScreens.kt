@@ -28,6 +28,7 @@ import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.constants.KEY_LIST_STATUS
+import coder.behzod.presentation.utils.constants.KEY_SPLASH_VISIBILITY
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
@@ -42,6 +43,7 @@ fun SplashScreens(
     val notesAnimComposition = rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(resId = R.raw.notes)
     )
+
     val themeIndex =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
     val colorTheme = if (themeIndex.intValue == 0) Color.Black else Color.White
@@ -58,7 +60,9 @@ fun SplashScreens(
     } else {
         fontColor.value = Color.Black
     }
+
     val isVisible = remember { mutableStateOf(false) }
+
     LaunchedEffect(key1 = Boolean) {
         delay(1500L)
         isVisible.value = true
@@ -66,6 +70,7 @@ fun SplashScreens(
     val isEmpty = remember {
         mutableStateOf(sharedPrefs.sharedPreferences.getBoolean(KEY_LIST_STATUS, true))
     }
+    val isSplashVisible = remember { mutableStateOf( true ) }
 
     Column(
         modifier = Modifier
@@ -98,8 +103,12 @@ fun SplashScreens(
         delay(2500)
         if (isEmpty.value) {
             navController.navigate(ScreensRouter.EmptyMainScreenRoute.route)
+            isSplashVisible.value = false
+            sharedPrefs.sharedPreferences.edit().putBoolean(KEY_SPLASH_VISIBILITY,isSplashVisible.value).apply()
         } else {
             navController.navigate(ScreensRouter.MainScreenRoute.route)
+            isSplashVisible.value = false
+            sharedPrefs.sharedPreferences.edit().putBoolean(KEY_SPLASH_VISIBILITY,isSplashVisible.value).apply()
         }
     }
 }

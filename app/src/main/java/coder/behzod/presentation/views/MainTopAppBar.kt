@@ -2,6 +2,7 @@ package coder.behzod.presentation.views
 
 import android.os.Handler
 import android.os.Looper
+import android.widget.Space
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -71,156 +72,160 @@ fun MainTopAppBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(if (isOpened.value) 145.dp else 60.dp)
-            .background(backgroundColor)
-            .border(color = fontColor, width = 1.dp, shape = RoundedCornerShape(10.dp))
-    ) {
+    ){
         Box(
-            contentAlignment = Alignment.TopStart
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(if (isOpened.value) 145.dp else 60.dp)
+                .background(backgroundColor)
+                .border(color = fontColor, width = 1.dp, shape = RoundedCornerShape(10.dp))
         ) {
-            AnimatedDropDownMenu(
-                backgroundColor = backgroundColor,
-                fontColor = fontColor
-            ) { event ->
-                when (event) {
-                    is PassDataEvents.PassStatus -> {
-                        isOpened.value = event.status
+            Box(
+                contentAlignment = Alignment.TopStart
+            ) {
+                AnimatedDropDownMenu(
+                    backgroundColor = backgroundColor,
+                    fontColor = fontColor
+                ) { event ->
+                    when (event) {
+                        is PassDataEvents.PassStatus -> {
+                            isOpened.value = event.status
+                        }
                     }
-                }
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Spacer(modifier = Modifier.height(5.dp))
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(backgroundColor)
                     ) {
-                        Row(
+                        Spacer(modifier = Modifier.height(5.dp))
+                        Column(
                             modifier = Modifier
-                                .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceAround,
-                            verticalAlignment = Alignment.CenterVertically
+                                .fillMaxWidth()
+                                .background(backgroundColor)
                         ) {
                             Row(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceAround,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                RadioButtonSkeleton(
-                                    selected = noteOrder is NoteOrder.Title,
-                                    onSelect = { onOrderChange(NoteOrder.Title(noteOrder.orderType)) },
-                                    themeColor = backgroundColor,
-                                    fontColors = fontColor
-                                )
-                                Text(
-                                    text = stringResource(R.string.title),
-                                    fontSize = 18.sp,
-                                    color = fontColor,
-                                    fontFamily = FontFamily(fontAmidoneGrotesk)
-                                )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    RadioButtonSkeleton(
+                                        selected = noteOrder is NoteOrder.Title,
+                                        onSelect = { onOrderChange(NoteOrder.Title(noteOrder.orderType)) },
+                                        themeColor = backgroundColor,
+                                        fontColors = fontColor
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.title),
+                                        fontSize = 18.sp,
+                                        color = fontColor,
+                                        fontFamily = FontFamily(fontAmidoneGrotesk)
+                                    )
+                                }
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    RadioButtonSkeleton(
+                                        selected = noteOrder is NoteOrder.Date,
+                                        onSelect = { onOrderChange(NoteOrder.Date(noteOrder.orderType)) },
+                                        themeColor = backgroundColor,
+                                        fontColors = fontColor
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.date),
+                                        fontSize = 18.sp,
+                                        color = fontColor,
+                                        fontFamily = FontFamily(fontAmidoneGrotesk)
+                                    )
+                                }
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    RadioButtonSkeleton(
+                                        selected = noteOrder is NoteOrder.Color,
+                                        onSelect = { onOrderChange(NoteOrder.Color(noteOrder.orderType)) },
+                                        themeColor = backgroundColor,
+                                        fontColors = fontColor
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.color),
+                                        fontSize = 18.sp,
+                                        color = fontColor,
+                                        fontFamily = FontFamily(fontAmidoneGrotesk)
+                                    )
+                                }
                             }
                             Row(
-                                verticalAlignment = Alignment.CenterVertically
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceAround,
                             ) {
-                                RadioButtonSkeleton(
-                                    selected = noteOrder is NoteOrder.Date,
-                                    onSelect = { onOrderChange(NoteOrder.Date(noteOrder.orderType)) },
-                                    themeColor = backgroundColor,
-                                    fontColors = fontColor
-                                )
-                                Text(
-                                    text = stringResource(R.string.date),
-                                    fontSize = 18.sp,
-                                    color = fontColor,
-                                    fontFamily = FontFamily(fontAmidoneGrotesk)
-                                )
-                            }
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                RadioButtonSkeleton(
-                                    selected = noteOrder is NoteOrder.Color,
-                                    onSelect = { onOrderChange(NoteOrder.Color(noteOrder.orderType)) },
-                                    themeColor = backgroundColor,
-                                    fontColors = fontColor
-                                )
-                                Text(
-                                    text = stringResource(R.string.color),
-                                    fontSize = 18.sp,
-                                    color = fontColor,
-                                    fontFamily = FontFamily(fontAmidoneGrotesk)
-                                )
-                            }
-                        }
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceAround,
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                RadioButtonSkeleton(
-                                    selected = noteOrder.orderType is OrderType.Ascending,
-                                    onSelect = { onOrderChange(noteOrder.copy(OrderType.Ascending)) },
-                                    themeColor = backgroundColor,
-                                    fontColors = fontColor
-                                )
-                                Text(
-                                    text = stringResource(R.string.ascending),
-                                    fontSize = 18.sp,
-                                    color = fontColor,
-                                    fontFamily = FontFamily(fontAmidoneGrotesk)
-                                )
-                            }
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                RadioButtonSkeleton(
-                                    selected = noteOrder.orderType is OrderType.Descending,
-                                    onSelect = { onOrderChange(noteOrder.copy(OrderType.Descending)) },
-                                    themeColor = backgroundColor,
-                                    fontColors = fontColor
-                                )
-                                Text(
-                                    text = stringResource(R.string.descending),
-                                    fontSize = 18.sp,
-                                    color = fontColor,
-                                    fontFamily = FontFamily(fontAmidoneGrotesk)
-                                )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    RadioButtonSkeleton(
+                                        selected = noteOrder.orderType is OrderType.Ascending,
+                                        onSelect = { onOrderChange(noteOrder.copy(OrderType.Ascending)) },
+                                        themeColor = backgroundColor,
+                                        fontColors = fontColor
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.ascending),
+                                        fontSize = 18.sp,
+                                        color = fontColor,
+                                        fontFamily = FontFamily(fontAmidoneGrotesk)
+                                    )
+                                }
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    RadioButtonSkeleton(
+                                        selected = noteOrder.orderType is OrderType.Descending,
+                                        onSelect = { onOrderChange(noteOrder.copy(OrderType.Descending)) },
+                                        themeColor = backgroundColor,
+                                        fontColors = fontColor
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.descending),
+                                        fontSize = 18.sp,
+                                        color = fontColor,
+                                        fontFamily = FontFamily(fontAmidoneGrotesk)
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 15.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(id = R.string.app_name),
+                    color = fontColor,
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight(600),
+                    fontFamily = FontFamily(fontAmidoneGrotesk)
+                )
+            }
         }
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 15.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = stringResource(id = R.string.app_name),
-                color = fontColor,
-                fontSize = 25.sp,
-                fontWeight = FontWeight(600),
-                fontFamily = FontFamily(fontAmidoneGrotesk)
-            )
-        }
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
                 .padding(top = 5.dp),
-            contentAlignment = Alignment.CenterEnd
+            contentAlignment = Alignment.TopEnd
         ) {
-            Column(
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.CenterEnd
             ) {
                 IconButton(
-                    modifier = Modifier
-                        .align(Alignment.End),
                     onClick = {
                         isExpanded.value = true
                     }
@@ -231,10 +236,9 @@ fun MainTopAppBar(
                         tint = fontColor
                     )
                 }
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.End)
-                ) {
+                Column{
+                    Spacer(modifier = Modifier
+                        .height(55.dp))
                     DropdownMenu(
                         modifier = Modifier
                             .width(150.dp)

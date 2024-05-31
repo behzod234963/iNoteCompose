@@ -35,6 +35,7 @@ import coder.behzod.presentation.items.MainScreenItem
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.constants.KEY_LIST_STATUS
+import coder.behzod.presentation.utils.constants.deletedNotes
 import coder.behzod.presentation.utils.events.NotesEvent
 import coder.behzod.presentation.viewModels.MainViewModel
 import coder.behzod.presentation.views.MainTopAppBar
@@ -72,6 +73,7 @@ fun MainScreen(
     } else {
         fontColor.value = Color.Black
     }
+
     val state = viewModel.state
     viewModel.getNotes(state.value.noteOrder)
     val btnAddAnimation = rememberLottieComposition(
@@ -87,7 +89,8 @@ fun MainScreen(
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
     sharedPrefs.sharedPreferences.edit().putBoolean(KEY_LIST_STATUS, isEmpty.value).apply()
-    Scaffold(topBar = {
+    Scaffold(
+        topBar = {
         MainTopAppBar(navController = navController,
             backgroundColor = themeColor.value,
             fontColor = fontColor.value,
@@ -96,7 +99,9 @@ fun MainScreen(
                 viewModel.onEvent(NotesEvent.Order(it))
             })
     }, floatingActionButton = {
-        FloatingActionButton(modifier = Modifier.padding(end = 30.dp, bottom = 30.dp),
+        FloatingActionButton(
+            modifier = Modifier
+                .padding(end = 30.dp, bottom = 30.dp),
             containerColor = Color.Magenta,
             shape = CircleShape,
             onClick = {
@@ -145,6 +150,7 @@ fun MainScreen(
                             )
                             coroutineScope.launch (Dispatchers.IO){
                                 delay(1000)
+                                deletedNotes.add(it)
                                 viewModel.onEvent(NotesEvent.DeleteNote(it))
                             }
                         }) { item ->

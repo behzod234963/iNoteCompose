@@ -1,5 +1,6 @@
 package coder.behzod.domain.repository
 
+import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.model.TrashModel
 import kotlinx.coroutines.flow.Flow
 
@@ -9,4 +10,5 @@ interface TrashRepository {
     suspend fun deleteAll(notes:ArrayList<TrashModel>)
     fun getTrashedNotes():Flow<List<TrashModel>>
     suspend fun saveToTrash(notesModel: TrashModel)
+    suspend fun restoreAll(notes: ArrayList<NotesModel>)
 }

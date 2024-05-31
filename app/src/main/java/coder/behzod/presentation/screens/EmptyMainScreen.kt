@@ -1,15 +1,19 @@
 package coder.behzod.presentation.screens
 
+import android.annotation.SuppressLint
 import android.os.Handler
 import android.os.Looper
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +34,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun EmptyMainScreen(
     navController: NavHostController,
@@ -58,35 +63,19 @@ fun EmptyMainScreen(
         fontColor.value = Color.Black
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(themeColor.value),
-        ) {
+    Scaffold (
+        modifier = Modifier,
+        topBar = {
             MainTopAppBar(
                 navController = navController,
                 backgroundColor = themeColor.value,
                 fontColor = fontColor.value,
             ) {}
-        }
-        Box(
-            modifier = Modifier
-                .fillMaxSize(),
-        ) {
-            LottieAnimation(
-                composition = emptyListAnimation.value,
-                alignment = Alignment.Center,
-                restartOnPlay = true,
-                iterations = LottieConstants.IterateForever
-            )
+        },
+        floatingActionButton = {
             FloatingActionButton(
                 modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(bottom = 30.dp, end = 30.dp),
+                    .padding(end = 15.dp, bottom = 15.dp),
                 shape = CircleShape,
                 containerColor = Color.Magenta,
                 onClick = {
@@ -98,8 +87,6 @@ fun EmptyMainScreen(
             ) {
                 if (isPlaying.value){
                     LottieAnimation(
-                        modifier = Modifier
-                            .matchParentSize(),
                         composition = btnAddAnimation.value,
                         iterations = LottieConstants.IterateForever
                     )
@@ -111,6 +98,18 @@ fun EmptyMainScreen(
                     )
                 }
             }
+        }
+    ){
+        Column(
+            modifier = Modifier
+                .background(themeColor.value)
+        ) {
+            LottieAnimation(
+                composition = emptyListAnimation.value,
+                alignment = Alignment.Center,
+                restartOnPlay = true,
+                iterations = LottieConstants.IterateForever
+            )
         }
     }
 }

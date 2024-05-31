@@ -14,6 +14,7 @@ import coder.behzod.domain.useCase.notesUseCases.UseCases
 import coder.behzod.domain.useCase.trashUseCases.DeleteAllUseCase
 import coder.behzod.domain.useCase.trashUseCases.DeleteUseCase
 import coder.behzod.domain.useCase.trashUseCases.GetTrashedNotesUseCase
+import coder.behzod.domain.useCase.trashUseCases.RestoreAllUseCase
 import coder.behzod.domain.useCase.trashUseCases.SaveToTrashUseCase
 import coder.behzod.domain.useCase.trashUseCases.TrashUseCases
 import dagger.Module
@@ -42,7 +43,8 @@ class DomainModule {
             delete = DeleteUseCase(repository),
             deleteAll = DeleteAllUseCase(repository),
             getTrashedNotes = GetTrashedNotesUseCase(repository),
-            saveToTrash = SaveToTrashUseCase(repository)
+            saveToTrash = SaveToTrashUseCase(repository),
+            restoreAllUseCase = RestoreAllUseCase(repository)
         )
 
     @Provides

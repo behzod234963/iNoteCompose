@@ -36,4 +36,11 @@
     <string name="action_with_a_note">Action with a note</string>
     <string name="delete">Delete</string>
     <string name="restore">Restore</string>
+    <string name="select">Select</string>
+    <string name="select_all">Select all</string>
+    <string name="restore_all">Restore all</string>
+    <string name="delete_all">Delete all</string>
+    <string name="delete_selected">Delete selected</string>
+    <string name="restore_selected">Restore selected</string>
+    <string name="all_notes">All notes</string>
 </resources>

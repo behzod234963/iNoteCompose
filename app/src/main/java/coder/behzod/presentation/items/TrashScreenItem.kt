@@ -28,9 +28,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coder.behzod.R
 import coder.behzod.domain.model.TrashModel
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
+import coder.behzod.presentation.viewModels.TrashViewModel
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -42,9 +44,13 @@ fun TrashScreenItem(
     isDialogVisible: (Boolean) -> Unit,
     selectedContent: (Int) -> Unit,
     isSelected: Boolean = false,
+    viewModel: TrashViewModel = hiltViewModel()
 ) {
 
+    val selectAllStatus = viewModel.isItemSelected.value
     val isItemSelected = remember { mutableStateOf(false) }
+    val isAllItemSelected = remember { mutableStateOf( true ) }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -125,9 +131,15 @@ fun TrashScreenItem(
                 Checkbox(
                     modifier = Modifier
                         .padding(end = 15.dp, bottom = 15.dp),
-                    checked = isItemSelected.value,
+                    checked = if (selectAllStatus) isAllItemSelected.value
+                    else isItemSelected.value,
                     onCheckedChange = {
-                        isItemSelected.value = it
+                        if (selectAllStatus) {
+                            isAllItemSelected.value = it
+                        }
+                        else {
+                            isItemSelected.value = it
+                        }
                         onChange(if (it) 1 else 0)
                     }
                 )

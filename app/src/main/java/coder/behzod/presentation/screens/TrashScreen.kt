@@ -4,11 +4,11 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,12 +24,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -59,6 +63,9 @@ import coder.behzod.domain.model.TrashModel
 import coder.behzod.presentation.items.TrashScreenItem
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.utils.constants.KEY_INDEX
+import coder.behzod.presentation.utils.constants.deletedNotes
+import coder.behzod.presentation.utils.constants.notes
+import coder.behzod.presentation.utils.events.TrashEvent
 import coder.behzod.presentation.viewModels.TrashViewModel
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -67,12 +74,15 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
+    ExperimentalMaterialApi::class
+)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "MutableCollectionMutableState")
 @Composable
 fun TrashScreen(
     sharedPrefs: SharedPreferenceInstance,
-    model: TrashModel?,
+    trashModel: TrashModel?,
     viewModel: TrashViewModel = hiltViewModel(),
 ) {
     val btnCloseAnim = rememberLottieComposition(
@@ -95,9 +105,8 @@ fun TrashScreen(
 
     if (colorFont == Color.White) fontColor.value = Color.White else fontColor.value = Color.Black
 
-    val isTrashPlaying = remember { mutableStateOf(false) }
     val isDialogVisible = remember { mutableStateOf(false) }
-    val isPlaying = remember { mutableStateOf(false) }
+    val isPlaying = remember { mutableStateOf( false ) }
 
     val selectedItems = viewModel.selectedItems.value
     val selectedItemsCount = remember { mutableIntStateOf(0) }
@@ -118,12 +127,15 @@ fun TrashScreen(
             )
         )
     }
+    val isExpanded = remember { mutableStateOf(false) }
+    val selectAllStatus = viewModel.isItemSelected.value
 
     Scaffold(
         containerColor = themeColor.value,
         floatingActionButton = {
             if (isSelected.value) {
-                FloatingActionButton(modifier = Modifier
+                FloatingActionButton(
+                    modifier = Modifier
                     .padding(end = 30.dp, bottom = 30.dp),
                     containerColor = Color.Magenta,
                     shape = CircleShape,
@@ -242,29 +254,82 @@ fun TrashScreen(
                     actions = {
                         IconButton(
                             onClick = {
-                                isTrashPlaying.value = true
-                                if (isTrashPlaying.value) {
-                                    Handler(Looper.getMainLooper()).postDelayed({
-                                        isTrashPlaying.value = false
-                                        isDialogVisible.value = true
-                                        isTrashedNotesDeleted.intValue = 1
-                                    }, 1000)
-                                }
+                                isExpanded.value = !isExpanded.value
                             }) {
-                            if (isTrashPlaying.value) {
-                                LottieAnimation(
-                                    modifier = Modifier
-                                        .size(35.dp),
-                                    composition = btnTrashAnimation.value,
-                                    iterations = LottieConstants.IterateForever
-                                )
-                            } else {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    tint = fontColor.value,
-                                    contentDescription = "icon more settings"
-                                )
-                            }
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = "more functions for trashed notes",
+                                tint = fontColor.value
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = isExpanded.value,
+                            onDismissRequest = {
+                                isExpanded.value = false
+                            }) {
+//                            DropDownMenu Item for content "Select"
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = stringResource(R.string.select),
+                                        color = themeColor.value,
+                                        fontSize = 18.sp,
+                                        fontFamily = FontFamily(fontAmidoneGrotesk)
+                                    )
+                                },
+                                onClick = {
+                                    viewModel.onEvent(TrashEvent.SelectAll(false),null)
+                                    isSelected.value = true
+                                    isExpanded.value = false
+                                }
+                            )
+//                            DropDownMenu Item for content "Select all"
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = stringResource(R.string.select_all),
+                                        color = themeColor.value,
+                                        fontSize = 18.sp,
+                                        fontFamily = FontFamily(fontAmidoneGrotesk)
+                                    )
+                                },
+                                onClick = {
+                                    isExpanded.value = false
+                                    isSelected.value = true
+                                    viewModel.onEvent(TrashEvent.SelectAll(true),null)
+                                }
+                            )
+//                            DropDownMenu Item for content "Restore all"
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = stringResource(R.string.restore_all),
+                                        color = themeColor.value,
+                                        fontSize = 18.sp,
+                                        fontFamily = FontFamily(fontAmidoneGrotesk)
+                                    )
+                                },
+                                onClick = {
+                                    isExpanded.value = false
+                                    viewModel.onEvent(TrashEvent.RestoreAllNotes(deletedNotes),notes)
+                                }
+                            )
+//                            DropDownMenu Item for content "Delete all"
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = stringResource(R.string.delete_all),
+                                        color = themeColor.value,
+                                        fontSize = 18.sp,
+                                        fontFamily = FontFamily(fontAmidoneGrotesk)
+                                    )
+                                },
+                                onClick = {
+                                    isExpanded.value = false
+                                    viewModel.deleteAll(trashedNotes)
+                                    trashedNotes.clear()
+                                }
+                            )
                         }
                     }
                 )
@@ -414,25 +479,30 @@ fun TrashScreen(
                 verticalArrangement = Arrangement.SpaceAround
             ) {
                 Spacer(modifier = Modifier.height(60.dp))
-                LazyColumn(
+                LazyColumn (
                     modifier = Modifier
-//                        .combinedClickable(
-//                            onLongClick = {
-//                                isSelected.value = true
-//                            }) {
-//                            return@combinedClickable
-//                        }
-                ) {
+                        .clickable {
+                            isSelected.value = true
+                        }
+                ){
                     items(trashedNotes) { selectedModel ->
                         trashedNote.value = selectedModel
+                        if (selectAllStatus) {
+                            selectedItems.clear()
+                            viewModel.addAllToList(trashedNotes)
+                            selectedItemsCount.intValue = selectedItems.size
+                        }
                         TrashScreenItem(
                             model = selectedModel,
                             fontColor = fontColor.value,
                             onChange = {
                                 if (it == 1) {
-                                    viewModel.addToList(selectedModel)
-                                    selectedItemsCount.intValue = selectedItems.size
-                                    Log.d("fix", "TrashScreen: ${selectedItems.size}")
+                                    if (selectAllStatus) {
+                                        selectedItemsCount.intValue = selectedItems.size
+                                    } else {
+                                        viewModel.addToList(selectedModel)
+                                        selectedItemsCount.intValue = selectedItems.size
+                                    }
                                 } else {
                                     viewModel.removeFromList(selectedModel)
                                     selectedItemsCount.intValue = selectedItems.size
@@ -440,7 +510,7 @@ fun TrashScreen(
                             },
                             isDialogVisible = { isDialogVisible.value = it },
                             selectedContent = { isTrashedNotesDeleted.intValue = it },
-                            isSelected = isSelected.value
+                            isSelected = isSelected.value,
                         )
                     }
                 }

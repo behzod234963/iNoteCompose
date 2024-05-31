@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.model.TrashModel
 import kotlinx.coroutines.flow.Flow
 
@@ -20,4 +21,7 @@ interface TrashDao {
 
     @Query("SELECT *FROM trash")
     fun getTrashedNotes():Flow<List<TrashModel>>
+
+    @Insert
+    suspend fun restoreAll(notes:ArrayList<NotesModel>)
 }

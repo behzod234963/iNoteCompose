@@ -37,4 +37,11 @@
     <string name="action_with_a_note">Действие с заметкой</string>
     <string name="delete">Удалить</string>
     <string name="restore">Восстановить</string>
+    <string name="select">Выбрать</string>
+    <string name="select_all">Выбрать всё</string>
+    <string name="restore_all">Восстановить всё</string>
+    <string name="delete_all">Удалить всё</string>
+    <string name="delete_selected">Удалить выбранные</string>
+    <string name="restore_selected">Восстановить выбранные</string>
+    <string name="all_notes">Все заметки</string>
 </resources>

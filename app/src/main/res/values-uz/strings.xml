@@ -37,4 +37,11 @@
     <string name="action_with_a_note">Qayd bilan amal ?</string>
     <string name="delete">O\'chirish</string>
     <string name="restore">Qayta tiklash</string>
+    <string name="select">Tanlash</string>
+    <string name="select_all">Hammasini tanlash</string>
+    <string name="restore_all">Hammasini tiklash</string>
+    <string name="delete_all">Hammasini o\'chirish</string>
+    <string name="delete_selected">Tanlanganlarni o\'chirish</string>
+    <string name="restore_selected">Tanlanganlarni qaytarish</string>
+    <string name="all_notes">Hamma qaydlar</string>
 </resources>
