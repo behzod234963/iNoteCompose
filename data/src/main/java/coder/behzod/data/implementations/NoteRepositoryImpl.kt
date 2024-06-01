@@ -18,4 +18,7 @@ class NoteRepositoryImpl(private val dao: NotesDao) : NotesRepository {
     override fun getNotes(): Flow<List<NotesModel>> = dao.getNotes()
 
     override suspend fun getNote(id: Int): NotesModel = dao.getNote(id)
+    override suspend fun deleteAll(notes: ArrayList<NotesModel>) {
+        dao.deleteAll(notes)
+    }
 }

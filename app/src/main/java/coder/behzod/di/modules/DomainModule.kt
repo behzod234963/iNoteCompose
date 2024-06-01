@@ -6,12 +6,13 @@ import coder.behzod.data.local.room.NotesDao
 import coder.behzod.data.local.room.TrashDao
 import coder.behzod.domain.repository.NotesRepository
 import coder.behzod.domain.repository.TrashRepository
+import coder.behzod.domain.useCase.notesUseCases.DeleteAllUseCase
 import coder.behzod.domain.useCase.notesUseCases.DeleteNoteUseCase
 import coder.behzod.domain.useCase.notesUseCases.GetNoteUseCase
 import coder.behzod.domain.useCase.notesUseCases.GetNotesUseCase
 import coder.behzod.domain.useCase.notesUseCases.SaveNoteUseCase
 import coder.behzod.domain.useCase.notesUseCases.UseCases
-import coder.behzod.domain.useCase.trashUseCases.DeleteAllUseCase
+import coder.behzod.domain.useCase.trashUseCases.DeleteAllTrashedUseCase
 import coder.behzod.domain.useCase.trashUseCases.DeleteUseCase
 import coder.behzod.domain.useCase.trashUseCases.GetTrashedNotesUseCase
 import coder.behzod.domain.useCase.trashUseCases.RestoreAllUseCase
@@ -33,7 +34,8 @@ class DomainModule {
             deleteUseCase = DeleteNoteUseCase(repository),
             getNotesUseCase = GetNotesUseCase(repository),
             getNoteUseCase = GetNoteUseCase(repository),
-            saveNoteUseCase = SaveNoteUseCase(repository)
+            saveNoteUseCase = SaveNoteUseCase(repository),
+            deleteAllUseCase = DeleteAllUseCase(repository)
         )
 
     @Provides
@@ -41,7 +43,7 @@ class DomainModule {
     fun provideTrashUseCases(repository: TrashRepository):TrashUseCases =
         TrashUseCases(
             delete = DeleteUseCase(repository),
-            deleteAll = DeleteAllUseCase(repository),
+            deleteAll = DeleteAllTrashedUseCase(repository),
             getTrashedNotes = GetTrashedNotesUseCase(repository),
             saveToTrash = SaveToTrashUseCase(repository),
             restoreAllUseCase = RestoreAllUseCase(repository)

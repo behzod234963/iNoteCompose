@@ -75,6 +75,13 @@ class MainViewModel @Inject constructor(
     fun saveToTrash(note: TrashModel) = viewModelScope.launch {
         trashUseCase.saveToTrash(note)
     }
+    fun deleteNote(note: NotesModel) = viewModelScope.launch {
+        useCases.deleteUseCase(note)
+    }
+    fun deleteAllUseCase(notes: ArrayList<NotesModel>) = viewModelScope.launch {
+        useCases.deleteAllUseCase(notes)
+    }
+
     fun getNotes(notesOrder:NoteOrder){
         getNotesJob?.cancel()
         getNotesJob = useCases.getNotesUseCase.invoke(noteOrder = notesOrder)

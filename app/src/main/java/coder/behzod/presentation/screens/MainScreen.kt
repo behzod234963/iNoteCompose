@@ -5,7 +5,6 @@ import android.os.Handler
 import android.os.Looper
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,6 +40,7 @@ import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.constants.KEY_LIST_STATUS
 import coder.behzod.presentation.utils.constants.deletedNotes
 import coder.behzod.presentation.utils.events.NotesEvent
+import coder.behzod.presentation.utils.events.TrashEvent
 import coder.behzod.presentation.viewModels.MainViewModel
 import coder.behzod.presentation.views.BottomNavigationView
 import coder.behzod.presentation.views.MainTopAppBar
@@ -103,10 +103,10 @@ fun MainScreen(
     val coroutineScope = rememberCoroutineScope()
     sharedPrefs.sharedPreferences.edit().putBoolean(KEY_LIST_STATUS, isEmpty.value).apply()
 
-    val isSelected = remember { mutableStateOf( false ) }
+    val isSelected = remember { mutableStateOf(false) }
 
     val selectedNotes = viewModel.selectedNotes.value
-    val selectedNotesCount = remember { mutableIntStateOf( 0 ) }
+    val selectedNotesCount = remember { mutableIntStateOf(0) }
 
     Scaffold(
         bottomBar = {
@@ -121,6 +121,16 @@ fun MainScreen(
                 backgroundColor = themeColor.value,
                 fontColor = fontColor.value,
                 noteOrder = state.value.noteOrder,
+                contentSelectAll = {
+                    isSelected.value = true
+                    viewModel.onEvent(NotesEvent.SelectAllStatus( true))
+                },
+                contentDeleteAll = {
+                    viewModel.deleteAllUseCase(selectedNotes)
+                },
+                contentSelect = {
+                    isSelected.value = true
+                },
                 onOrderChange = {
                     viewModel.onEvent(NotesEvent.Order(it))
                 })
@@ -165,11 +175,11 @@ fun MainScreen(
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .combinedClickable (
+                        .combinedClickable(
                             onLongClick = {
                                 isSelected.value = true
                             }
-                        ){
+                        ) {
                             return@combinedClickable
                         }
                 ) {
@@ -197,10 +207,10 @@ fun MainScreen(
                                     navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/${item.id}")
                                 },
                                 onCheckedChange = {
-                                    if (it == 0){
+                                    if (it == 0) {
                                         viewModel.addNoteToList(item)
                                         selectedNotesCount.intValue = selectedNotes.size
-                                    }else{
+                                    } else {
                                         viewModel.addAllToList(state.value.notes as ArrayList<NotesModel>)
                                         selectedNotesCount.intValue = selectedNotes.size
                                     }

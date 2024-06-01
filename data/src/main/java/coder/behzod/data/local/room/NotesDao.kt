@@ -22,4 +22,7 @@ interface NotesDao {
     @Query("SELECT * FROM notes WHERE id = :id")
     suspend fun getNote(id: Int): NotesModel
 
+    @Delete
+    suspend fun deleteAll(notes:ArrayList<NotesModel>)
+
 }

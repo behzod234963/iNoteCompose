@@ -77,6 +77,9 @@ fun EmptyMainScreen(
             MainTopAppBar(
                 navController = navController,
                 backgroundColor = themeColor.value,
+                contentSelect = {},
+                contentSelectAll = {},
+                contentDeleteAll = {},
                 fontColor = fontColor.value,
             ) {}
         },
