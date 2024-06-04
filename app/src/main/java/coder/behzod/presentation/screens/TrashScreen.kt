@@ -191,8 +191,11 @@ fun TrashScreen(
                     ),
                     title = {
                         Text(
-                            text = if (selectedItemsCount.intValue == 0) "0 items selected"
-                            else "${selectedItemsCount.intValue} items selected",
+                            text = if (selectedItemsCount.intValue == 0) "0 ${stringResource(id = R.string.items_selected)}"
+                            else stringResource(
+                                R.string.items_selected,
+                                selectedItemsCount.intValue
+                            ),
                             color = fontColor.value,
                             fontSize = 18.sp,
                             fontFamily = FontFamily(fontAmidoneGrotesk)

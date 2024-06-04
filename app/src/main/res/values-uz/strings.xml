@@ -44,4 +44,5 @@
     <string name="delete_selected">Tanlanganlarni o\'chirish</string>
     <string name="restore_selected">Tanlanganlarni qaytarish</string>
     <string name="all_notes">Hamma qaydlar</string>
+    <string name="items_selected">belgilandi</string>
 </resources>

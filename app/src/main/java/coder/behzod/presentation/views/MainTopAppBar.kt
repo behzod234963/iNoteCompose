@@ -31,19 +31,15 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import coder.behzod.R
 import coder.behzod.domain.utils.NoteOrder
 import coder.behzod.domain.utils.OrderType
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.utils.events.PassDataEvents
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.rememberLottieComposition
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MainTopAppBar(
-    navController: NavController,
     backgroundColor: Color,
     fontColor: Color,
     contentSelect:()->Unit,
@@ -53,15 +49,8 @@ fun MainTopAppBar(
     onOrderChange: (NoteOrder) -> Unit
 ) {
     val isOpened = remember { mutableStateOf(false) }
-    val btnTrashAnimation = rememberLottieComposition(
-        spec = LottieCompositionSpec.RawRes(R.raw.btn_trash)
-    )
-    val btnSettingsAnimation = rememberLottieComposition(
-        spec = LottieCompositionSpec.RawRes(R.raw.settings_black)
-    )
-    val isSettingsPlaying = remember { mutableStateOf(false) }
-    val isTrashPlaying = remember { mutableStateOf(false) }
     val isExpanded = remember { mutableStateOf(false) }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -78,11 +67,14 @@ fun MainTopAppBar(
             ) {
                 AnimatedDropDownMenu(
                     backgroundColor = backgroundColor,
-                    fontColor = fontColor
-                ) { event ->
+                    fontColor = fontColor,
+                ) { event,expanded ->
                     when (event) {
                         is PassDataEvents.PassStatus -> {
                             isOpened.value = event.status
+                        }
+                        is PassDataEvents.IsExpanded->{
+                            isExpanded.value = event.isExpanded
                         }
                     }
                     Column(
@@ -211,7 +203,7 @@ fun MainTopAppBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 5.dp),
-            contentAlignment = Alignment.TopEnd
+            contentAlignment = Alignment.BottomEnd
         ) {
             Box(
                 modifier = Modifier
@@ -221,6 +213,7 @@ fun MainTopAppBar(
                 IconButton(
                     onClick = {
                         isExpanded.value = true
+                        isOpened.value = false
                     }
                 ) {
                     Icon(

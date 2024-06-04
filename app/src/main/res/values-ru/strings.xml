@@ -44,4 +44,5 @@
     <string name="delete_selected">Удалить выбранные</string>
     <string name="restore_selected">Восстановить выбранные</string>
     <string name="all_notes">Все заметки</string>
+    <string name="items_selected">элементов выбрано</string>
 </resources>

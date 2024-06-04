@@ -29,8 +29,9 @@ fun AnimatedDropDownMenu(
     backgroundColor: Color,
     fontColor: Color,
     initiallyOpened: Boolean = false,
-    content: @Composable (events: PassDataEvents) -> Unit
+    content: @Composable (events: PassDataEvents,expanded:PassDataEvents) -> Unit
 ) {
+    val isExpanded = remember { mutableStateOf( false ) }
     var isOpen by remember {
         mutableStateOf(initiallyOpened)
     }
@@ -60,6 +61,9 @@ fun AnimatedDropDownMenu(
                     .padding(top = 15.dp,start = 10.dp, end = 5.dp)
                     .clickable {
                         isOpen = !isOpen
+                        if (isOpen){
+                            isExpanded.value = false
+                        }
                     }
                     .scale(1f, if (isOpen) -1f else 1f)
             )
@@ -73,7 +77,7 @@ fun AnimatedDropDownMenu(
                 }
                 .alpha(alpha.value)
         ) {
-            content(PassDataEvents.PassStatus(isOpen))
+            content(PassDataEvents.PassStatus(isOpen),PassDataEvents.IsExpanded(isExpanded.value))
         }
     }
 }

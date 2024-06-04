@@ -12,13 +12,19 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.IconButton
 import androidx.compose.material.Scaffold
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -27,7 +33,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coder.behzod.R
@@ -36,11 +45,11 @@ import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.model.TrashModel
 import coder.behzod.presentation.items.MainScreenItem
 import coder.behzod.presentation.navigation.ScreensRouter
+import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.constants.KEY_LIST_STATUS
 import coder.behzod.presentation.utils.constants.deletedNotes
 import coder.behzod.presentation.utils.events.NotesEvent
-import coder.behzod.presentation.utils.events.TrashEvent
 import coder.behzod.presentation.viewModels.MainViewModel
 import coder.behzod.presentation.views.BottomNavigationView
 import coder.behzod.presentation.views.MainTopAppBar
@@ -89,6 +98,9 @@ fun MainScreen(
     val btnAddAnimation = rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(resId = R.raw.btn_add)
     )
+    val btnCloseAnim = rememberLottieComposition(
+        spec = LottieCompositionSpec.RawRes(R.raw.btn_close)
+    )
 
     val isPlaying = remember { mutableStateOf(false) }
     val isEmpty = remember { mutableStateOf(false) }
@@ -106,7 +118,10 @@ fun MainScreen(
     val isSelected = remember { mutableStateOf(false) }
 
     val selectedNotes = viewModel.selectedNotes.value
+    val selectAllStatus = viewModel.selectAllStatus.value
     val selectedNotesCount = remember { mutableIntStateOf(0) }
+
+    val isClosed = remember { mutableStateOf(false) }
 
     Scaffold(
         bottomBar = {
@@ -117,23 +132,60 @@ fun MainScreen(
             )
         },
         topBar = {
-            MainTopAppBar(navController = navController,
-                backgroundColor = themeColor.value,
-                fontColor = fontColor.value,
-                noteOrder = state.value.noteOrder,
-                contentSelectAll = {
-                    isSelected.value = true
-                    viewModel.onEvent(NotesEvent.SelectAllStatus( true))
-                },
-                contentDeleteAll = {
-                    viewModel.deleteAllUseCase(selectedNotes)
-                },
-                contentSelect = {
-                    isSelected.value = true
-                },
-                onOrderChange = {
-                    viewModel.onEvent(NotesEvent.Order(it))
-                })
+            if (isSelected.value) {
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = "${selectedNotesCount.intValue} ${stringResource(id = R.string.items_selected)}",
+                            color = fontColor.value,
+                            fontSize = 18.sp,
+                            fontFamily = FontFamily(fontAmidoneGrotesk)
+                        )
+                    },
+                    actions = {
+                        IconButton(onClick = {
+                            isClosed.value = true
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                isClosed.value = false
+                                isSelected.value = false
+                            }, 1000)
+
+                        }) {
+                            if (isClosed.value) {
+                                LottieAnimation(
+                                    composition = btnCloseAnim.value,
+                                    modifier = Modifier
+                                        .size(35.dp),
+                                    iterations = LottieConstants.IterateForever
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "btn delete all items",
+                                    tint = fontColor.value
+                                )
+                            }
+                        }
+                    }
+                )
+            } else {
+                MainTopAppBar(backgroundColor = themeColor.value,
+                    fontColor = fontColor.value,
+                    contentSelect = {
+                        isSelected.value = true
+                    },
+                    contentSelectAll = {
+                        isSelected.value = true
+                        viewModel.onEvent(NotesEvent.SelectAllStatus(true))
+                    },
+                    contentDeleteAll = {
+                        viewModel.deleteAllUseCase(selectedNotes)
+                    },
+                    noteOrder = state.value.noteOrder,
+                    onOrderChange = {
+                        viewModel.onEvent(NotesEvent.Order(it))
+                    })
+            }
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -207,11 +259,16 @@ fun MainScreen(
                                     navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/${item.id}")
                                 },
                                 onCheckedChange = {
-                                    if (it == 0) {
-                                        viewModel.addNoteToList(item)
-                                        selectedNotesCount.intValue = selectedNotes.size
+                                    if (it == 1) {
+                                        if(selectAllStatus){
+                                            viewModel.addAllToList(state.value.notes as ArrayList<NotesModel>)
+                                            selectedNotesCount.intValue = selectedNotes.size
+                                        }else{
+                                            viewModel.addNoteToList(item)
+                                            selectedNotesCount.intValue = selectedNotes.size
+                                        }
                                     } else {
-                                        viewModel.addAllToList(state.value.notes as ArrayList<NotesModel>)
+                                        viewModel.removeFromList(item)
                                         selectedNotesCount.intValue = selectedNotes.size
                                     }
                                 }

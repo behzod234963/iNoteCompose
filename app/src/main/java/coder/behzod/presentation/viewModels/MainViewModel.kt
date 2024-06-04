@@ -65,18 +65,21 @@ class MainViewModel @Inject constructor(
     }
 
     fun addAllToList(notes:ArrayList<NotesModel>) = viewModelScope.launch {
+
         _selectedNotes.value.addAll(notes)
     }
 
     fun addNoteToList(note:NotesModel) = viewModelScope.launch {
         _selectedNotes.value.add(note)
     }
-
+    fun removeFromList(note:NotesModel){
+        _selectedNotes.value.remove(note)
+    }
+    fun removeAllFromList(){
+        _selectedNotes.value.clear()
+    }
     fun saveToTrash(note: TrashModel) = viewModelScope.launch {
         trashUseCase.saveToTrash(note)
-    }
-    fun deleteNote(note: NotesModel) = viewModelScope.launch {
-        useCases.deleteUseCase(note)
     }
     fun deleteAllUseCase(notes: ArrayList<NotesModel>) = viewModelScope.launch {
         useCases.deleteAllUseCase(notes)
