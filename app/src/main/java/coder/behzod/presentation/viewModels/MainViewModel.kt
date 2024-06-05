@@ -64,9 +64,8 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun addAllToList(notes:ArrayList<NotesModel>) = viewModelScope.launch {
-
-        _selectedNotes.value.addAll(notes)
+    fun addAllToList() = viewModelScope.launch {
+        _selectedNotes.value.addAll(state.value.notes)
     }
 
     fun addNoteToList(note:NotesModel) = viewModelScope.launch {

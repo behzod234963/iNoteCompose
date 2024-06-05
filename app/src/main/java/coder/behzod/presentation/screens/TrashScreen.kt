@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -154,6 +155,8 @@ fun TrashScreen(
                             isPlaying.value = false
                             isDialogVisible.value = true
                             viewModel.deleteAll(selectedItems)
+                            viewModel.onEvent(TrashEvent.ClearList(selectedItems))
+                            selectedItemsCount.intValue = selectedItems.size
                             isTrashedNotesDeleted.intValue = 2
                         }, 1000)
                     }) {
@@ -192,10 +195,7 @@ fun TrashScreen(
                     title = {
                         Text(
                             text = if (selectedItemsCount.intValue == 0) "0 ${stringResource(id = R.string.items_selected)}"
-                            else stringResource(
-                                R.string.items_selected,
-                                selectedItemsCount.intValue
-                            ),
+                            else "${selectedItemsCount.intValue} ${stringResource(id = R.string.items_selected)}",
                             color = fontColor.value,
                             fontSize = 18.sp,
                             fontFamily = FontFamily(fontAmidoneGrotesk)
@@ -215,6 +215,8 @@ fun TrashScreen(
                                 Handler(Looper.getMainLooper()).postDelayed({
                                     selectedItemsStatus.value = false
                                     isSelected.value = false
+                                    viewModel.onEvent(TrashEvent.ClearList(selectedItems))
+                                    selectedItemsCount.intValue = 0
                                 }, 1000)
                             }
 
@@ -229,7 +231,7 @@ fun TrashScreen(
                             } else {
                                 Icon(
                                     imageVector = Icons.Default.Close,
-                                    contentDescription = "btn delete all items",
+                                    contentDescription = "btn close",
                                     tint = fontColor.value
                                 )
                             }
@@ -291,6 +293,8 @@ fun TrashScreen(
                                 },
                                 onClick = {
                                     viewModel.onEvent(TrashEvent.SelectAll(false), null)
+                                    viewModel.onEvent(TrashEvent.ClearList(selectedItems))
+                                    selectedItemsCount.intValue = selectedItems.size
                                     isSelected.value = true
                                     isExpanded.value = false
                                 }
@@ -341,8 +345,7 @@ fun TrashScreen(
                                 },
                                 onClick = {
                                     isExpanded.value = false
-                                    viewModel.deleteAll(trashedNotes)
-                                    trashedNotes.clear()
+                                    isDialogVisible.value = true
                                 }
                             )
                         }
@@ -375,12 +378,6 @@ fun TrashScreen(
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            LottieAnimation(
-                                modifier = Modifier
-                                    .size(35.dp),
-                                composition = btnTrashAnimation.value,
-                                iterations = LottieConstants.IterateForever
-                            )
                             Text(
                                 textAlign = TextAlign.Center,
                                 text = when (isTrashedNotesDeleted.intValue) {
@@ -465,7 +462,7 @@ fun TrashScreen(
                                         }
 
                                         2 -> {
-                                            viewModel.deleteAll(selectedItems)
+                                            viewModel.delete(trashedNote.value)
                                         }
 
                                         3 -> {
@@ -501,7 +498,6 @@ fun TrashScreen(
                         }
                 ) {
                     items(trashedNotes) { selectedModel ->
-                        trashedNote.value = selectedModel
                         if (selectAllStatus) {
                             selectedItems.clear()
                             viewModel.addAllToList(trashedNotes)
@@ -526,6 +522,10 @@ fun TrashScreen(
                             isDialogVisible = { isDialogVisible.value = it },
                             selectedContent = { isTrashedNotesDeleted.intValue = it },
                             isSelected = isSelected.value,
+                            onClick = {
+                                trashedNote.value = selectedModel
+                                Log.d("fix", "TrashScreen: ${trashedNote.value.content}")
+                            }
                         )
                     }
                 }

@@ -40,6 +40,7 @@ import coder.behzod.presentation.viewModels.TrashViewModel
 fun TrashScreenItem(
     model: TrashModel,
     fontColor: Color,
+    onClick:()->Unit,
     onChange: (Int) -> Unit,
     isDialogVisible: (Boolean) -> Unit,
     selectedContent: (Int) -> Unit,
@@ -64,6 +65,7 @@ fun TrashScreenItem(
                 .clickable {
                     isDialogVisible(true)
                     selectedContent(3)
+                    onClick()
                 }
                 .height(150.dp)
                 .clip(RoundedCornerShape(20.dp))
@@ -83,6 +85,7 @@ fun TrashScreenItem(
                             .clickable {
                                 isDialogVisible(true)
                                 selectedContent(3)
+                                onClick()
                             },
                         text = model.title,
                         color = fontColor,

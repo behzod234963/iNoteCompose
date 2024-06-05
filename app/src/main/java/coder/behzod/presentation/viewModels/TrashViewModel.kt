@@ -46,7 +46,7 @@ class TrashViewModel @Inject constructor (
     }
     fun deleteAll(notes:ArrayList<TrashModel>) = viewModelScope.launch {
         useCases.deleteAll(notes)
-        notes.clear()
+        _trashedNotes.value.clear()
     }
     fun addToList(note:TrashModel) = viewModelScope.launch {
         _selectedItems.value.add(note)
@@ -59,10 +59,9 @@ class TrashViewModel @Inject constructor (
     }
     fun restoreNote(note:NotesModel,trashModel: TrashModel) = viewModelScope.launch {
         noteUseCases.saveNoteUseCase(note)
-        delay(500)
         useCases.delete(trashModel)
     }
-    fun onEvent(event:TrashEvent,notes: ArrayList<NotesModel>?) = viewModelScope.launch {
+    fun onEvent(event:TrashEvent,notes: ArrayList<NotesModel>? = null) = viewModelScope.launch {
         when(event){
             is TrashEvent.SelectAll->{
                 _isItemSelected.value = event.isItemsSelected
@@ -71,6 +70,10 @@ class TrashViewModel @Inject constructor (
                 if (notes != null) {
                     useCases.restoreAllUseCase(notes)
                 }
+            }
+
+            is TrashEvent.ClearList -> {
+                event.list.clear()
             }
         }
     }

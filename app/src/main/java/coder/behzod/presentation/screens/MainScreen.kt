@@ -261,7 +261,7 @@ fun MainScreen(
                                 onCheckedChange = {
                                     if (it == 1) {
                                         if(selectAllStatus){
-                                            viewModel.addAllToList(state.value.notes as ArrayList<NotesModel>)
+                                            viewModel.addAllToList()
                                             selectedNotesCount.intValue = selectedNotes.size
                                         }else{
                                             viewModel.addNoteToList(item)
