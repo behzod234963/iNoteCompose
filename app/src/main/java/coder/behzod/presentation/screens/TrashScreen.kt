@@ -138,7 +138,7 @@ fun TrashScreen(
         bottomBar = {
             BottomNavigationView(
                 themeColor = themeColor.value,
-                fontColor =fontColor.value,
+                fontColor = fontColor.value,
                 navController = navController
             )
         },
@@ -153,11 +153,14 @@ fun TrashScreen(
                         isPlaying.value = true
                         Handler(Looper.getMainLooper()).postDelayed({
                             isPlaying.value = false
+                            isSelected.value = false
                             isDialogVisible.value = true
-                            viewModel.deleteAll(selectedItems)
-                            viewModel.onEvent(TrashEvent.ClearList(selectedItems))
                             selectedItemsCount.intValue = selectedItems.size
-                            isTrashedNotesDeleted.intValue = 2
+                            if (selectAllStatus){
+                                isTrashedNotesDeleted.intValue = 3
+                            }else{
+                                isTrashedNotesDeleted.intValue = 1
+                            }
                         }, 1000)
                     }) {
                     if (isPlaying.value) {
@@ -312,7 +315,7 @@ fun TrashScreen(
                                 onClick = {
                                     isExpanded.value = false
                                     isSelected.value = true
-                                    viewModel.onEvent(TrashEvent.SelectAll(true), null)
+                                    viewModel.onEvent(TrashEvent.SelectAll(true))
                                 }
                             )
 //                            DropDownMenu Item for content "Restore all"
@@ -331,6 +334,7 @@ fun TrashScreen(
                                         TrashEvent.RestoreAllNotes(deletedNotes),
                                         notes
                                     )
+                                    isTrashedNotesDeleted.intValue = 4
                                 }
                             )
 //                            DropDownMenu Item for content "Delete all"
@@ -346,6 +350,8 @@ fun TrashScreen(
                                 onClick = {
                                     isExpanded.value = false
                                     isDialogVisible.value = true
+                                    viewModel.onEvent(TrashEvent.SelectAll(true))
+                                    isTrashedNotesDeleted.intValue = 3
                                 }
                             )
                         }
@@ -382,15 +388,15 @@ fun TrashScreen(
                                 textAlign = TextAlign.Center,
                                 text = when (isTrashedNotesDeleted.intValue) {
                                     1 -> {
-                                        stringResource(id = R.string.delete_all_notes)
-                                    }
-
-                                    2 -> {
                                         stringResource(id = R.string.delete_selected_notes)
                                     }
 
-                                    3 -> {
+                                    2 -> {
                                         stringResource(R.string.action_with_a_note)
+                                    }
+
+                                    3 -> {
+                                        stringResource(id = R.string.delete_all_notes)
                                     }
 
                                     else -> {
@@ -441,7 +447,7 @@ fun TrashScreen(
                                 }
                             ) {
                                 Text(
-                                    text = if (isTrashedNotesDeleted.intValue != 3) stringResource(R.string.cancel)
+                                    text = if (isTrashedNotesDeleted.intValue != 2) stringResource(R.string.cancel)
                                     else stringResource(R.string.restore),
                                     color = themeColor.value,
                                     fontSize = 18.sp
@@ -457,16 +463,24 @@ fun TrashScreen(
                                 shape = RoundedCornerShape(10.dp),
                                 onClick = {
                                     when (isTrashedNotesDeleted.intValue) {
+
+                                        /*This is delete selected */
                                         1 -> {
-                                            viewModel.deleteAll(trashedNotes)
+                                            viewModel.multipleDelete(selectedItems)
                                         }
 
+                                        /*This is delete*/
                                         2 -> {
                                             viewModel.delete(trashedNote.value)
                                         }
 
+                                        /*This is clear*/
                                         3 -> {
-                                            viewModel.delete(trashedNote.value)
+                                            viewModel.multipleDelete(trashedNotes)
+                                        }
+
+                                        4->{
+                                            /*This will be restore all TODO()*/
                                         }
                                     }
                                     selectedItemsCount.intValue = selectedItems.size
@@ -475,7 +489,7 @@ fun TrashScreen(
                             ) {
                                 Text(
                                     text = if (isTrashedNotesDeleted.intValue == 1
-                                        || isTrashedNotesDeleted.intValue == 2
+                                        || isTrashedNotesDeleted.intValue == 3
                                     ) "Ok"
                                     else stringResource(R.string.delete),
                                     color = themeColor.value,
@@ -491,15 +505,10 @@ fun TrashScreen(
                 verticalArrangement = Arrangement.SpaceAround
             ) {
                 Spacer(modifier = Modifier.height(60.dp))
-                LazyColumn(
-                    modifier = Modifier
-                        .clickable {
-                            isSelected.value = true
-                        }
-                ) {
+                LazyColumn {
                     items(trashedNotes) { selectedModel ->
-                        if (selectAllStatus) {
-                            selectedItems.clear()
+                        if (selectAllStatus){
+                            viewModel.onEvent(TrashEvent.ClearList(selectedItems))
                             viewModel.addAllToList(trashedNotes)
                             selectedItemsCount.intValue = selectedItems.size
                         }
@@ -524,7 +533,6 @@ fun TrashScreen(
                             isSelected = isSelected.value,
                             onClick = {
                                 trashedNote.value = selectedModel
-                                Log.d("fix", "TrashScreen: ${trashedNote.value.content}")
                             }
                         )
                     }

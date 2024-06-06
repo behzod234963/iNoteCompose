@@ -11,8 +11,8 @@ class TrashRepositoryImpl(private val trashDao: TrashDao) :TrashRepository {
         trashDao.delete(note)
     }
 
-    override suspend fun deleteAll(notes: ArrayList<TrashModel>) {
-        trashDao.deleteAll(notes)
+    override suspend fun multipleDelete(notes: ArrayList<TrashModel>) {
+        trashDao.multipleDelete(notes)
     }
 
     override fun getTrashedNotes(): Flow<List<TrashModel>> = trashDao.getTrashedNotes()

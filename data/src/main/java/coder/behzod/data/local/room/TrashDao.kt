@@ -17,7 +17,7 @@ interface TrashDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun saveToTrash(note: TrashModel)
     @Delete
-    suspend fun deleteAll(notes: ArrayList<TrashModel>)
+    suspend fun multipleDelete(notes: ArrayList<TrashModel>)
 
     @Query("SELECT *FROM trash")
     fun getTrashedNotes():Flow<List<TrashModel>>

@@ -11,7 +11,8 @@ import coder.behzod.domain.useCase.notesUseCases.UseCases
 import coder.behzod.domain.useCase.trashUseCases.TrashUseCases
 import coder.behzod.presentation.utils.events.TrashEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -44,9 +45,8 @@ class TrashViewModel @Inject constructor (
     fun delete(note:TrashModel) = viewModelScope.launch {
         useCases.delete(note)
     }
-    fun deleteAll(notes:ArrayList<TrashModel>) = viewModelScope.launch {
-        useCases.deleteAll(notes)
-        _trashedNotes.value.clear()
+    fun multipleDelete(notes: ArrayList<TrashModel>) = viewModelScope.launch {
+        useCases.multipleDelete(notes)
     }
     fun addToList(note:TrashModel) = viewModelScope.launch {
         _selectedItems.value.add(note)

@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 interface TrashRepository {
 
     suspend fun delete(note:TrashModel)
-    suspend fun deleteAll(notes:ArrayList<TrashModel>)
+    suspend fun multipleDelete(notes:ArrayList<TrashModel>)
     fun getTrashedNotes():Flow<List<TrashModel>>
     suspend fun saveToTrash(notesModel: TrashModel)
     suspend fun restoreAll(notes: ArrayList<NotesModel>)
