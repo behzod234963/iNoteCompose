@@ -137,6 +137,7 @@ fun SettingsScreen(
 
     val fontSize = remember { mutableIntStateOf(18) }
     val experimentalFontSize = remember { mutableStateOf(18.sp) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -152,7 +153,7 @@ fun SettingsScreen(
             title = {
                 Text(
                     text = stringResource(R.string.settings),
-                    fontSize = 25.sp,
+                    fontSize = 18.sp,
                     fontFamily = FontFamily(fontAmidoneGrotesk),
                     color = fontColor.value
                 )
@@ -268,6 +269,8 @@ fun SettingsScreen(
                         isExpanded.value = false
                     }
                 ) {
+
+                    /* Select locale */
                     localeOptions.keys.forEach { locale ->
                         DropdownMenuItem(
                             leadingIcon = {
@@ -313,8 +316,8 @@ fun SettingsScreen(
                             text = {
                                 Text(
                                     text = locale,
-                                    color = fontColor.value,
-                                    fontSize = 18.sp
+                                    fontSize = 18.sp,
+                                    color = fontColor.value
                                 )
                             },
                             onClick = {
@@ -414,6 +417,7 @@ fun SettingsScreen(
                         .apply()
                     Handler(Looper.getMainLooper()).postDelayed({
                         restartApp(context)
+                        sharedPrefs.sharedPreferences.edit().putInt(KEY_FONT_SIZE,fontSize.intValue).apply()
                     }, 1000L)
                 },
                 text = stringResource(R.string.apply_changes),
@@ -432,7 +436,7 @@ fun SettingsScreen(
                 Text(
                     textAlign = TextAlign.Center,
                     text = stringResource(R.string.the_changes_will_be_applied_after_the_reboot),
-                    fontSize = 20.sp,
+                    fontSize = 25.sp,
                     fontFamily = FontFamily(fontAmidoneGrotesk),
                     color = Color.Red
                 )

@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,6 +23,7 @@ import androidx.navigation.NavHostController
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.presentation.navigation.ScreensRouter
+import coder.behzod.presentation.utils.constants.KEY_FONT_SIZE
 import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.views.BottomNavigationView
 import coder.behzod.presentation.views.MainTopAppBar
@@ -29,6 +31,8 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -59,6 +63,8 @@ fun EmptyMainScreen(
         fontColor.value = Color.Black
     }
 
+    val fontSize = remember { mutableIntStateOf( sharedPrefs.sharedPreferences.getInt(KEY_FONT_SIZE,18) ) }
+
     Scaffold (
         modifier = Modifier,
         bottomBar = {
@@ -73,6 +79,7 @@ fun EmptyMainScreen(
                 backgroundColor = themeColor.value,
                 fontColor = fontColor.value,
                 contentSelect = {},
+                fontSize = fontSize.intValue,
                 contentSelectAll = {},
                 contentDeleteAll = {},
             ) {}

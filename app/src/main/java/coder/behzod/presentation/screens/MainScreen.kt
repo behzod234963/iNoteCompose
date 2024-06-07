@@ -5,7 +5,6 @@ import android.os.Handler
 import android.os.Looper
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -41,11 +40,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
-import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.model.TrashModel
 import coder.behzod.presentation.items.MainScreenItem
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
+import coder.behzod.presentation.utils.constants.KEY_FONT_SIZE
 import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.constants.KEY_LIST_STATUS
 import coder.behzod.presentation.utils.constants.deletedNotes
@@ -123,6 +122,8 @@ fun MainScreen(
 
     val isClosed = remember { mutableStateOf(false) }
 
+    val fontSize = remember { mutableIntStateOf( sharedPrefs.sharedPreferences.getInt(KEY_FONT_SIZE,18) ) }
+
     Scaffold(
         bottomBar = {
             BottomNavigationView(
@@ -138,11 +139,13 @@ fun MainScreen(
                         Text(
                             text = "${selectedNotesCount.intValue} ${stringResource(id = R.string.items_selected)}",
                             color = fontColor.value,
-                            fontSize = 18.sp,
+                            fontSize = fontSize.intValue.sp,
                             fontFamily = FontFamily(fontAmidoneGrotesk)
                         )
                     },
                     actions = {
+
+                        /* Button close */
                         IconButton(onClick = {
                             isClosed.value = true
                             Handler(Looper.getMainLooper()).postDelayed({
@@ -169,7 +172,8 @@ fun MainScreen(
                     }
                 )
             } else {
-                MainTopAppBar(backgroundColor = themeColor.value,
+                MainTopAppBar(
+                    backgroundColor = themeColor.value,
                     fontColor = fontColor.value,
                     contentSelect = {
                         isSelected.value = true
@@ -182,12 +186,15 @@ fun MainScreen(
                         viewModel.deleteAllUseCase(selectedNotes)
                     },
                     noteOrder = state.value.noteOrder,
+                    fontSize = fontSize.intValue,
                     onOrderChange = {
                         viewModel.onEvent(NotesEvent.Order(it))
                     })
             }
         },
         floatingActionButton = {
+
+            /* Floating Action Button add note */
             FloatingActionButton(
                 modifier = Modifier
                     .padding(end = 30.dp, bottom = 30.dp),
@@ -227,13 +234,6 @@ fun MainScreen(
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .combinedClickable(
-                            onLongClick = {
-                                isSelected.value = true
-                            }
-                        ) {
-                            return@combinedClickable
-                        }
                 ) {
                     items(items = state.value.notes, key = { it.toString() }) { notes ->
                         SwipeToDeleteContainer(item = notes, onDelete = {
@@ -258,6 +258,7 @@ fun MainScreen(
                                 onClick = {
                                     navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/${item.id}")
                                 },
+                                fontSize = fontSize.intValue,
                                 onCheckedChange = {
                                     if (it == 1) {
                                         if(selectAllStatus){

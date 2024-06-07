@@ -1,6 +1,5 @@
 package coder.behzod.presentation.items
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -34,13 +33,12 @@ import coder.behzod.domain.model.TrashModel
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.viewModels.TrashViewModel
 
-
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TrashScreenItem(
     model: TrashModel,
     fontColor: Color,
-    onClick:()->Unit,
+    fontSize:Int,
+    onClick: () -> Unit,
     onChange: (Int) -> Unit,
     isDialogVisible: (Boolean) -> Unit,
     selectedContent: (Int) -> Unit,
@@ -50,7 +48,7 @@ fun TrashScreenItem(
 
     val selectAllStatus = viewModel.isItemSelected.value
     val isItemSelected = remember { mutableStateOf(false) }
-    val isAllItemSelected = remember { mutableStateOf( true ) }
+    val isAllItemSelected = remember { mutableStateOf(true) }
 
     Box(
         modifier = Modifier
@@ -64,7 +62,7 @@ fun TrashScreenItem(
                 .fillMaxWidth()
                 .clickable {
                     isDialogVisible(true)
-                    selectedContent(3)
+                    selectedContent(2)
                     onClick()
                 }
                 .height(150.dp)
@@ -79,28 +77,29 @@ fun TrashScreenItem(
                         .padding(10.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-//          This is notes title
+
+                    /* This is notes title */
                     Text(
                         modifier = Modifier
                             .clickable {
                                 isDialogVisible(true)
-                                selectedContent(3)
+                                selectedContent(2)
                                 onClick()
                             },
                         text = model.title,
                         color = fontColor,
-                        fontSize = 25.sp,
+                        fontSize = fontSize.plus(7).sp,
                         fontFamily = FontFamily(fontAmidoneGrotesk)
                     )
                     Text(
                         modifier = Modifier
                             .clickable {
                                 isDialogVisible(true)
-                                selectedContent(3)
+                                selectedContent(2)
                             },
                         text = stringResource(R.string.days, model.daysLeft),
                         color = if (model.color == Color.Gray.toArgb()) Color.White else Color.Gray,
-                        fontSize = 18.sp,
+                        fontSize = fontSize.sp,
                         fontFamily = FontFamily(fontAmidoneGrotesk)
                     )
                 }
@@ -109,13 +108,14 @@ fun TrashScreenItem(
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-//          This is notes text
+
+                    /* This is notes content */
                     Text(
                         modifier = Modifier
                             .padding(start = 10.dp)
                             .clickable {
                                 isDialogVisible(true)
-                                selectedContent(3)
+                                selectedContent(2)
                             },
                         text = model.content,
                         color = fontColor,
@@ -139,8 +139,7 @@ fun TrashScreenItem(
                     onCheckedChange = {
                         if (selectAllStatus) {
                             isAllItemSelected.value = it
-                        }
-                        else {
+                        } else {
                             isItemSelected.value = it
                         }
                         onChange(if (it) 1 else 0)

@@ -41,6 +41,7 @@ import java.time.LocalDate
 fun MainScreenItem(
     notesModel: NotesModel,
     fontColor: Color,
+    fontSize:Int,
     isSelected:Boolean,
     onCheckedChange:(Int)->Unit,
     onClick:()->Unit,
@@ -107,16 +108,16 @@ fun MainScreenItem(
                             .padding(10.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-//          This is notes title
+                        /* This is notes title */
                         Text(
                             text = notesModel.title,
                             color = colorFont.value,
-                            fontSize = 25.sp,
+                            fontSize = fontSize.plus(7).sp,
                             fontFamily = FontFamily(fontAmidoneGrotesk)
                         )
-//          This is notes data added
+                        /* This is notes data added */
                         Text(
-                            text = notesModel.dataAdded.toString(),
+                            text = notesModel.dataAdded,
                             color = colorFont.value,
                             fontSize = 18.sp,
                             fontFamily = FontFamily(fontAmidoneGrotesk)
@@ -127,14 +128,14 @@ fun MainScreenItem(
                             .fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-//          This is notes text
+                        /* This is notes text */
                         Text(
                             modifier = Modifier
                                 .padding(start = 10.dp)
                                 .clickable { notesModel.id },
                             text = notesModel.note,
                             color = colorFont.value,
-                            fontSize = 18.sp,
+                            fontSize = fontSize.sp,
                             fontFamily = FontFamily(fontAmidoneGrotesk)
                         )
                     }

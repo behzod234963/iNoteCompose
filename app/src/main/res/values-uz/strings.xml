@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">iNote</string>
-    <string name="settings">Sozlamalar</string>
+    <string name="settings"> Sozlamalar</string>
     <string name="dark">Tun</string>
     <string name="light">Kun</string>
     <string name="theme">Mavzu</string>

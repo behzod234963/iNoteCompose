@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -63,8 +62,11 @@ import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.model.TrashModel
 import coder.behzod.presentation.items.TrashScreenItem
+import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
+import coder.behzod.presentation.utils.constants.KEY_FONT_SIZE
 import coder.behzod.presentation.utils.constants.KEY_INDEX
+import coder.behzod.presentation.utils.constants.KEY_LIST_STATUS
 import coder.behzod.presentation.utils.constants.deletedNotes
 import coder.behzod.presentation.utils.constants.notes
 import coder.behzod.presentation.utils.events.TrashEvent
@@ -133,6 +135,17 @@ fun TrashScreen(
     val isExpanded = remember { mutableStateOf(false) }
     val selectAllStatus = viewModel.isItemSelected.value
 
+    val fontSize =
+        remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_FONT_SIZE, 18)) }
+
+    val isEmpty = remember {
+        mutableStateOf(
+            sharedPrefs.sharedPreferences.getBoolean(
+                KEY_LIST_STATUS, true
+            )
+        )
+    }
+
     Scaffold(
         containerColor = themeColor.value,
         bottomBar = {
@@ -143,6 +156,8 @@ fun TrashScreen(
             )
         },
         floatingActionButton = {
+
+            /* Floating action button close */
             if (isSelected.value) {
                 FloatingActionButton(
                     modifier = Modifier
@@ -156,9 +171,9 @@ fun TrashScreen(
                             isSelected.value = false
                             isDialogVisible.value = true
                             selectedItemsCount.intValue = selectedItems.size
-                            if (selectAllStatus){
+                            if (selectAllStatus) {
                                 isTrashedNotesDeleted.intValue = 3
-                            }else{
+                            } else {
                                 isTrashedNotesDeleted.intValue = 1
                             }
                         }, 1000)
@@ -205,13 +220,20 @@ fun TrashScreen(
                         )
                     },
                     navigationIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_back),
-                            contentDescription = "back button",
-                            tint = fontColor.value
-                        )
+                        IconButton(onClick = {
+                            isSelected.value = false
+                            viewModel.onEvent(TrashEvent.ClearList(selectedItems))
+                        }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_back),
+                                contentDescription = "back button",
+                                tint = fontColor.value
+                            )
+                        }
                     },
                     actions = {
+
+                        /* Button close */
                         IconButton(onClick = {
                             selectedItemsStatus.value = true
                             if (selectedItemsStatus.value) {
@@ -262,13 +284,21 @@ fun TrashScreen(
                         )
                     },
                     navigationIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_back),
-                            contentDescription = "back button",
-                            tint = fontColor.value
-                        )
+                        IconButton(
+                            onClick = {
+                            if (isEmpty.value) navController.navigate(ScreensRouter.EmptyMainScreenRoute.route)
+                            else navController.navigate(ScreensRouter.MainScreenRoute.route)
+                        }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_back),
+                                contentDescription = "back button",
+                                tint = fontColor.value
+                            )
+                        }
                     },
                     actions = {
+
+                        /* Button more */
                         IconButton(
                             onClick = {
                                 isExpanded.value = !isExpanded.value
@@ -284,7 +314,8 @@ fun TrashScreen(
                             onDismissRequest = {
                                 isExpanded.value = false
                             }) {
-//                            DropDownMenu Item for content "Select"
+
+                            /* DropDownMenu Item for content "Select" */
                             DropdownMenuItem(
                                 text = {
                                     Text(
@@ -302,7 +333,8 @@ fun TrashScreen(
                                     isExpanded.value = false
                                 }
                             )
-//                            DropDownMenu Item for content "Select all"
+
+                            /* DropDownMenu Item for content "Select all" */
                             DropdownMenuItem(
                                 text = {
                                     Text(
@@ -318,7 +350,8 @@ fun TrashScreen(
                                     viewModel.onEvent(TrashEvent.SelectAll(true))
                                 }
                             )
-//                            DropDownMenu Item for content "Restore all"
+
+                            /* DropDownMenu Item for content "Restore all" */
                             DropdownMenuItem(
                                 text = {
                                     Text(
@@ -337,7 +370,8 @@ fun TrashScreen(
                                     isTrashedNotesDeleted.intValue = 4
                                 }
                             )
-//                            DropDownMenu Item for content "Delete all"
+
+                            /* DropDownMenu Item for content "Delete all" */
                             DropdownMenuItem(
                                 text = {
                                     Text(
@@ -404,7 +438,7 @@ fun TrashScreen(
                                     }
                                 },
                                 color = fontColor.value,
-                                fontSize = 23.sp,
+                                fontSize = 25.sp,
                                 fontFamily = FontFamily(fontAmidoneGrotesk)
                             )
                         }
@@ -427,7 +461,7 @@ fun TrashScreen(
                                 ),
                                 shape = RoundedCornerShape(10.dp),
                                 onClick = {
-                                    if (isTrashedNotesDeleted.intValue == 3) {
+                                    if (isTrashedNotesDeleted.intValue == 2) {
                                         viewModel.restoreNote(
                                             trashModel = trashedNote.value,
                                             note = NotesModel(
@@ -479,7 +513,7 @@ fun TrashScreen(
                                             viewModel.multipleDelete(trashedNotes)
                                         }
 
-                                        4->{
+                                        4 -> {
                                             /*This will be restore all TODO()*/
                                         }
                                     }
@@ -507,7 +541,7 @@ fun TrashScreen(
                 Spacer(modifier = Modifier.height(60.dp))
                 LazyColumn {
                     items(trashedNotes) { selectedModel ->
-                        if (selectAllStatus){
+                        if (selectAllStatus) {
                             viewModel.onEvent(TrashEvent.ClearList(selectedItems))
                             viewModel.addAllToList(trashedNotes)
                             selectedItemsCount.intValue = selectedItems.size
@@ -515,6 +549,10 @@ fun TrashScreen(
                         TrashScreenItem(
                             model = selectedModel,
                             fontColor = fontColor.value,
+                            fontSize = fontSize.intValue,
+                            onClick = {
+                                trashedNote.value = selectedModel
+                            },
                             onChange = {
                                 if (it == 1) {
                                     if (selectAllStatus) {
@@ -530,10 +568,7 @@ fun TrashScreen(
                             },
                             isDialogVisible = { isDialogVisible.value = it },
                             selectedContent = { isTrashedNotesDeleted.intValue = it },
-                            isSelected = isSelected.value,
-                            onClick = {
-                                trashedNote.value = selectedModel
-                            }
+                            isSelected = isSelected.value
                         )
                     }
                 }

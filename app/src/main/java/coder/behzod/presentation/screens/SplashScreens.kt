@@ -28,7 +28,6 @@ import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.constants.KEY_LIST_STATUS
-import coder.behzod.presentation.utils.constants.KEY_SPLASH_VISIBILITY
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
@@ -48,13 +47,16 @@ fun SplashScreens(
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
     val colorTheme = if (themeIndex.intValue == 0) Color.Black else Color.White
     val themeColor = remember { mutableStateOf(colorTheme) }
+
     if (colorTheme == Color.Black) {
         themeColor.value = Color.Black
     } else {
         themeColor.value = Color.White
     }
+
     val colorFont = if (themeColor.value == Color.Black) Color.White else Color.Black
     val fontColor = remember { mutableStateOf(colorFont) }
+
     if (colorFont == Color.White) {
         fontColor.value = Color.White
     } else {

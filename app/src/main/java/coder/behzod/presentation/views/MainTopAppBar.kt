@@ -42,9 +42,10 @@ import coder.behzod.presentation.utils.events.PassDataEvents
 fun MainTopAppBar(
     backgroundColor: Color,
     fontColor: Color,
-    contentSelect:()->Unit,
-    contentSelectAll:()->Unit,
-    contentDeleteAll:()->Unit,
+    fontSize: Int,
+    contentSelect: () -> Unit,
+    contentSelectAll: () -> Unit,
+    contentDeleteAll: () -> Unit,
     noteOrder: NoteOrder = NoteOrder.Date(OrderType.Descending),
     onOrderChange: (NoteOrder) -> Unit
 ) {
@@ -68,12 +69,13 @@ fun MainTopAppBar(
                 AnimatedDropDownMenu(
                     backgroundColor = backgroundColor,
                     fontColor = fontColor,
-                ) { event,expanded ->
+                ) { event, expanded ->
                     when (event) {
                         is PassDataEvents.PassStatus -> {
                             isOpened.value = event.status
                         }
-                        is PassDataEvents.IsExpanded->{
+
+                        is PassDataEvents.IsExpanded -> {
                             isExpanded.value = event.isExpanded
                         }
                     }
@@ -210,6 +212,7 @@ fun MainTopAppBar(
                     .fillMaxWidth(),
                 contentAlignment = Alignment.CenterEnd
             ) {
+                /* Button more functions */
                 IconButton(
                     onClick = {
                         isExpanded.value = true
@@ -234,32 +237,49 @@ fun MainTopAppBar(
                         expanded = isExpanded.value,
                         onDismissRequest = { isExpanded.value = false }
                     ) {
+
+                        /* DropDownMenuItem for select Content */
                         DropdownMenuItem(
                             text = {
-                                Text(text = stringResource(R.string.select))
+                                Text(
+                                    text = stringResource(R.string.select),
+                                    color = fontColor,
+                                    fontSize = 18.sp,
+                                    fontFamily = FontFamily(fontAmidoneGrotesk)
+                                )
                             },
                             onClick = {
-//                                DropDownMenuItem for select Content
                                 isExpanded.value = false
                                 contentSelect()
                             }
                         )
+
+                        /* DropDownMenuItem for select all Content */
                         DropdownMenuItem(
                             text = {
-                                Text(text = stringResource(R.string.select_all))
+                                Text(
+                                    text = stringResource(R.string.select_all),
+                                    color = fontColor,
+                                    fontSize = 18.sp,
+                                    fontFamily = FontFamily(fontAmidoneGrotesk)
+                                )
                             },
                             onClick = {
-//                                DropDownMenuItem for select all Content
                                 isExpanded.value = false
                                 contentSelectAll()
                             }
                         )
+
+                        /* DropDownMenuItem for delete all Content */
                         DropdownMenuItem(
                             text = {
-                                Text(text = stringResource(R.string.delete_all))
+                                Text(text = stringResource(R.string.delete_all),
+                                    color = fontColor,
+                                    fontSize = 18.sp,
+                                    fontFamily = FontFamily(fontAmidoneGrotesk)
+                                )
                             },
                             onClick = {
-//                                DropDownMenuItem for delete all Content
                                 isExpanded.value = false
                                 contentDeleteAll()
                             }

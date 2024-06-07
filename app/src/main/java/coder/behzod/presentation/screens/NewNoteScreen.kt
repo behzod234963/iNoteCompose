@@ -42,6 +42,7 @@ import coder.behzod.presentation.items.ColorsItem
 import coder.behzod.presentation.navigation.Arguments
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
+import coder.behzod.presentation.utils.constants.KEY_FONT_SIZE
 import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.constants.colorList
 import coder.behzod.presentation.utils.events.NewNoteEvent
@@ -96,9 +97,12 @@ fun NewNoteScreen(
     val color = remember { mutableStateOf(themeColor.value) }
     val scriptColor = remember { mutableStateOf(fontColor.value) }
 
+    val fontSize =
+        remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_FONT_SIZE, 18)) }
 
     Scaffold(
-        modifier = Modifier.background(if (arguments.id != -1) Color(vmColor) else themeColor.value),
+        modifier = Modifier
+            .background(if (arguments.id != -1) Color(vmColor) else themeColor.value),
         floatingActionButton = {
             SpeedDialFAB(modifier = Modifier.padding(bottom = 20.dp, end = 20.dp), onSave = {
                 if (title.text == "" && title.text.isBlank() ||
@@ -108,10 +112,11 @@ fun NewNoteScreen(
                         scaffoldState.snackbarHostState.showSnackbar(
                             message = if (title.text == "" && title.text.isBlank())
                                 ctx.getString(R.string.the_title_cannot_be_empty) else
-                                    ctx.getString(R.string.note_is_cannot_be_empty),
+                                ctx.getString(R.string.note_is_cannot_be_empty),
                         )
                     }
                 } else {
+                    /* Save note */
                     if (arguments.id != -1) {
                         viewModel.saveNote(
                             NotesModel(
@@ -136,7 +141,8 @@ fun NewNoteScreen(
                 }
             }) {
                 if (title.text == "" && title.text.isBlank() ||
-                    note.text == "" && note.text.isBlank()) {
+                    note.text == "" && note.text.isBlank()
+                ) {
                     coroutineScope.launch {
                         scaffoldState.snackbarHostState.showSnackbar(
                             message = if (title.text == "" && title.text.isBlank())
@@ -145,6 +151,7 @@ fun NewNoteScreen(
                         )
                     }
                 } else {
+                    /* Share and Save note */
                     if (arguments.id != -1) {
                         viewModel.shareAndSaveNote(
                             NotesModel(
@@ -186,6 +193,7 @@ fun NewNoteScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            /* Color select content */
             LazyRow(
                 modifier = Modifier.height(70.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -237,6 +245,7 @@ fun NewNoteScreen(
                     })
                 }
             }
+            /* This is title menu */
             OutlinedTextField(modifier = Modifier
                 .fillMaxWidth()
                 .padding(5.dp),
@@ -263,6 +272,7 @@ fun NewNoteScreen(
                         color = scriptColor.value
                     )
                 })
+            /* This is note menu */
             OutlinedTextField(modifier = Modifier
                 .fillMaxSize()
                 .padding(top = 10.dp)
@@ -276,13 +286,15 @@ fun NewNoteScreen(
                     unfocusedContainerColor = if (arguments.id != -1) Color(vmColor) else color.value
                 ),
                 textStyle = TextStyle(
-                    color = scriptColor.value, fontSize = 18.sp, textAlign = TextAlign.Start
+                    color = scriptColor.value,
+                    fontSize = fontSize.intValue.sp,
+                    textAlign = TextAlign.Start
                 ),
                 placeholder = {
                     Text(
                         text = stringResource(id = R.string.note),
                         modifier = Modifier.fillMaxWidth(),
-                        fontSize = 25.sp,
+                        fontSize = fontSize.intValue.plus(7).sp,
                         color = scriptColor.value,
                         textAlign = TextAlign.Center
                     )
