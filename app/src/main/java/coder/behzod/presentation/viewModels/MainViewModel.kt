@@ -16,6 +16,8 @@ import coder.behzod.presentation.utils.events.NotesEvent
 import coder.behzod.presentation.utils.events.TrashEvent
 import coder.behzod.presentation.utils.helpers.NotesState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -79,6 +81,11 @@ class MainViewModel @Inject constructor(
     }
     fun saveToTrash(note: TrashModel) = viewModelScope.launch {
         trashUseCase.saveToTrash(note)
+    }
+    fun returnDeletedNote(note: NotesModel){
+        CoroutineScope(Dispatchers.IO).launch {
+            useCases.saveNoteUseCase(note)
+        }
     }
     fun deleteAllUseCase(notes: ArrayList<NotesModel>) = viewModelScope.launch {
         useCases.deleteAllUseCase(notes)

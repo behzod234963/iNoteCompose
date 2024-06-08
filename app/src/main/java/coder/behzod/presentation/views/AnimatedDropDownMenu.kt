@@ -28,10 +28,11 @@ import coder.behzod.presentation.utils.events.PassDataEvents
 fun AnimatedDropDownMenu(
     backgroundColor: Color,
     fontColor: Color,
+    isExpanded:Boolean,
     initiallyOpened: Boolean = false,
-    content: @Composable (events: PassDataEvents,expanded:PassDataEvents) -> Unit
+    content: @Composable (events: PassDataEvents) -> Unit
 ) {
-    val isExpanded = remember { mutableStateOf( false ) }
+
     var isOpen by remember {
         mutableStateOf(initiallyOpened)
     }
@@ -47,6 +48,8 @@ fun AnimatedDropDownMenu(
             durationMillis = 300
         ), label = ""
     )
+
+    if (isExpanded) isOpen = false
     Column {
         Column(
             modifier = Modifier
@@ -61,9 +64,6 @@ fun AnimatedDropDownMenu(
                     .padding(top = 15.dp,start = 10.dp, end = 5.dp)
                     .clickable {
                         isOpen = !isOpen
-                        if (isOpen){
-                            isExpanded.value = false
-                        }
                     }
                     .scale(1f, if (isOpen) -1f else 1f)
             )
@@ -77,7 +77,7 @@ fun AnimatedDropDownMenu(
                 }
                 .alpha(alpha.value)
         ) {
-            content(PassDataEvents.PassStatus(isOpen),PassDataEvents.IsExpanded(isExpanded.value))
+            content(PassDataEvents.PassStatus(isOpen))
         }
     }
 }

@@ -286,8 +286,7 @@ fun TrashScreen(
                     navigationIcon = {
                         IconButton(
                             onClick = {
-                            if (isEmpty.value) navController.navigate(ScreensRouter.EmptyMainScreenRoute.route)
-                            else navController.navigate(ScreensRouter.MainScreenRoute.route)
+                            navController.navigate(ScreensRouter.MainScreenRoute.route)
                         }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_back),
@@ -403,7 +402,7 @@ fun TrashScreen(
             ) {
                 AlertDialog(
                     modifier = Modifier
-                        .height(150.dp)
+                        .height(200.dp)
                         .background(Color.Gray)
                         .border(
                             color = fontColor.value,
@@ -455,7 +454,7 @@ fun TrashScreen(
                             Button(
                                 modifier = Modifier
                                     .height(40.dp)
-                                    .width(120.dp),
+                                    .padding(end = 7.dp),
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = fontColor.value
                                 ),
@@ -490,7 +489,7 @@ fun TrashScreen(
                             Button(
                                 modifier = Modifier
                                     .height(40.dp)
-                                    .width(120.dp),
+                                    .padding(start = 7.dp),
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = fontColor.value
                                 ),

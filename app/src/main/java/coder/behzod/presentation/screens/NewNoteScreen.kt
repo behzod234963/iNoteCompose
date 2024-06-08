@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -105,14 +106,10 @@ fun NewNoteScreen(
             .background(if (arguments.id != -1) Color(vmColor) else themeColor.value),
         floatingActionButton = {
             SpeedDialFAB(modifier = Modifier.padding(bottom = 20.dp, end = 20.dp), onSave = {
-                if (title.text == "" && title.text.isBlank() ||
-                    note.text == "" && note.text.isBlank()
-                ) {
+                if (note.text == "" && note.text.isBlank()) {
                     coroutineScope.launch {
                         scaffoldState.snackbarHostState.showSnackbar(
-                            message = if (title.text == "" && title.text.isBlank())
-                                ctx.getString(R.string.the_title_cannot_be_empty) else
-                                ctx.getString(R.string.note_is_cannot_be_empty),
+                            message = ctx.getString(R.string.note_is_cannot_be_empty),
                         )
                     }
                 } else {
@@ -121,7 +118,8 @@ fun NewNoteScreen(
                         viewModel.saveNote(
                             NotesModel(
                                 id = arguments.id,
-                                title = title.text,
+                                title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
+                                    .text.capitalize(),
                                 note = note.text,
                                 color = color.value.toArgb(),
                                 dataAdded = date.value.toString()
@@ -130,7 +128,8 @@ fun NewNoteScreen(
                     } else {
                         viewModel.saveNote(
                             NotesModel(
-                                title = title.text,
+                                title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
+                                    .text.capitalize(),
                                 note = note.text,
                                 color = color.value.toArgb(),
                                 dataAdded = date.value.toString()
@@ -140,14 +139,10 @@ fun NewNoteScreen(
                     navController.navigate(ScreensRouter.MainScreenRoute.route)
                 }
             }) {
-                if (title.text == "" && title.text.isBlank() ||
-                    note.text == "" && note.text.isBlank()
-                ) {
+                if (note.text == "" && note.text.isBlank()) {
                     coroutineScope.launch {
                         scaffoldState.snackbarHostState.showSnackbar(
-                            message = if (title.text == "" && title.text.isBlank())
-                                ctx.getString(R.string.the_title_cannot_be_empty) else
-                                ctx.getString(R.string.note_is_cannot_be_empty),
+                            message = ctx.getString(R.string.note_is_cannot_be_empty),
                         )
                     }
                 } else {
@@ -156,7 +151,10 @@ fun NewNoteScreen(
                         viewModel.shareAndSaveNote(
                             NotesModel(
                                 id = arguments.id,
-                                title = title.text,
+                                title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
+                                    .text.also {
+                                        it.first().uppercase()
+                                    },
                                 note = note.text,
                                 color = color.value.toArgb(),
                                 dataAdded = date.value.toString()
@@ -165,7 +163,8 @@ fun NewNoteScreen(
                     } else {
                         viewModel.shareAndSaveNote(
                             NotesModel(
-                                title = title.text,
+                                title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
+                                    .text.first().uppercase(),
                                 note = note.text,
                                 color = color.value.toArgb(),
                                 dataAdded = date.value.toString()
@@ -253,6 +252,7 @@ fun NewNoteScreen(
                     focusedContainerColor = if (arguments.id != -1) Color(vmColor) else color.value,
                     unfocusedContainerColor = if (arguments.id != -1) Color(vmColor) else color.value
                 ),
+                maxLines = 1,
                 textStyle = TextStyle(
                     color = scriptColor.value,
                     fontSize = 32.sp,

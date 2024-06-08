@@ -52,6 +52,8 @@ fun MainTopAppBar(
     val isOpened = remember { mutableStateOf(false) }
     val isExpanded = remember { mutableStateOf(false) }
 
+    if (isExpanded.value) isOpened.value = false
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -69,14 +71,11 @@ fun MainTopAppBar(
                 AnimatedDropDownMenu(
                     backgroundColor = backgroundColor,
                     fontColor = fontColor,
-                ) { event, expanded ->
+                    isExpanded = isExpanded.value,
+                ) { event, ->
                     when (event) {
                         is PassDataEvents.PassStatus -> {
                             isOpened.value = event.status
-                        }
-
-                        is PassDataEvents.IsExpanded -> {
-                            isExpanded.value = event.isExpanded
                         }
                     }
                     Column(
@@ -192,6 +191,8 @@ fun MainTopAppBar(
                     .padding(top = 15.dp),
                 contentAlignment = Alignment.Center
             ) {
+
+                /* Title in top app bar app name */
                 Text(
                     text = stringResource(id = R.string.app_name),
                     color = fontColor,
@@ -273,7 +274,8 @@ fun MainTopAppBar(
                         /* DropDownMenuItem for delete all Content */
                         DropdownMenuItem(
                             text = {
-                                Text(text = stringResource(R.string.delete_all),
+                                Text(
+                                    text = stringResource(R.string.delete_all),
                                     color = fontColor,
                                     fontSize = 18.sp,
                                     fontFamily = FontFamily(fontAmidoneGrotesk)

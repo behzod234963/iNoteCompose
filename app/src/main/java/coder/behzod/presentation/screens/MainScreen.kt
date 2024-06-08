@@ -122,7 +122,8 @@ fun MainScreen(
 
     val isClosed = remember { mutableStateOf(false) }
 
-    val fontSize = remember { mutableIntStateOf( sharedPrefs.sharedPreferences.getInt(KEY_FONT_SIZE,18) ) }
+    val fontSize =
+        remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_FONT_SIZE, 18)) }
 
     Scaffold(
         bottomBar = {
@@ -175,6 +176,7 @@ fun MainScreen(
                 MainTopAppBar(
                     backgroundColor = themeColor.value,
                     fontColor = fontColor.value,
+                    fontSize = fontSize.intValue,
                     contentSelect = {
                         isSelected.value = true
                     },
@@ -186,10 +188,10 @@ fun MainScreen(
                         viewModel.deleteAllUseCase(selectedNotes)
                     },
                     noteOrder = state.value.noteOrder,
-                    fontSize = fontSize.intValue,
                     onOrderChange = {
                         viewModel.onEvent(NotesEvent.Order(it))
-                    })
+                    }
+                )
             }
         },
         floatingActionButton = {
@@ -236,7 +238,8 @@ fun MainScreen(
                         .fillMaxSize()
                 ) {
                     items(items = state.value.notes, key = { it.toString() }) { notes ->
-                        SwipeToDeleteContainer(item = notes, onDelete = {
+                        SwipeToDeleteContainer(item = notes,
+                            onDelete = {
                             viewModel.saveToTrash(
                                 TrashModel(
                                     title = it.title,
@@ -261,10 +264,10 @@ fun MainScreen(
                                 fontSize = fontSize.intValue,
                                 onCheckedChange = {
                                     if (it == 1) {
-                                        if(selectAllStatus){
+                                        if (selectAllStatus) {
                                             viewModel.addAllToList()
                                             selectedNotesCount.intValue = selectedNotes.size
-                                        }else{
+                                        } else {
                                             viewModel.addNoteToList(item)
                                             selectedNotesCount.intValue = selectedNotes.size
                                         }
