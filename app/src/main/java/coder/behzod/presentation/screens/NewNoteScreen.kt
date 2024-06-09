@@ -29,7 +29,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -105,7 +104,13 @@ fun NewNoteScreen(
         modifier = Modifier
             .background(if (arguments.id != -1) Color(vmColor) else themeColor.value),
         floatingActionButton = {
-            SpeedDialFAB(modifier = Modifier.padding(bottom = 20.dp, end = 20.dp), onSave = {
+            SpeedDialFAB(modifier = Modifier
+                .padding(bottom = 20.dp, end = 20.dp),
+                labelFirst = stringResource(R.string.save),
+                painterFirst = R.drawable.ic_save,
+                labelSecond = stringResource(R.string.share),
+                painterSecond = R.drawable.ic_share,
+                onClickFirst = {
                 if (note.text == "" && note.text.isBlank()) {
                     coroutineScope.launch {
                         scaffoldState.snackbarHostState.showSnackbar(
@@ -153,7 +158,7 @@ fun NewNoteScreen(
                                 id = arguments.id,
                                 title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
                                     .text.also {
-                                        it.first().uppercase()
+                                        it.capitalize()
                                     },
                                 note = note.text,
                                 color = color.value.toArgb(),
@@ -164,7 +169,7 @@ fun NewNoteScreen(
                         viewModel.shareAndSaveNote(
                             NotesModel(
                                 title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
-                                    .text.first().uppercase(),
+                                    .text.capitalize(),
                                 note = note.text,
                                 color = color.value.toArgb(),
                                 dataAdded = date.value.toString()

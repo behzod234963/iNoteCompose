@@ -57,6 +57,7 @@ fun MainTopAppBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(3.dp)
     ) {
         Box(
             modifier = Modifier

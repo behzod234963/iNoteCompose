@@ -68,7 +68,7 @@ fun NavGraph() {
         ){
             TrashScreen(
                 sharedPrefs = SharedPreferenceInstance(ctx),
-                navController
+                navController = navController
             )
         }
     }

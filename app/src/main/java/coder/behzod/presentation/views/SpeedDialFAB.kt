@@ -2,14 +2,10 @@ package coder.behzod.presentation.views
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
-import coder.behzod.R
 import de.charlex.compose.SpeedDialData
 import de.charlex.compose.SpeedDialFloatingActionButton
 
@@ -18,8 +14,12 @@ import de.charlex.compose.SpeedDialFloatingActionButton
 @Composable
 fun SpeedDialFAB(
     modifier: Modifier,
-    onSave: () -> Unit,
-    onShare: () -> Unit
+    labelFirst:String,
+    labelSecond:String,
+    painterFirst:Int,
+    painterSecond:Int,
+    onClickFirst: () -> Unit,
+    onClickSecond: () -> Unit
 ) {
     Column(
         modifier = modifier,
@@ -31,18 +31,23 @@ fun SpeedDialFAB(
             onClick = {
 
             },
+            /* Button Save */
             speedDialData = listOf(
                 SpeedDialData(
-                    label = stringResource(R.string.save),
-                    painterResource = R.drawable.ic_save,
+                    label = labelFirst,
+                    painterResource = painterFirst,
                     onClick = {
-                        onSave()
+                        onClickFirst()
                     }
                 ),
+
+                /* Button Share and Save */
                 SpeedDialData(
-                    label = stringResource(R.string.share),
-                    painterResource = R.drawable.ic_share,
-                    onClick = { onShare() }
+                    label = labelSecond,
+                    painterResource = painterSecond,
+                    onClick = {
+                        onClickSecond()
+                    }
                 )
             )
         )

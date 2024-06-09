@@ -1,6 +1,8 @@
 package coder.behzod.presentation.viewModels
 
 import android.annotation.SuppressLint
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -13,7 +15,10 @@ import coder.behzod.presentation.utils.events.TrashEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,8 +33,10 @@ class TrashViewModel @Inject constructor (
     @SuppressLint("MutableCollectionMutableState")
     private val _selectedItems = mutableStateOf(ArrayList<TrashModel>())
     val selectedItems:State<ArrayList<TrashModel>> = _selectedItems
+
     private val _isItemSelected = mutableStateOf( false )
     val isItemSelected : State<Boolean> = _isItemSelected
+
     init {
         getNotes()
     }
@@ -61,14 +68,28 @@ class TrashViewModel @Inject constructor (
         noteUseCases.saveNoteUseCase(note)
         useCases.delete(trashModel)
     }
-    fun onEvent(event:TrashEvent,notes: ArrayList<NotesModel>? = null) = viewModelScope.launch {
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun onEvent(event:TrashEvent, note: NotesModel? = null,notes: ArrayList<NotesModel>? = null, trashedNotes:ArrayList<TrashModel>? = null) = viewModelScope.launch {
         when(event){
             is TrashEvent.SelectAll->{
                 _isItemSelected.value = event.isItemsSelected
             }
             is TrashEvent.RestoreAllNotes->{
-                if (notes != null) {
-                    useCases.restoreAllUseCase(notes)
+                CoroutineScope(Dispatchers.Default).launch {
+                    notes?.clear()
+                    trashedNotes?.map {
+                        it.title to note?.title
+                        it.content to note?.note
+                        it.daysLeft to note?.dataAdded?.compareTo(LocalDate.now().toString())
+                        it.color to note?.color
+                    }?.zip(notes!!)
+                }
+                CoroutineScope(Dispatchers.IO).launch {
+                    notes?.let { useCases.restoreAllUseCase(it) }
+                    delay(100)
+                    if (trashedNotes != null) {
+                        multipleDelete(trashedNotes)
+                    }
                 }
             }
 

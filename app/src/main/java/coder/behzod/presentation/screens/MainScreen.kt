@@ -224,7 +224,7 @@ fun MainScreen(
             }
         },
         scaffoldState = scaffoldState
-    ) {
+    ) {it.calculateTopPadding()
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier
