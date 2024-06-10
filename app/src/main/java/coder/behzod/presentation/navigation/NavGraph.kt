@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
+import coder.behzod.domain.model.NotesModel
 import coder.behzod.presentation.screens.EmptyMainScreen
 import coder.behzod.presentation.screens.MainScreen
 import coder.behzod.presentation.screens.NewNoteScreen
@@ -68,7 +69,14 @@ fun NavGraph() {
         ){
             TrashScreen(
                 sharedPrefs = SharedPreferenceInstance(ctx),
-                navController = navController
+                navController = navController,
+                notesModel = NotesModel(
+                    id = 0,
+                    title = "",
+                    content = "",
+                    color = -1,
+                    dataAdded = ""
+                )
             )
         }
     }

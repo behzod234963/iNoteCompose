@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import androidx.annotation.Nullable
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -62,6 +61,7 @@ import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.utils.constants.KEY_FONT_SIZE
 import coder.behzod.presentation.utils.constants.KEY_INDEX
+import coder.behzod.presentation.utils.constants.notes
 import coder.behzod.presentation.utils.events.TrashEvent
 import coder.behzod.presentation.viewModels.TrashViewModel
 import coder.behzod.presentation.views.BottomNavigationView
@@ -80,7 +80,7 @@ import java.time.LocalDate
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "MutableCollectionMutableState")
 @Composable
 fun TrashScreen(
-    notesModel: NotesModel? = null,
+    notesModel: NotesModel,
     sharedPrefs: SharedPreferenceInstance,
     navController: NavController,
     viewModel: TrashViewModel = hiltViewModel(),
@@ -162,17 +162,25 @@ fun TrashScreen(
                     painterFirst = R.drawable.ic_delete,
                     painterSecond = R.drawable.ic_restore,
                     onClickFirst = {
-                      /* Content for delete function */
-                        if (selectAllStatus){
+                        /* Content for delete function */
+                        if (selectAllStatus) {
                             functionsCase.intValue = 3
-                        }else{
+                            isDialogVisible.value = true
+                            isSelected.value = false
+                        } else {
                             functionsCase.intValue = 1
+                            isDialogVisible.value = true
+                            isSelected.value = false
                         }
                     }) {
                     /* Content for restore function */
-                    if (selectAllStatus){
+                    if (selectAllStatus) {
                         functionsCase.intValue = 4
-                    }else{
+                        isDialogVisible.value = true
+                        isSelected.value = false
+                    } else {
+                        isDialogVisible.value = true
+                        isSelected.value = false
                         functionsCase.intValue = 5
                     }
                 }
@@ -205,7 +213,12 @@ fun TrashScreen(
                     navigationIcon = {
                         IconButton(onClick = {
                             isSelected.value = false
-                            viewModel.onEvent(note = notesModel, event = TrashEvent.ClearList(selectedItems))
+                            viewModel.onEvent(
+                                note = notesModel!!,
+                                trashedNotes = trashedNotes,
+                                notes = notes,
+                                event = TrashEvent.ClearList(selectedItems)
+                            )
                         }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_back),
@@ -223,7 +236,12 @@ fun TrashScreen(
                                 Handler(Looper.getMainLooper()).postDelayed({
                                     selectedItemsStatus.value = false
                                     isSelected.value = false
-                                    viewModel.onEvent(TrashEvent.ClearList(selectedItems))
+                                    viewModel.onEvent(
+                                        event = TrashEvent.ClearList(selectedItems),
+                                        note = notesModel!!,
+                                        trashedNotes = trashedNotes,
+                                        notes = notes
+                                    )
                                     selectedItemsCount.intValue = 0
                                 }, 1000)
                             }
@@ -308,8 +326,18 @@ fun TrashScreen(
                                     )
                                 },
                                 onClick = {
-                                    viewModel.onEvent(TrashEvent.SelectAll(false), null)
-                                    viewModel.onEvent(TrashEvent.ClearList(selectedItems))
+                                    viewModel.onEvent(
+                                        TrashEvent.SelectAll(false),
+                                        notesModel!!,
+                                        notes,
+                                        trashedNotes
+                                    )
+                                    viewModel.onEvent(
+                                        event = TrashEvent.ClearList(selectedItems),
+                                        notes = notes,
+                                        trashedNotes = trashedNotes,
+                                        note = notesModel!!
+                                    )
                                     selectedItemsCount.intValue = selectedItems.size
                                     isSelected.value = true
                                     isExpanded.value = false
@@ -329,7 +357,12 @@ fun TrashScreen(
                                 onClick = {
                                     isExpanded.value = false
                                     isSelected.value = true
-                                    viewModel.onEvent(TrashEvent.SelectAll(true))
+                                    viewModel.onEvent(
+                                        TrashEvent.SelectAll(true),
+                                        notesModel!!,
+                                        notes,
+                                        trashedNotes
+                                    )
                                 }
                             )
 
@@ -363,7 +396,14 @@ fun TrashScreen(
                                 onClick = {
                                     isExpanded.value = false
                                     isDialogVisible.value = true
-                                    viewModel.onEvent(TrashEvent.SelectAll(true))
+                                    if (notesModel != null) {
+                                        viewModel.onEvent(
+                                            event = TrashEvent.SelectAll(true),
+                                            notes = notes,
+                                            trashedNotes = trashedNotes,
+                                            note = notesModel
+                                        )
+                                    }
                                     functionsCase.intValue = 3
                                 }
                             )
@@ -411,10 +451,12 @@ fun TrashScreen(
                                     3 -> {
                                         stringResource(id = R.string.delete_all_notes)
                                     }
-                                    4->{
+
+                                    4 -> {
                                         stringResource(id = R.string.restore_all)
                                     }
-                                    5->{
+
+                                    5 -> {
                                         stringResource(id = R.string.restore_selected)
                                     }
 
@@ -452,7 +494,7 @@ fun TrashScreen(
                                             note = NotesModel(
                                                 id = trashedNote.value.id,
                                                 title = trashedNote.value.title,
-                                                note = trashedNote.value.content,
+                                                content = trashedNote.value.content,
                                                 color = trashedNote.value.color,
                                                 dataAdded = LocalDate.now().toString()
                                             )
@@ -499,11 +541,26 @@ fun TrashScreen(
                                         }
 
                                         4 -> {
-                                            viewModel.onEvent(TrashEvent.RestoreAllNotes(notesList,trashedNotes))
+                                            viewModel.onEvent(
+                                                event = TrashEvent.RestoreAllNotes(
+                                                    notesModelList = notes,
+                                                    trashedNotesList = trashedNotes,
+                                                ),
+                                                notes = notes,
+                                                trashedNotes = trashedNotes,
+                                                note = notesModel
+                                            )
+
                                         }
-                                        5->{
+
+                                        5 -> {
                                             /* This will be restore selected function */
-                                            TODO()
+                                            viewModel.onEvent(
+                                                event = TrashEvent.RestoreSelected(),
+                                                note = notesModel,
+                                                notes = notes,
+                                                trashedNotes = trashedNotes
+                                            )
                                         }
                                     }
                                     selectedItemsCount.intValue = selectedItems.size
@@ -511,20 +568,24 @@ fun TrashScreen(
                                 }
                             ) {
                                 Text(
-                                    text = when(functionsCase.intValue){
-                                        1-> {
+                                    text = when (functionsCase.intValue) {
+                                        1 -> {
                                             stringResource(id = R.string.delete)
                                         }
-                                        2->{
+
+                                        2 -> {
                                             stringResource(id = R.string.delete)
                                         }
-                                        3->{
+
+                                        3 -> {
                                             stringResource(id = R.string.delete)
                                         }
-                                        4->{
+
+                                        4 -> {
                                             stringResource(id = R.string.restore)
                                         }
-                                        5->{
+
+                                        5 -> {
                                             stringResource(id = R.string.restore)
                                         }
 
@@ -548,7 +609,12 @@ fun TrashScreen(
                 LazyColumn {
                     items(trashedNotes) { selectedModel ->
                         if (selectAllStatus) {
-                            viewModel.onEvent(TrashEvent.ClearList(selectedItems))
+                            viewModel.onEvent(
+                                event = TrashEvent.ClearList(selectedItems),
+                                notes = notes,
+                                trashedNotes = trashedNotes,
+                                note = notesModel
+                            )
                             viewModel.addAllToList(trashedNotes)
                             selectedItemsCount.intValue = selectedItems.size
                         }

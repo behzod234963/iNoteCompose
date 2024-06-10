@@ -48,7 +48,7 @@ class NewNoteViewModel @Inject constructor(
                            text = notes.title
                        )
                        _note.value = note.value.copy(
-                           text = notes.note
+                           text = notes.content
                        )
                        _color.intValue = notes.color
                    }

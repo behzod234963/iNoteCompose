@@ -243,7 +243,7 @@ fun MainScreen(
                             viewModel.saveToTrash(
                                 TrashModel(
                                     title = it.title,
-                                    content = it.note,
+                                    content = it.content,
                                     color = it.color,
                                     daysLeft = 30,
                                 )

@@ -8,7 +8,7 @@ data class NotesModel(
     @PrimaryKey(autoGenerate = true)
     val id: Int? = null,
     val title: String,
-    val note: String,
+    val content: String,
     val color: Int,
     val dataAdded: String
 )

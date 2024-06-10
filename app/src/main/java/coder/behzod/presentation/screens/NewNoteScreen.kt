@@ -125,7 +125,7 @@ fun NewNoteScreen(
                                 id = arguments.id,
                                 title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
                                     .text.capitalize(),
-                                note = note.text,
+                                content = note.text,
                                 color = color.value.toArgb(),
                                 dataAdded = date.value.toString()
                             )
@@ -135,7 +135,7 @@ fun NewNoteScreen(
                             NotesModel(
                                 title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
                                     .text.capitalize(),
-                                note = note.text,
+                                content = note.text,
                                 color = color.value.toArgb(),
                                 dataAdded = date.value.toString()
                             )
@@ -160,7 +160,7 @@ fun NewNoteScreen(
                                     .text.also {
                                         it.capitalize()
                                     },
-                                note = note.text,
+                                content = note.text,
                                 color = color.value.toArgb(),
                                 dataAdded = date.value.toString()
                             ), text = "$title $note", ctx = ctx
@@ -170,7 +170,7 @@ fun NewNoteScreen(
                             NotesModel(
                                 title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
                                     .text.capitalize(),
-                                note = note.text,
+                                content = note.text,
                                 color = color.value.toArgb(),
                                 dataAdded = date.value.toString()
                             ), text = "$title $note", ctx = ctx
