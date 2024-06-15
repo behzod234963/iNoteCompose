@@ -11,7 +11,7 @@ import coder.behzod.domain.useCase.notesUseCases.DeleteNoteUseCase
 import coder.behzod.domain.useCase.notesUseCases.GetNoteUseCase
 import coder.behzod.domain.useCase.notesUseCases.GetNotesUseCase
 import coder.behzod.domain.useCase.notesUseCases.SaveNoteUseCase
-import coder.behzod.domain.useCase.notesUseCases.UseCases
+import coder.behzod.domain.useCase.notesUseCases.NotesUseCases
 import coder.behzod.domain.useCase.trashUseCases.MultipleDeleteUseCase
 import coder.behzod.domain.useCase.trashUseCases.DeleteUseCase
 import coder.behzod.domain.useCase.trashUseCases.GetTrashedNotesUseCase
@@ -29,8 +29,8 @@ import javax.inject.Singleton
 class DomainModule {
     @Provides
     @Singleton
-    fun provideNoteUseCases(repository: NotesRepository): UseCases =
-        UseCases(
+    fun provideNoteUseCases(repository: NotesRepository): NotesUseCases =
+        NotesUseCases(
             deleteUseCase = DeleteNoteUseCase(repository),
             getNotesUseCase = GetNotesUseCase(repository),
             getNoteUseCase = GetNoteUseCase(repository),
@@ -42,10 +42,11 @@ class DomainModule {
     @Singleton
     fun provideTrashUseCases(repository: TrashRepository):TrashUseCases =
         TrashUseCases(
+
+            saveToTrashUseCase = SaveToTrashUseCase(repository),
             delete = DeleteUseCase(repository),
             multipleDelete = MultipleDeleteUseCase(repository),
             getTrashedNotes = GetTrashedNotesUseCase(repository),
-            saveToTrash = SaveToTrashUseCase(repository),
             restoreAllUseCase = RestoreAllUseCase(repository),
         )
 

@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import coder.behzod.domain.model.NotesModel
+import coder.behzod.domain.model.TrashModel
 import kotlinx.coroutines.flow.Flow
 
 @Dao

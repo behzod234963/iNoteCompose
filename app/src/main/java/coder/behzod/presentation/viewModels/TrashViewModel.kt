@@ -7,16 +7,13 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.room.util.foreignKeyCheck
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.model.TrashModel
-import coder.behzod.domain.useCase.notesUseCases.DeleteAllUseCase
-import coder.behzod.domain.useCase.notesUseCases.UseCases
+import coder.behzod.domain.useCase.notesUseCases.NotesUseCases
 import coder.behzod.domain.useCase.trashUseCases.TrashUseCases
 import coder.behzod.presentation.utils.events.TrashEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -24,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class TrashViewModel @Inject constructor(
     private val useCases: TrashUseCases,
-    private val noteUseCases: UseCases
+    private val noteUseCases: NotesUseCases
 ) : ViewModel() {
     @SuppressLint("MutableCollectionMutableState")
     private val _trashedNotes = mutableStateOf(ArrayList<TrashModel>())
@@ -40,8 +37,6 @@ class TrashViewModel @Inject constructor(
     init {
         getNotes()
     }
-    private var restoreAllJob: Job? = null
-
     private fun getNotes() {
         viewModelScope.launch {
             useCases.getTrashedNotes().collect {

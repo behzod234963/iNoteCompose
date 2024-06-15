@@ -4,7 +4,6 @@ import android.provider.ContactsContract.CommonDataKinds.Note
 import androidx.compose.ui.graphics.Color
 import coder.behzod.domain.model.NotesModel
 
-val deletedNotes = ArrayList<NotesModel>()
 const val KEY_FONT_SIZE = "KEY_FONT_SIZE"
 const val KEY_THEME_STATUS = "KEY_THEME_STATUS"
 const val KEY_INDEX = "KEY_INDEX"

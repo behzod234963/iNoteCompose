@@ -45,4 +45,6 @@
     <string name="restore_selected">Восстановить выбранные</string>
     <string name="all_notes">Все заметки</string>
     <string name="items_selected">элементов выбрано</string>
+    <string name="view">Вид</string>
+    <string name="select_view">Выберите вид</string>
 </resources>

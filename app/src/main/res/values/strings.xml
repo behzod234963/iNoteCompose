@@ -44,4 +44,6 @@
     <string name="restore_selected">Restore selected</string>
     <string name="all_notes">All notes</string>
     <string name="items_selected">items selected</string>
+    <string name="view">View</string>
+    <string name="select_view">Select view</string>
 </resources>

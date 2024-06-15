@@ -7,6 +7,11 @@ import coder.behzod.domain.repository.TrashRepository
 import kotlinx.coroutines.flow.Flow
 
 class TrashRepositoryImpl(private val trashDao: TrashDao) :TrashRepository {
+
+    override suspend fun saveToTrash(trashedNote: TrashModel) {
+        trashDao.saveToTrash(trashedNote)
+    }
+
     override suspend fun delete(note: TrashModel) {
         trashDao.delete(note)
     }
@@ -16,9 +21,6 @@ class TrashRepositoryImpl(private val trashDao: TrashDao) :TrashRepository {
     }
 
     override fun getTrashedNotes(): Flow<List<TrashModel>> = trashDao.getTrashedNotes()
-    override suspend fun saveToTrash(notesModel: TrashModel) {
-        trashDao.saveToTrash(notesModel)
-    }
 
     override suspend fun restoreAll(notes: ArrayList<NotesModel>) {
         trashDao.restoreAll(notes)

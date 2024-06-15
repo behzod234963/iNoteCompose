@@ -105,11 +105,6 @@ fun TrashScreen(
     if (colorTheme == Color.Black) themeColor.value = Color.Black else themeColor.value =
         Color.White
 
-    val colorFont = if (themeColor.value == Color.Black) Color.White else Color.Black
-    val fontColor = remember { mutableStateOf(colorFont) }
-
-    if (colorFont == Color.White) fontColor.value = Color.White else fontColor.value = Color.Black
-
     val isDialogVisible = remember { mutableStateOf(false) }
     val isPlaying = remember { mutableStateOf(false) }
 
@@ -142,12 +137,48 @@ fun TrashScreen(
 
     val notesList = ArrayList<NotesModel>()
 
+    val fontColor = remember {
+        mutableStateOf(
+            when (notesModel.color) {
+
+                /* Color for title,when title color is Black */
+                -16777216 -> {
+                    Color.White
+                }
+
+                -1 -> {
+//                Color for title,when title color is White
+                    Color.Black
+                }
+
+                -65536 -> {
+//                Color for note and data,when that's color was red
+                    Color.White
+                }
+
+                -65281 -> {
+//                 Color for note and data,when that's color was pink
+                    Color.White
+                }
+
+                -256 -> {
+//                Color for title,when that's color was yellow
+                    Color.Black
+                }
+
+                else -> {
+                    Color.LightGray
+                }
+            }
+        )
+    }
+
     Scaffold(
         containerColor = themeColor.value,
         bottomBar = {
             BottomNavigationView(
                 themeColor = themeColor.value,
-                fontColor = fontColor.value,
+                fontColor = if (themeColor.value == Color.Black) Color.White else fontColor.value,
                 navController = navController
             )
         },
@@ -194,10 +225,11 @@ fun TrashScreen(
                     modifier = Modifier
                         .border(
                             width = 1.dp,
-                            color = fontColor.value,
+                            color = if (themeColor.value == Color.Black) Color.White else fontColor.value,
                             shape = RoundedCornerShape(10.dp)
                         )
-                        .clip(RoundedCornerShape(10.dp)),
+                        .clip(RoundedCornerShape(10.dp))
+                        .padding(5.dp),
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = themeColor.value
                     ),
@@ -205,7 +237,7 @@ fun TrashScreen(
                         Text(
                             text = if (selectedItemsCount.intValue == 0) "0 ${stringResource(id = R.string.items_selected)}"
                             else "${selectedItemsCount.intValue} ${stringResource(id = R.string.items_selected)}",
-                            color = fontColor.value,
+                            color = if (themeColor.value == Color.Black) Color.White else fontColor.value,
                             fontSize = 18.sp,
                             fontFamily = FontFamily(fontAmidoneGrotesk)
                         )
@@ -214,7 +246,7 @@ fun TrashScreen(
                         IconButton(onClick = {
                             isSelected.value = false
                             viewModel.onEvent(
-                                note = notesModel!!,
+                                note = notesModel,
                                 trashedNotes = trashedNotes,
                                 notes = notes,
                                 event = TrashEvent.ClearList(selectedItems)
@@ -223,7 +255,7 @@ fun TrashScreen(
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_back),
                                 contentDescription = "back button",
-                                tint = fontColor.value
+                                tint = if (themeColor.value == Color.Black) Color.White else fontColor.value
                             )
                         }
                     },
@@ -238,7 +270,7 @@ fun TrashScreen(
                                     isSelected.value = false
                                     viewModel.onEvent(
                                         event = TrashEvent.ClearList(selectedItems),
-                                        note = notesModel!!,
+                                        note = notesModel,
                                         trashedNotes = trashedNotes,
                                         notes = notes
                                     )
@@ -258,7 +290,7 @@ fun TrashScreen(
                                 Icon(
                                     imageVector = Icons.Default.Close,
                                     contentDescription = "btn close",
-                                    tint = fontColor.value
+                                    tint = if (themeColor.value == Color.Black) Color.White else fontColor.value
                                 )
                             }
                         }
@@ -267,9 +299,10 @@ fun TrashScreen(
             } else {
                 TopAppBar(
                     modifier = Modifier
+                        .padding(end = 5.dp, top = 5.dp, start = 5.dp)
                         .border(
                             width = 1.dp,
-                            color = fontColor.value,
+                            color = if (themeColor.value == Color.Black) Color.White else fontColor.value,
                             shape = RoundedCornerShape(10.dp)
                         )
                         .clip(RoundedCornerShape(10.dp)),
@@ -279,7 +312,7 @@ fun TrashScreen(
                     title = {
                         Text(
                             text = stringResource(R.string.deleted_notes),
-                            color = fontColor.value,
+                            color = if (themeColor.value == Color.Black) Color.White else fontColor.value,
                             fontSize = 18.sp,
                             fontFamily = FontFamily(fontAmidoneGrotesk)
                         )
@@ -292,7 +325,7 @@ fun TrashScreen(
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_back),
                                 contentDescription = "back button",
-                                tint = fontColor.value
+                                tint = if (themeColor.value == Color.Black) Color.White else fontColor.value
                             )
                         }
                     },
@@ -306,7 +339,7 @@ fun TrashScreen(
                             Icon(
                                 imageVector = Icons.Default.MoreVert,
                                 contentDescription = "more functions for trashed notes",
-                                tint = fontColor.value
+                                tint = if (themeColor.value == Color.Black) Color.White else fontColor.value
                             )
                         }
                         DropdownMenu(
@@ -328,7 +361,7 @@ fun TrashScreen(
                                 onClick = {
                                     viewModel.onEvent(
                                         TrashEvent.SelectAll(false),
-                                        notesModel!!,
+                                        notesModel,
                                         notes,
                                         trashedNotes
                                     )
@@ -336,7 +369,7 @@ fun TrashScreen(
                                         event = TrashEvent.ClearList(selectedItems),
                                         notes = notes,
                                         trashedNotes = trashedNotes,
-                                        note = notesModel!!
+                                        note = notesModel
                                     )
                                     selectedItemsCount.intValue = selectedItems.size
                                     isSelected.value = true
@@ -359,7 +392,7 @@ fun TrashScreen(
                                     isSelected.value = true
                                     viewModel.onEvent(
                                         TrashEvent.SelectAll(true),
-                                        notesModel!!,
+                                        notesModel,
                                         notes,
                                         trashedNotes
                                     )
@@ -396,14 +429,12 @@ fun TrashScreen(
                                 onClick = {
                                     isExpanded.value = false
                                     isDialogVisible.value = true
-                                    if (notesModel != null) {
-                                        viewModel.onEvent(
-                                            event = TrashEvent.SelectAll(true),
-                                            notes = notes,
-                                            trashedNotes = trashedNotes,
-                                            note = notesModel
-                                        )
-                                    }
+                                    viewModel.onEvent(
+                                        event = TrashEvent.SelectAll(true),
+                                        notes = notes,
+                                        trashedNotes = trashedNotes,
+                                        note = notesModel
+                                    )
                                     functionsCase.intValue = 3
                                 }
                             )
@@ -606,7 +637,11 @@ fun TrashScreen(
                 verticalArrangement = Arrangement.SpaceAround
             ) {
                 Spacer(modifier = Modifier.height(60.dp))
-                LazyColumn {
+                LazyColumn (
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 5.dp)
+                ){
                     items(trashedNotes) { selectedModel ->
                         if (selectAllStatus) {
                             viewModel.onEvent(
@@ -618,8 +653,14 @@ fun TrashScreen(
                             viewModel.addAllToList(trashedNotes)
                             selectedItemsCount.intValue = selectedItems.size
                         }
+
+                        /* check the object after 30 day */
+                        if (selectedModel.daysLeft == 0) {
+                            viewModel.delete(selectedModel)
+                        }
                         TrashScreenItem(
                             model = selectedModel,
+                            themeColor = themeColor.value,
                             fontColor = fontColor.value,
                             fontSize = fontSize.intValue,
                             onClick = {

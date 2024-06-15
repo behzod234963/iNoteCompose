@@ -1,5 +1,6 @@
 package coder.behzod.presentation.items
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,6 +14,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,11 +34,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coder.behzod.R
 import coder.behzod.domain.model.TrashModel
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
+import coder.behzod.presentation.utils.helpers.DayLeft
 import coder.behzod.presentation.viewModels.TrashViewModel
 
 @Composable
 fun TrashScreenItem(
     model: TrashModel,
+    themeColor: Color,
     fontColor: Color,
     fontSize:Int,
     onClick: () -> Unit,
@@ -50,101 +55,89 @@ fun TrashScreenItem(
     val isItemSelected = remember { mutableStateOf(false) }
     val isAllItemSelected = remember { mutableStateOf(true) }
 
-    Box(
+    Card (
         modifier = Modifier
             .fillMaxWidth()
             .height(170.dp)
-            .padding(top = 10.dp)
-    ) {
-        Spacer(modifier = Modifier.height(10.dp))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    isDialogVisible(true)
-                    selectedContent(2)
-                    onClick()
-                }
-                .height(150.dp)
-                .clip(RoundedCornerShape(20.dp))
-                .background(Color(model.color))
-                .border(width = 1.dp, color = fontColor, shape = RoundedCornerShape(20.dp))
-        ) {
-            Column {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
+            .padding(top = 10.dp, start = 5.dp, end = 5.dp),
+        elevation = CardDefaults.cardElevation(5.dp),
+        shape = RoundedCornerShape(10.dp),
+        border = if (model.color == Color.Black.toArgb())BorderStroke(width = 1.dp, color = Color.White) else BorderStroke(width = 0.dp, color = Color.Transparent),
+        onClick = {
+            isDialogVisible(true)
+            selectedContent(2)
+            onClick()
+        }
+    ){
+        Box {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(model.color))
+            ) {
+                Column {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
 
-                    /* This is notes title */
-                    Text(
-                        modifier = Modifier
-                            .clickable {
-                                isDialogVisible(true)
-                                selectedContent(2)
-                                onClick()
-                            },
-                        text = model.title,
-                        color = fontColor,
-                        fontSize = fontSize.plus(7).sp,
-                        fontFamily = FontFamily(fontAmidoneGrotesk)
-                    )
-                    Text(
-                        modifier = Modifier
-                            .clickable {
-                                isDialogVisible(true)
-                                selectedContent(2)
-                            },
-                        text = stringResource(R.string.days, model.daysLeft),
-                        color = if (model.color == Color.Gray.toArgb()) Color.White else Color.Gray,
-                        fontSize = fontSize.sp,
-                        fontFamily = FontFamily(fontAmidoneGrotesk)
-                    )
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
+                        /* This is notes title */
+                        Text(
+                            text = model.title,
+                            color = fontColor,
+                            fontSize = fontSize.plus(7).sp,
+                            fontFamily = FontFamily(fontAmidoneGrotesk)
+                        )
 
-                    /* This is notes content */
-                    Text(
+                        /* This is notes date */
+                        Text(
+                            text = "${DayLeft(model.daysLeft).execute()} ${stringResource(id = R.string.days)}",
+                            color = if (model.color == Color.Gray.toArgb()) Color.White else Color.Gray,
+                            fontSize = fontSize.sp,
+                            fontFamily = FontFamily(fontAmidoneGrotesk)
+                        )
+                    }
+                    Row(
                         modifier = Modifier
-                            .padding(start = 10.dp)
-                            .clickable {
-                                isDialogVisible(true)
-                                selectedContent(2)
-                            },
-                        text = model.content,
-                        color = fontColor,
-                        fontSize = 18.sp,
-                        fontFamily = FontFamily(fontAmidoneGrotesk)
-                    )
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+
+                        /* This is notes content */
+                        Text(
+                            modifier = Modifier
+                                .padding(start = 10.dp),
+                            text = model.content,
+                            color = fontColor,
+                            fontSize = fontSize.sp,
+                            fontFamily = FontFamily(fontAmidoneGrotesk)
+                        )
+                    }
                 }
             }
-        }
-        if (isSelected) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize(),
-                contentAlignment = Alignment.BottomEnd
-            ) {
-                Checkbox(
+            if (isSelected) {
+                Box(
                     modifier = Modifier
-                        .padding(end = 15.dp, bottom = 15.dp),
-                    checked = if (selectAllStatus) isAllItemSelected.value
-                    else isItemSelected.value,
-                    onCheckedChange = {
-                        if (selectAllStatus) {
-                            isAllItemSelected.value = it
-                        } else {
-                            isItemSelected.value = it
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.BottomEnd
+                ) {
+                    Checkbox(
+                        modifier = Modifier
+                            .padding(end = 15.dp, bottom = 15.dp),
+                        checked = if (selectAllStatus) isAllItemSelected.value
+                        else isItemSelected.value,
+                        onCheckedChange = {
+                            if (selectAllStatus) {
+                                isAllItemSelected.value = it
+                            } else {
+                                isItemSelected.value = it
+                            }
+                            onChange(if (it) 1 else 0)
                         }
-                        onChange(if (it) 1 else 0)
-                    }
-                )
+                    )
+                }
             }
         }
     }

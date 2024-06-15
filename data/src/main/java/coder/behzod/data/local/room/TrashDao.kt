@@ -11,11 +11,13 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TrashDao {
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun saveToTrash(trashedNote: TrashModel)
+
     @Delete
     suspend fun delete(note:TrashModel)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun saveToTrash(note: TrashModel)
     @Delete
     suspend fun multipleDelete(notes: ArrayList<TrashModel>)
 

@@ -75,8 +75,9 @@ fun EmptyMainScreen(
             MainTopAppBar(
                 backgroundColor = themeColor.value,
                 fontColor = fontColor.value,
-                contentSelect = {},
                 fontSize = fontSize.intValue,
+                contentView = {},
+                contentSelect = {},
                 contentSelectAll = {},
                 contentDeleteAll = {},
             ) {}

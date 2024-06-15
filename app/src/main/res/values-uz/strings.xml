@@ -45,4 +45,6 @@
     <string name="restore_selected">Tanlanganlarni qaytarish</string>
     <string name="all_notes">Hamma qaydlar</string>
     <string name="items_selected">belgilandi</string>
+    <string name="view">Ko\'rinish</string>
+    <string name="select_view">Ko\'rinishni tanlang</string>
 </resources>

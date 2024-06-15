@@ -67,7 +67,7 @@ fun BottomNavigationView(
 
     BottomNavigation(
         modifier = Modifier
-            .padding(3.dp)
+            .padding(5.dp)
             .border(width = 1.dp, shape = RoundedCornerShape(10.dp), color = fontColor),
         backgroundColor = themeColor,
         contentColor = fontColor,
