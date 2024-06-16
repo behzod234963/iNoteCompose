@@ -4,6 +4,10 @@ import android.provider.ContactsContract.CommonDataKinds.Note
 import androidx.compose.ui.graphics.Color
 import coder.behzod.domain.model.NotesModel
 
+
+const val KEY_TITLE = "KEY_TITLE"
+const val KEY_CONTENT = "KEY_CONTENT"
+const val KEY_SHARE = "KEY_SHARE"
 const val KEY_FONT_SIZE = "KEY_FONT_SIZE"
 const val KEY_THEME_STATUS = "KEY_THEME_STATUS"
 const val KEY_INDEX = "KEY_INDEX"

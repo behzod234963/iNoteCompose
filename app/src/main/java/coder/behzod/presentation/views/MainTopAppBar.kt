@@ -236,8 +236,9 @@ fun MainTopAppBar(
                     )
                     DropdownMenu(
                         modifier = Modifier
-                            .width(150.dp)
-                            .align(Alignment.End),
+                            .background(backgroundColor)
+                            .align(Alignment.End)
+                            .padding(start = 5.dp),
                         expanded = isExpanded.value,
                         onDismissRequest = { isExpanded.value = false }
                     ) {
@@ -247,7 +248,7 @@ fun MainTopAppBar(
                             text = {
                                 Text(
                                     text = stringResource(R.string.view),
-                                    color = backgroundColor,
+                                    color = fontColor,
                                     fontSize = fontSize.sp,
                                     fontFamily = FontFamily(fontAmidoneGrotesk)
                                 )
@@ -261,8 +262,8 @@ fun MainTopAppBar(
                             text = {
                                 Text(
                                     text = stringResource(R.string.select),
-                                    color = backgroundColor,
-                                    fontSize = 18.sp,
+                                    color = fontColor,
+                                    fontSize = fontSize.sp,
                                     fontFamily = FontFamily(fontAmidoneGrotesk)
                                 )
                             },
@@ -277,8 +278,8 @@ fun MainTopAppBar(
                             text = {
                                 Text(
                                     text = stringResource(R.string.select_all),
-                                    color = backgroundColor,
-                                    fontSize = 18.sp,
+                                    color = fontColor,
+                                    fontSize = fontSize.sp,
                                     fontFamily = FontFamily(fontAmidoneGrotesk)
                                 )
                             },
@@ -293,8 +294,8 @@ fun MainTopAppBar(
                             text = {
                                 Text(
                                     text = stringResource(R.string.delete_all),
-                                    color = backgroundColor,
-                                    fontSize = 18.sp,
+                                    color = fontColor,
+                                    fontSize = fontSize.sp,
                                     fontFamily = FontFamily(fontAmidoneGrotesk)
                                 )
                             },

@@ -2,6 +2,7 @@ package coder.behzod.domain.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.text.SimpleDateFormat
 
 @Entity("notes")
 data class NotesModel(
@@ -12,7 +13,6 @@ data class NotesModel(
     val color: Int,
     val dataAdded: String
 )
-
 
 @Entity("trash")
 data class TrashModel(

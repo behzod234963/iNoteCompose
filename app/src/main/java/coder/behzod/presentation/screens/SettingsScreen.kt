@@ -135,6 +135,8 @@ fun SettingsScreen(
         )
     )
 
+    val initialFontSize = remember { mutableIntStateOf( sharedPrefs.sharedPreferences.getInt(
+        KEY_FONT_SIZE,18) ) }
     val fontSize = remember { mutableIntStateOf(18) }
     val experimentalFontSize = remember { mutableStateOf(18.sp) }
 
@@ -153,7 +155,7 @@ fun SettingsScreen(
             title = {
                 Text(
                     text = stringResource(R.string.settings),
-                    fontSize = 18.sp,
+                    fontSize = initialFontSize.intValue.sp,
                     fontFamily = FontFamily(fontAmidoneGrotesk),
                     color = fontColor.value
                 )
@@ -188,7 +190,7 @@ fun SettingsScreen(
             Text(
                 text = stringResource(R.string.theme),
                 color = fontColor.value,
-                fontSize = 18.sp,
+                fontSize = initialFontSize.intValue.sp,
                 fontFamily = FontFamily(fontAmidoneGrotesk)
             )
             SingleChoiceButtonRow(
@@ -217,9 +219,9 @@ fun SettingsScreen(
                         }
                     }
                 },
-                itemIndex = themeIndex.intValue,
                 themeColor = themeColor.value,
                 fontColor = fontColor.value,
+                initialFontSize.intValue,
                 sharedPrefs
             )
         }
@@ -240,7 +242,7 @@ fun SettingsScreen(
                 text = stringResource(R.string.language),
                 color = fontColor.value,
                 fontFamily = FontFamily(fontAmidoneGrotesk),
-                fontSize = 18.sp
+                fontSize = initialFontSize.intValue.sp
             )
             ExposedDropdownMenuBox(
                 modifier = Modifier
@@ -253,17 +255,17 @@ fun SettingsScreen(
                         onValueChange = {},
                         readOnly = true,
                         colors = OutlinedTextFieldDefaults.colors(
-                          focusedContainerColor = Color.Transparent,
-                          unfocusedContainerColor = Color.Transparent
+                          focusedContainerColor = themeColor.value,
+                          unfocusedContainerColor = themeColor.value
                         ),
                         modifier = Modifier
                             .menuAnchor()
-                            .background(color = Color.Transparent),
+                            .background(color = themeColor.value),
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded.value) }
                     )
                 ExposedDropdownMenu(
                     modifier = Modifier
-                        .background(color = Color.Transparent),
+                        .background(color = themeColor.value),
                     expanded = isExpanded.value,
                     onDismissRequest = {
                         isExpanded.value = false
@@ -316,7 +318,7 @@ fun SettingsScreen(
                             text = {
                                 Text(
                                     text = locale,
-                                    fontSize = 18.sp,
+                                    fontSize = initialFontSize.intValue.sp,
                                     color = fontColor.value
                                 )
                             },
@@ -350,7 +352,7 @@ fun SettingsScreen(
             Text(
                 text = stringResource(R.string.font_size),
                 color = fontColor.value,
-                fontSize = 18.sp,
+                fontSize = initialFontSize.intValue.sp,
                 fontFamily = FontFamily(fontAmidoneGrotesk)
             )
         }

@@ -42,10 +42,15 @@ import coder.behzod.presentation.items.ColorsItem
 import coder.behzod.presentation.navigation.Arguments
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
+import coder.behzod.presentation.utils.constants.KEY_CONTENT
 import coder.behzod.presentation.utils.constants.KEY_FONT_SIZE
 import coder.behzod.presentation.utils.constants.KEY_INDEX
+import coder.behzod.presentation.utils.constants.KEY_SHARE
+import coder.behzod.presentation.utils.constants.KEY_TITLE
 import coder.behzod.presentation.utils.constants.colorList
 import coder.behzod.presentation.utils.events.NewNoteEvent
+import coder.behzod.presentation.utils.helpers.ShareAndSave
+import coder.behzod.presentation.utils.helpers.dataFormatter
 import coder.behzod.presentation.viewModels.NewNoteViewModel
 import coder.behzod.presentation.views.FunctionalTopAppBar
 import coder.behzod.presentation.views.SpeedDialFAB
@@ -127,7 +132,7 @@ fun NewNoteScreen(
                                     .text.capitalize(),
                                 content = note.text,
                                 color = color.value.toArgb(),
-                                dataAdded = date.value.toString()
+                                dataAdded = date.value.toString().dataFormatter()
                             )
                         )
                     } else {
@@ -137,7 +142,7 @@ fun NewNoteScreen(
                                     .text.capitalize(),
                                 content = note.text,
                                 color = color.value.toArgb(),
-                                dataAdded = date.value.toString()
+                                dataAdded = date.value.toString().dataFormatter()
                             )
                         )
                     }
@@ -153,7 +158,10 @@ fun NewNoteScreen(
                 } else {
                     /* Share and Save note */
                     if (arguments.id != -1) {
-                        viewModel.shareAndSaveNote(
+                        sharedPrefs.sharedPreferences.edit().putBoolean(KEY_SHARE,true).apply()
+                        sharedPrefs.sharedPreferences.edit().putString(KEY_TITLE,title.text).apply()
+                        sharedPrefs.sharedPreferences.edit().putString(KEY_CONTENT,note.text).apply()
+                        viewModel.saveNote(
                             NotesModel(
                                 id = arguments.id,
                                 title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
@@ -162,18 +170,21 @@ fun NewNoteScreen(
                                     },
                                 content = note.text,
                                 color = color.value.toArgb(),
-                                dataAdded = date.value.toString()
-                            ), text = "$title $note", ctx = ctx
+                                dataAdded = date.value.toString().dataFormatter()
+                            )
                         )
                     } else {
-                        viewModel.shareAndSaveNote(
+                        sharedPrefs.sharedPreferences.edit().putBoolean(KEY_SHARE,true).apply()
+                        sharedPrefs.sharedPreferences.edit().putString(KEY_TITLE,title.text).apply()
+                        sharedPrefs.sharedPreferences.edit().putString(KEY_CONTENT,note.text).apply()
+                        viewModel.saveNote(
                             NotesModel(
                                 title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
                                     .text.capitalize(),
                                 content = note.text,
                                 color = color.value.toArgb(),
-                                dataAdded = date.value.toString()
-                            ), text = "$title $note", ctx = ctx
+                                dataAdded = date.value.toString().dataFormatter()
+                            )
                         )
                     }
                     navController.navigate(ScreensRouter.MainScreenRoute.route)

@@ -600,7 +600,7 @@ fun MainScreen(
                                     },
                                     title = model.title,
                                     note = model.content,
-                                    data = model.dataAdded,
+                                    date = model.dataAdded,
                                     notesModel = model,
                                     backgroundColor = model.color
                                 )

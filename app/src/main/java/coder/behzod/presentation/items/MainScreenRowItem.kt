@@ -118,7 +118,7 @@ fun MainScreenItem(
                             Text(
                                 text = notesModel.dataAdded,
                                 color = colorFont.value,
-                                fontSize = 18.sp,
+                                fontSize = fontSize.sp,
                                 fontFamily = FontFamily(fontAmidoneGrotesk)
                             )
                         }

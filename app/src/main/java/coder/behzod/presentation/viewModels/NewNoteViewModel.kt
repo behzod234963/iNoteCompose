@@ -79,19 +79,4 @@ class NewNoteViewModel @Inject constructor(
             }
         }
     }
-    fun shareAndSaveNote(note: NotesModel, text: String, ctx: Context) = viewModelScope.launch {
-        Intent().apply {
-            action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, text)
-            type = "text/plain"
-        }.also { intent ->
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(
-                ctx,
-                Intent.createChooser(intent, ctx.getString(R.string.share_via)),
-                null
-            )
-        }
-        useCases.saveNoteUseCase(note)
-    }
 }

@@ -45,7 +45,7 @@ fun MainScreenGridItem(
     viewModel: MainViewModel = hiltViewModel(),
     title: String,
     note: String,
-    data: String,
+    date: String,
     backgroundColor: Int
 ) {
 
@@ -114,6 +114,8 @@ fun MainScreenGridItem(
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.SpaceAround
             ) {
+
+                /* This is title */
                 Text(
                     modifier = Modifier,
                     text = title,
@@ -121,14 +123,18 @@ fun MainScreenGridItem(
                     color = colorFont.value,
                     fontFamily = FontFamily(fontAmidoneGrotesk)
                 )
+
+                /* This is content */
                 Text(
                     text = note,
                     color = colorFont.value,
                     fontSize = fontSize.sp,
                     fontFamily = FontFamily(fontAmidoneGrotesk)
                 )
+
+                /* This is date */
                 Text(
-                    text = data,
+                    text = if (fontSize == 25 || fontSize == 32 )date.substring(0 .. date.length-6) else date,
                     color = colorFont.value,
                     fontSize = fontSize.minus(3).sp,
                 )

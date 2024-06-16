@@ -94,7 +94,7 @@ fun TrashScreenItem(
                         /* This is notes date */
                         Text(
                             text = "${DayLeft(model.daysLeft).execute()} ${stringResource(id = R.string.days)}",
-                            color = if (model.color == Color.Gray.toArgb()) Color.White else Color.Gray,
+                            color = if (model.color == Color.Gray.toArgb() ) Color.White else Color.Gray,
                             fontSize = fontSize.sp,
                             fontFamily = FontFamily(fontAmidoneGrotesk)
                         )
@@ -110,7 +110,7 @@ fun TrashScreenItem(
                             modifier = Modifier
                                 .padding(start = 10.dp),
                             text = model.content,
-                            color = fontColor,
+                            color = if (model.color == Color.Black.toArgb())Color.White else Color.Black,
                             fontSize = fontSize.sp,
                             fontFamily = FontFamily(fontAmidoneGrotesk)
                         )
