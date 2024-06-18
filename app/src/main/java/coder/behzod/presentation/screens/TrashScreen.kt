@@ -814,7 +814,8 @@ fun TrashScreen(
                             },
                             isDialogVisible = { isDialogVisible.value = it },
                             selectedContent = { functionsCase.intValue = it },
-                            isSelected = isSelected.value
+                            isSelected = isSelected.value,
+                            sharedPref = sharedPrefs
                         )
                     }
                 }

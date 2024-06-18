@@ -1,4 +1,4 @@
-package coder.behzod.presentation.utils.helpers
+package coder.behzod.presentation.utils.extensions
 
 import android.annotation.SuppressLint
 import android.os.Build

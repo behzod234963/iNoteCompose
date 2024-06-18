@@ -1,5 +1,6 @@
 package coder.behzod.presentation.items
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,6 +33,7 @@ import coder.behzod.presentation.viewModels.MainViewModel
 @Composable
 fun MainScreenItem(
     notesModel: NotesModel,
+    themeColor:Color,
     fontColor: Color,
     fontSize: Int,
     isSelected: Boolean,
@@ -84,6 +86,10 @@ fun MainScreenItem(
             .height(170.dp)
             .padding(end = 5.dp,top = 15.dp),
         shape = RoundedCornerShape(10.dp),
+        border = BorderStroke(
+            1.dp,
+            if (themeColor == Color.Black) Color.White else Color.Transparent
+        ),
         elevation = CardDefaults.cardElevation(15.dp),
         onClick = {
             onClick()
@@ -155,7 +161,6 @@ fun MainScreenItem(
                             if (selectAllStatus) {
                                 isAllItemsSelected.value = it
                             } else {
-                                viewModel.onEvent(NotesEvent.SelectAllStatus(false))
                                 isItemSelected.value = it
                             }
                             onCheckedChange(if (it) 1 else 0)

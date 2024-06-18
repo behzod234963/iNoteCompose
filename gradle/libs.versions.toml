@@ -14,6 +14,10 @@ dataStroreVersion = "1.1.0"
 ssProgressButtonVersion = "1.0.8"
 composeMaterialVersion = "1.6.6"
 
+# Work Manager version
+workVersion = "2.9.0"
+
+
 #SpeedDialFloatingActionButton
 speedDialFABversion = "1.2.0"
 
@@ -86,6 +90,9 @@ liveData = { group = "androidx.compose.runtime" , name =  "runtime-livedata" }
 
 #Coroutines
 kotlinx-coroutines = { group = "org.jetbrains.kotlinx" , name = "kotlinx-coroutines-android" , version.ref = "coroutineVersion" }
+
+# Work Manager
+workManager = { group = "androidx.work" , name  = "work-runtime-ktx" , version.ref = "workVersion" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

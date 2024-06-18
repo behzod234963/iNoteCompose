@@ -91,8 +91,9 @@ fun MainScreenGridItem(
         modifier = Modifier
             .size(250.dp)
             .padding(10.dp)
+            .background(themeColor)
             .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(10.dp),
+        elevation = CardDefaults.cardElevation(7.dp),
         border = BorderStroke(
             1.dp,
             if (themeColor == Color.Black) Color.White else Color.Transparent

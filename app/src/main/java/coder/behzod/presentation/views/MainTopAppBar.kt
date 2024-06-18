@@ -58,7 +58,9 @@ fun MainTopAppBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .background(backgroundColor)
             .padding(3.dp)
+
     ) {
         Box(
             modifier = Modifier
@@ -68,6 +70,7 @@ fun MainTopAppBar(
                 .border(color = fontColor, width = 1.dp, shape = RoundedCornerShape(10.dp))
         ) {
             Box(
+                modifier = Modifier,
                 contentAlignment = Alignment.TopStart
             ) {
                 AnimatedDropDownMenu(

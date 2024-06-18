@@ -1,11 +1,14 @@
 package coder.behzod.presentation.screens
 
+import android.widget.Space
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
@@ -84,8 +87,7 @@ fun SplashScreens(
             enter = fadeIn(),
         ) {
             Text(
-                modifier = Modifier
-                    .padding(bottom = 10.dp),
+                modifier = Modifier,
                 text = stringResource(id = R.string.app_name),
                 color = fontColor.value,
                 fontFamily = FontFamily(fontAmidoneGrotesk),

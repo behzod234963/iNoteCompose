@@ -1,14 +1,12 @@
 package coder.behzod.presentation.items
 
+import android.app.Activity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,18 +21,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coder.behzod.R
+import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.TrashModel
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
-import coder.behzod.presentation.utils.helpers.DayLeft
+import coder.behzod.presentation.utils.constants.KEY_INT
+import coder.behzod.presentation.utils.helpers.periodicDeleting
 import coder.behzod.presentation.viewModels.TrashViewModel
 
 @Composable
@@ -48,12 +48,15 @@ fun TrashScreenItem(
     isDialogVisible: (Boolean) -> Unit,
     selectedContent: (Int) -> Unit,
     isSelected: Boolean = false,
+    sharedPref:SharedPreferenceInstance,
     viewModel: TrashViewModel = hiltViewModel()
 ) {
 
     val selectAllStatus = viewModel.isItemSelected.value
     val isItemSelected = remember { mutableStateOf(false) }
     val isAllItemSelected = remember { mutableStateOf(true) }
+    val ctx = LocalContext.current as Activity
+    val daysLeft = sharedPref.sharedPreferences.getInt(KEY_INT,30)
 
     Card (
         modifier = Modifier
@@ -93,7 +96,7 @@ fun TrashScreenItem(
 
                         /* This is notes date */
                         Text(
-                            text = "${DayLeft(model.daysLeft).execute()} ${stringResource(id = R.string.days)}",
+                            text = "${model.daysLeft} ${stringResource(id = R.string.days)}",
                             color = if (model.color == Color.Gray.toArgb() ) Color.White else Color.Gray,
                             fontSize = fontSize.sp,
                             fontFamily = FontFamily(fontAmidoneGrotesk)

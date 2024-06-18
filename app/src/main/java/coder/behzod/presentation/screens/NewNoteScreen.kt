@@ -1,6 +1,7 @@
 package coder.behzod.presentation.screens
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -42,15 +43,12 @@ import coder.behzod.presentation.items.ColorsItem
 import coder.behzod.presentation.navigation.Arguments
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
-import coder.behzod.presentation.utils.constants.KEY_CONTENT
 import coder.behzod.presentation.utils.constants.KEY_FONT_SIZE
 import coder.behzod.presentation.utils.constants.KEY_INDEX
-import coder.behzod.presentation.utils.constants.KEY_SHARE
-import coder.behzod.presentation.utils.constants.KEY_TITLE
 import coder.behzod.presentation.utils.constants.colorList
 import coder.behzod.presentation.utils.events.NewNoteEvent
-import coder.behzod.presentation.utils.helpers.ShareAndSave
-import coder.behzod.presentation.utils.helpers.dataFormatter
+import coder.behzod.presentation.utils.helpers.ShareNote
+import coder.behzod.presentation.utils.extensions.dataFormatter
 import coder.behzod.presentation.viewModels.NewNoteViewModel
 import coder.behzod.presentation.views.FunctionalTopAppBar
 import coder.behzod.presentation.views.SpeedDialFAB
@@ -70,6 +68,7 @@ fun NewNoteScreen(
     val scaffoldState = rememberScaffoldState()
 
     val ctx = LocalContext.current.applicationContext
+    val activityContext = LocalContext.current as Activity
 
     val note = viewModel.note.value
 
@@ -116,39 +115,39 @@ fun NewNoteScreen(
                 labelSecond = stringResource(R.string.share),
                 painterSecond = R.drawable.ic_share,
                 onClickFirst = {
-                if (note.text == "" && note.text.isBlank()) {
-                    coroutineScope.launch {
-                        scaffoldState.snackbarHostState.showSnackbar(
-                            message = ctx.getString(R.string.note_is_cannot_be_empty),
-                        )
-                    }
-                } else {
-                    /* Save note */
-                    if (arguments.id != -1) {
-                        viewModel.saveNote(
-                            NotesModel(
-                                id = arguments.id,
-                                title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
-                                    .text.capitalize(),
-                                content = note.text,
-                                color = color.value.toArgb(),
-                                dataAdded = date.value.toString().dataFormatter()
+                    if (note.text == "" && note.text.isBlank()) {
+                        coroutineScope.launch {
+                            scaffoldState.snackbarHostState.showSnackbar(
+                                message = ctx.getString(R.string.note_is_cannot_be_empty),
                             )
-                        )
+                        }
                     } else {
-                        viewModel.saveNote(
-                            NotesModel(
-                                title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
-                                    .text.capitalize(),
-                                content = note.text,
-                                color = color.value.toArgb(),
-                                dataAdded = date.value.toString().dataFormatter()
+                        /* Save note */
+                        if (arguments.id != -1) {
+                            viewModel.saveNote(
+                                NotesModel(
+                                    id = arguments.id,
+                                    title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
+                                        .text.capitalize(),
+                                    content = note.text,
+                                    color = color.value.toArgb(),
+                                    dataAdded = date.value.toString().dataFormatter()
+                                )
                             )
-                        )
+                        } else {
+                            viewModel.saveNote(
+                                NotesModel(
+                                    title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
+                                        .text.capitalize(),
+                                    content = note.text,
+                                    color = color.value.toArgb(),
+                                    dataAdded = date.value.toString().dataFormatter()
+                                )
+                            )
+                        }
+                        navController.navigate(ScreensRouter.MainScreenRoute.route)
                     }
-                    navController.navigate(ScreensRouter.MainScreenRoute.route)
-                }
-            }) {
+                }) {
                 if (note.text == "" && note.text.isBlank()) {
                     coroutineScope.launch {
                         scaffoldState.snackbarHostState.showSnackbar(
@@ -158,9 +157,15 @@ fun NewNoteScreen(
                 } else {
                     /* Share and Save note */
                     if (arguments.id != -1) {
-                        sharedPrefs.sharedPreferences.edit().putBoolean(KEY_SHARE,true).apply()
-                        sharedPrefs.sharedPreferences.edit().putString(KEY_TITLE,title.text).apply()
-                        sharedPrefs.sharedPreferences.edit().putString(KEY_CONTENT,note.text).apply()
+
+                        ShareNote().execute(
+                            title = title.text,
+                            content = note.text,
+                            ctx = activityContext
+                        ){
+                            navController.navigate(ScreensRouter.MainScreenRoute.route)
+                        }
+
                         viewModel.saveNote(
                             NotesModel(
                                 id = arguments.id,
@@ -169,14 +174,22 @@ fun NewNoteScreen(
                                         it.capitalize()
                                     },
                                 content = note.text,
+
                                 color = color.value.toArgb(),
                                 dataAdded = date.value.toString().dataFormatter()
                             )
                         )
+
                     } else {
-                        sharedPrefs.sharedPreferences.edit().putBoolean(KEY_SHARE,true).apply()
-                        sharedPrefs.sharedPreferences.edit().putString(KEY_TITLE,title.text).apply()
-                        sharedPrefs.sharedPreferences.edit().putString(KEY_CONTENT,note.text).apply()
+
+                        ShareNote().execute(
+                            title = title.text,
+                            content = note.text,
+                            ctx = activityContext,
+                        ){
+                            navController.navigate(ScreensRouter.MainScreenRoute.route)
+                        }
+
                         viewModel.saveNote(
                             NotesModel(
                                 title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
@@ -187,7 +200,6 @@ fun NewNoteScreen(
                             )
                         )
                     }
-                    navController.navigate(ScreensRouter.MainScreenRoute.route)
                 }
             }
         },

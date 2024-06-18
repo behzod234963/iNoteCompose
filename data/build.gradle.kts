@@ -50,4 +50,7 @@ dependencies {
 
 //  DataStore
     implementation(libs.androidx.dataStore)
+
+//    Work Manager
+    implementation(libs.workManager)
 }

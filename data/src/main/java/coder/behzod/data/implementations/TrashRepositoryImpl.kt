@@ -12,6 +12,10 @@ class TrashRepositoryImpl(private val trashDao: TrashDao) :TrashRepository {
         trashDao.saveToTrash(trashedNote)
     }
 
+    override suspend fun updateDay(id: Int, day: Int) {
+        trashDao.updateDay(id,day)
+    }
+
     override suspend fun delete(note: TrashModel) {
         trashDao.delete(note)
     }

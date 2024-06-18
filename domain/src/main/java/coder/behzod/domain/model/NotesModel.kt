@@ -21,5 +21,5 @@ data class TrashModel(
     val title: String,
     val content: String,
     val color: Int,
-    val daysLeft: Int,
+    var daysLeft: Int,
 )

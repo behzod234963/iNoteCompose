@@ -1,9 +1,6 @@
 package coder.behzod.presentation.views
 
-import android.os.Handler
-import android.os.Looper
 import androidx.compose.foundation.border
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,10 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coder.behzod.R
 import coder.behzod.presentation.navigation.ScreensRouter
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
-import com.airbnb.lottie.compose.rememberLottieComposition
 
 @Composable
 fun BottomNavigationView(
@@ -45,25 +38,9 @@ fun BottomNavigationView(
     navController: NavController
 ) {
 
-    val interactionSource = remember { MutableInteractionSource() }
-
-    val isNotesAnimPlaying = remember { mutableStateOf(false) }
-    val isTrashAnimPlaying = remember { mutableStateOf(false) }
-    val isSettingsAnimPlaying = remember { mutableStateOf(false) }
-
     val isNotesSelected = remember { mutableStateOf(false) }
     val isTrashSelected = remember { mutableStateOf(false) }
     val isSettingsSelected = remember { mutableStateOf(false) }
-
-    val btnNotesAnimation = rememberLottieComposition(
-        spec = LottieCompositionSpec.RawRes(R.raw.btn_notes)
-    )
-    val btnTrashAnimation = rememberLottieComposition(
-        spec = LottieCompositionSpec.RawRes(R.raw.btn_trash)
-    )
-    val btnSettingsAnimation = rememberLottieComposition(
-        spec = LottieCompositionSpec.RawRes(R.raw.settings_black)
-    )
 
     BottomNavigation(
         modifier = Modifier
@@ -80,40 +57,25 @@ fun BottomNavigationView(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
+
+            /* All notes */
             BottomNavigationItem(
                 selected = isNotesSelected.value,
                 onClick = {
                     isNotesSelected.value = true
-
                     isTrashSelected.value = false
                     isSettingsSelected.value = false
 
-                    isNotesAnimPlaying.value = true
-                    isTrashAnimPlaying.value = false
-                    isSettingsAnimPlaying.value = false
-
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        isNotesAnimPlaying.value = false
-                        navController.navigate(ScreensRouter.MainScreenRoute.route)
-                    }, 500)
+                    if (isNotesSelected.value) navController.navigate(ScreensRouter.MainScreenRoute.route)
                 },
                 icon = {
-                    if (isNotesAnimPlaying.value) {
-                        LottieAnimation(
-                            modifier = Modifier
-                                .size(40.dp),
-                            composition = btnNotesAnimation.value,
-                            iterations = LottieConstants.IterateForever
-                        )
-                    } else {
-                        Icon(
-                            modifier = Modifier
-                                .size(40.dp),
-                            painter = painterResource(id = R.drawable.ic_notes),
-                            contentDescription = "all notes",
-                            tint = fontColor
-                        )
-                    }
+                    Icon(
+                        modifier = Modifier
+                            .size(40.dp),
+                        painter = painterResource(id = R.drawable.ic_notes),
+                        contentDescription = "all notes",
+                        tint = fontColor
+                    )
                 },
                 label = {
                     Text(
@@ -124,6 +86,8 @@ fun BottomNavigationView(
                 selectedContentColor = LocalContentColor.current,
                 unselectedContentColor = Color.Transparent
             )
+
+            /* Trashed Notes */
             BottomNavigationItem(
                 selected = isTrashSelected.value,
                 onClick = {
@@ -132,32 +96,16 @@ fun BottomNavigationView(
                     isSettingsSelected.value = false
                     isNotesSelected.value = false
 
-                    isTrashAnimPlaying.value = true
-                    isNotesAnimPlaying.value = false
-                    isSettingsAnimPlaying.value = false
-
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        isTrashAnimPlaying.value = false
-                        navController.navigate(route = ScreensRouter.TrashScreen.route)
-                    }, 1000)
+                    if (isTrashSelected.value) navController.navigate(ScreensRouter.TrashScreen.route)
                 },
                 icon = {
-                    if (isTrashAnimPlaying.value) {
-                        LottieAnimation(
-                            modifier = Modifier
-                                .size(40.dp),
-                            composition = btnTrashAnimation.value,
-                            iterations = LottieConstants.IterateForever
-                        )
-                    } else {
-                        Icon(
-                            modifier = Modifier
-                                .size(40.dp),
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "trashed notes",
-                            tint = fontColor
-                        )
-                    }
+                    Icon(
+                        modifier = Modifier
+                            .size(40.dp),
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "trashed notes",
+                        tint = fontColor
+                    )
                 },
                 label = {
                     Text(
@@ -168,39 +116,26 @@ fun BottomNavigationView(
                 selectedContentColor = LocalContentColor.current,
                 unselectedContentColor = Color.Transparent
             )
+
+            /* Settings */
             BottomNavigationItem(
                 selected = isSettingsSelected.value,
                 onClick = {
-                    isSettingsAnimPlaying.value = true
+
+                    isSettingsSelected.value = true
                     isNotesSelected.value = false
                     isTrashSelected.value = false
 
-                    isNotesAnimPlaying.value = false
-                    isTrashAnimPlaying.value = false
-                    isSettingsAnimPlaying.value = true
-
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        isSettingsAnimPlaying.value = true
-                        navController.navigate(route = ScreensRouter.SettingsScreenRoute.route)
-                    }, 1000)
+                    if (isSettingsSelected.value) navController.navigate(ScreensRouter.SettingsScreenRoute.route)
                 },
                 icon = {
-                    if (isSettingsAnimPlaying.value) {
-                        LottieAnimation(
-                            modifier = Modifier
-                                .size(40.dp),
-                            composition = btnSettingsAnimation.value,
-                            iterations = LottieConstants.IterateForever
-                        )
-                    } else {
-                        Icon(
-                            modifier = Modifier
-                                .size(40.dp),
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "all notes",
-                            tint = fontColor
-                        )
-                    }
+                    Icon(
+                        modifier = Modifier
+                            .size(40.dp),
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = "all notes",
+                        tint = fontColor
+                    )
                 },
                 label = {
                     Text(

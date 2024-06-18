@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.model.TrashModel
 import kotlinx.coroutines.flow.Flow
@@ -26,4 +27,8 @@ interface TrashDao {
 
     @Insert
     suspend fun restoreAll(notes:ArrayList<NotesModel>)
+
+
+    @Query("UPDATE trash SET daysLeft=:daysLeft WHERE id=:id")
+    suspend fun updateDay(id:Int,daysLeft:Int)
 }

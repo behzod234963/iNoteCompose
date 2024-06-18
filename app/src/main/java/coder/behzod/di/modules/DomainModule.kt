@@ -18,6 +18,7 @@ import coder.behzod.domain.useCase.trashUseCases.GetTrashedNotesUseCase
 import coder.behzod.domain.useCase.trashUseCases.RestoreAllUseCase
 import coder.behzod.domain.useCase.trashUseCases.SaveToTrashUseCase
 import coder.behzod.domain.useCase.trashUseCases.TrashUseCases
+import coder.behzod.domain.useCase.trashUseCases.UpdateDayUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -45,6 +46,7 @@ class DomainModule {
 
             saveToTrashUseCase = SaveToTrashUseCase(repository),
             delete = DeleteUseCase(repository),
+            updateDayUseCase = UpdateDayUseCase(repository),
             multipleDelete = MultipleDeleteUseCase(repository),
             getTrashedNotes = GetTrashedNotesUseCase(repository),
             restoreAllUseCase = RestoreAllUseCase(repository),

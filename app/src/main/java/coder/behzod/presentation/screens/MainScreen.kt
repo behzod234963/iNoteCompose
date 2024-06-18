@@ -6,6 +6,7 @@ import android.os.Looper
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -135,7 +136,6 @@ fun MainScreen(
     val selectedNotesCount = remember { mutableIntStateOf(0) }
 
     val isClosed = remember { mutableStateOf(false) }
-
     val fontSize =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_FONT_SIZE, 18)) }
 
@@ -150,6 +150,8 @@ fun MainScreen(
     val functionsCase = remember { mutableIntStateOf(0) }
 
     Scaffold(
+        modifier = Modifier
+            .background(themeColor.value),
         bottomBar = {
             BottomNavigationView(
                 themeColor = themeColor.value,
@@ -162,7 +164,8 @@ fun MainScreen(
                 TopAppBar(
                     title = {
                         Text(
-                            text = "${selectedNotesCount.intValue} ${stringResource(id = R.string.items_selected)}",
+                            text = if (selectedNotesCount.intValue == 0) "0 ${stringResource(id = R.string.items_selected)}"
+                            else "${selectedNotesCount.intValue} ${stringResource(id = R.string.items_selected)}",
                             color = fontColor.value,
                             fontSize = fontSize.intValue.sp,
                             fontFamily = FontFamily(fontAmidoneGrotesk)
@@ -534,12 +537,10 @@ fun MainScreen(
                                     }) { item ->
                                     MainScreenItem(
                                         notesModel = item,
+                                        themeColor = themeColor.value,
                                         fontColor = fontColor.value,
-                                        isSelected = isSelected.value,
-                                        onClick = {
-                                            navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/${item.id}")
-                                        },
                                         fontSize = fontSize.intValue,
+                                        isSelected = isSelected.value,
                                         onCheckedChange = {
                                             if (it == 1) {
                                                 if (selectAllStatus) {
@@ -553,6 +554,10 @@ fun MainScreen(
                                                 viewModel.removeFromList(item)
                                                 selectedNotesCount.intValue = selectedNotes.size
                                             }
+                                        },
+                                        onClick = {
+                                            navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/${item.id}")
+                                            navController.popBackStack()
                                         }
                                     )
                                 }
