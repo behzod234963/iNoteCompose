@@ -20,7 +20,7 @@
     <string name="russian_language">Russian</string>
     <string name="uzbek_language">Uzbek</string>
     <string name="save">Save</string>
-    <string name="share">Share &amp; save</string>
+    <string name="share_and_save">Share &amp; save</string>
     <string name="creating_note">Creating note…</string>
     <string name="share_via">Share via</string>
     <string name="note_deleted">Note deleted</string>
@@ -46,4 +46,5 @@
     <string name="items_selected">items selected</string>
     <string name="view">View</string>
     <string name="select_view">Select view</string>
+    <string name="share">Share</string>
 </resources>

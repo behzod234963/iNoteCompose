@@ -173,7 +173,7 @@ fun TrashScreen(
         )
     }
 
-    val isFontSizeIsBig = remember { mutableStateOf( false ) }
+    val isFontSizeIsBig = remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = themeColor.value,
@@ -248,10 +248,8 @@ fun TrashScreen(
                         IconButton(onClick = {
                             isSelected.value = false
                             viewModel.onEvent(
-                                note = notesModel,
-                                trashedNotes = trashedNotes,
-                                notes = notes,
-                                event = TrashEvent.ClearList(selectedItems)
+                                event = TrashEvent.ClearList(selectedItems),
+                                trashedNotes = trashedNotes
                             )
                         }) {
                             Icon(
@@ -268,13 +266,17 @@ fun TrashScreen(
                             selectedItemsStatus.value = true
                             if (selectedItemsStatus.value) {
                                 Handler(Looper.getMainLooper()).postDelayed({
+
                                     selectedItemsStatus.value = false
+                                    viewModel.onEvent(
+                                        event = TrashEvent.SelectAll(false),
+                                        trashedNotes = trashedNotes
+                                    )
                                     isSelected.value = false
+
                                     viewModel.onEvent(
                                         event = TrashEvent.ClearList(selectedItems),
-                                        note = notesModel,
-                                        trashedNotes = trashedNotes,
-                                        notes = notes
+                                        trashedNotes = trashedNotes
                                     )
                                     selectedItemsCount.intValue = 0
                                 }, 1000)
@@ -347,7 +349,7 @@ fun TrashScreen(
                         DropdownMenu(
                             expanded = isExpanded.value,
                             modifier = Modifier
-                                .background(if (fontColor.value == Color.Black)Color.White else Color.Black),
+                                .background(if (fontColor.value == Color.Black) Color.White else Color.Black),
                             onDismissRequest = {
                                 isExpanded.value = false
                             }) {
@@ -365,15 +367,11 @@ fun TrashScreen(
                                 onClick = {
                                     viewModel.onEvent(
                                         TrashEvent.SelectAll(false),
-                                        notesModel,
-                                        notes,
                                         trashedNotes
                                     )
                                     viewModel.onEvent(
                                         event = TrashEvent.ClearList(selectedItems),
-                                        notes = notes,
-                                        trashedNotes = trashedNotes,
-                                        note = notesModel
+                                        trashedNotes = trashedNotes
                                     )
                                     selectedItemsCount.intValue = selectedItems.size
                                     isSelected.value = true
@@ -396,8 +394,6 @@ fun TrashScreen(
                                     isSelected.value = true
                                     viewModel.onEvent(
                                         TrashEvent.SelectAll(true),
-                                        notesModel,
-                                        notes,
                                         trashedNotes
                                     )
                                 }
@@ -435,9 +431,7 @@ fun TrashScreen(
                                     isDialogVisible.value = true
                                     viewModel.onEvent(
                                         event = TrashEvent.SelectAll(true),
-                                        notes = notes,
-                                        trashedNotes = trashedNotes,
-                                        note = notesModel
+                                        trashedNotes = trashedNotes
                                     )
                                     functionsCase.intValue = 3
                                 }
@@ -499,7 +493,7 @@ fun TrashScreen(
                                         ""
                                     }
                                 },
-                                color = if (themeColor.value == Color.Black)Color.White else Color.Black,
+                                color = if (themeColor.value == Color.Black) Color.White else Color.Black,
                                 fontSize = 25.sp,
                                 fontFamily = FontFamily(fontAmidoneGrotesk)
                             )
@@ -512,7 +506,7 @@ fun TrashScreen(
                     buttons = {
                         isFontSizeIsBig.value = fontSize.intValue == 25 || fontSize.intValue == 32
 
-                        if (isFontSizeIsBig.value){
+                        if (isFontSizeIsBig.value) {
                             Column(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalArrangement = Arrangement.Center,
@@ -523,7 +517,7 @@ fun TrashScreen(
                                         .height(if (isFontSizeIsBig.value) 60.dp else 40.dp)
                                         .padding(end = 7.dp, bottom = 10.dp),
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (themeColor.value == Color.Black)Color.White else Color.Black
+                                        containerColor = if (themeColor.value == Color.Black) Color.White else Color.Black
                                     ),
                                     shape = RoundedCornerShape(10.dp),
                                     onClick = {
@@ -558,7 +552,7 @@ fun TrashScreen(
                                         .height(if (isFontSizeIsBig.value) 60.dp else 40.dp)
                                         .padding(start = 7.dp, bottom = 10.dp),
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (themeColor.value == Color.Black)Color.White else Color.Black
+                                        containerColor = if (themeColor.value == Color.Black) Color.White else Color.Black
                                     ),
                                     shape = RoundedCornerShape(10.dp),
                                     onClick = {
@@ -585,9 +579,7 @@ fun TrashScreen(
                                                         notesModelList = notes,
                                                         trashedNotesList = trashedNotes,
                                                     ),
-                                                    notes = notes,
-                                                    trashedNotes = trashedNotes,
-                                                    note = notesModel
+                                                    trashedNotes = trashedNotes
                                                 )
 
                                             }
@@ -596,8 +588,6 @@ fun TrashScreen(
                                                 /* This will be restore selected function */
                                                 viewModel.onEvent(
                                                     event = TrashEvent.RestoreSelected(),
-                                                    note = notesModel,
-                                                    notes = notes,
                                                     trashedNotes = trashedNotes
                                                 )
                                             }
@@ -637,7 +627,7 @@ fun TrashScreen(
                                     )
                                 }
                             }
-                        }else{
+                        } else {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceAround
@@ -647,7 +637,7 @@ fun TrashScreen(
                                         .height(40.dp)
                                         .padding(end = 7.dp),
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (themeColor.value == Color.Black)Color.White else Color.Black
+                                        containerColor = if (themeColor.value == Color.Black) Color.White else Color.Black
                                     ),
                                     shape = RoundedCornerShape(10.dp),
                                     onClick = {
@@ -682,7 +672,7 @@ fun TrashScreen(
                                         .height(40.dp)
                                         .padding(start = 7.dp),
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (themeColor.value == Color.Black)Color.White else Color.Black
+                                        containerColor = if (themeColor.value == Color.Black) Color.White else Color.Black
                                     ),
                                     shape = RoundedCornerShape(10.dp),
                                     onClick = {
@@ -709,9 +699,7 @@ fun TrashScreen(
                                                         notesModelList = notes,
                                                         trashedNotesList = trashedNotes,
                                                     ),
-                                                    notes = notes,
-                                                    trashedNotes = trashedNotes,
-                                                    note = notesModel
+                                                    trashedNotes = trashedNotes
                                                 )
 
                                             }
@@ -720,8 +708,6 @@ fun TrashScreen(
                                                 /* This will be restore selected function */
                                                 viewModel.onEvent(
                                                     event = TrashEvent.RestoreSelected(),
-                                                    note = notesModel,
-                                                    notes = notes,
                                                     trashedNotes = trashedNotes
                                                 )
                                             }
@@ -770,18 +756,16 @@ fun TrashScreen(
                 verticalArrangement = Arrangement.SpaceAround
             ) {
                 Spacer(modifier = Modifier.height(60.dp))
-                LazyColumn (
+                LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(top = 5.dp)
-                ){
+                ) {
                     items(trashedNotes) { selectedModel ->
                         if (selectAllStatus) {
                             viewModel.onEvent(
                                 event = TrashEvent.ClearList(selectedItems),
-                                notes = notes,
-                                trashedNotes = trashedNotes,
-                                note = notesModel
+                                trashedNotes = trashedNotes
                             )
                             viewModel.addAllToList(trashedNotes)
                             selectedItemsCount.intValue = selectedItems.size

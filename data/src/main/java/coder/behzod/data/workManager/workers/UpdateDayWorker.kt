@@ -5,6 +5,7 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.TrashModel
+import coder.behzod.domain.useCase.trashUseCases.TrashUseCases
 import coder.behzod.domain.useCase.trashUseCases.UpdateDayUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -12,8 +13,8 @@ import kotlinx.coroutines.launch
 
 class UpdateDayWorker(
     private val ctx: Context,
-    private val parameters: WorkerParameters,
-    private val updateDay: UpdateDayUseCase
+     parameters: WorkerParameters,
+    private val trashUseCases: TrashUseCases
 ) : Worker(ctx, parameters) {
 
     val model = ArrayList<TrashModel>()
@@ -31,7 +32,7 @@ class UpdateDayWorker(
                     color = model.color
                 )
                 val incrementDay = model.daysLeft--
-                model.id?.let { updateDay(it,incrementDay) }
+                model.id?.let { trashUseCases.updateDayUseCase(it,incrementDay) }
             }
         }
         return Result.success()

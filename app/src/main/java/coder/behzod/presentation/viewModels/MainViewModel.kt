@@ -2,17 +2,21 @@ package coder.behzod.presentation.viewModels
 
 import android.annotation.SuppressLint
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.model.TrashModel
 import coder.behzod.domain.useCase.notesUseCases.NotesUseCases
 import coder.behzod.domain.useCase.trashUseCases.TrashUseCases
 import coder.behzod.domain.utils.NoteOrder
 import coder.behzod.domain.utils.OrderType
+import coder.behzod.presentation.utils.constants.KEY_VIEW_TYPE
 import coder.behzod.presentation.utils.events.NotesEvent
 import coder.behzod.presentation.utils.helpers.NotesState
+import coder.behzod.presentation.utils.helpers.ShareNote
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +29,8 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val useCases: NotesUseCases,
-    private val trashUseCase: TrashUseCases
+    private val trashUseCase: TrashUseCases,
+    private val sharedPrefs:SharedPreferenceInstance
 ) : ViewModel() {
 
     private val _state = mutableStateOf(NotesState())
@@ -39,6 +44,9 @@ class MainViewModel @Inject constructor(
     @SuppressLint("MutableCollectionMutableState")
     private val _selectedNotes = mutableStateOf(ArrayList<NotesModel>())
     val selectedNotes: State<ArrayList<NotesModel>> = _selectedNotes
+
+    private val _viewType = mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_VIEW_TYPE,0))
+    val viewType:State<Int> = _viewType
 
     init {
         getNotes(NoteOrder.Date(OrderType.Descending))
@@ -63,6 +71,10 @@ class MainViewModel @Inject constructor(
 
             is NotesEvent.SelectAllStatus -> {
                 _selectAllStatus.value = event.status
+            }
+
+            is NotesEvent.ViewType->{
+                _viewType.intValue = event.viewType
             }
         }
     }

@@ -74,8 +74,6 @@ class TrashViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     fun onEvent(
         event: TrashEvent,
-        note: NotesModel,
-        notes: ArrayList<NotesModel>,
         trashedNotes: ArrayList<TrashModel>
     ) = viewModelScope.launch {
         when (event) {

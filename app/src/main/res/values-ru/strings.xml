@@ -21,7 +21,7 @@
     <string name="russian_language">Русский</string>
     <string name="uzbek_language">Узбекский</string>
     <string name="save">Сохранить</string>
-    <string name="share">Поделится &amp; сохранить</string>
+    <string name="share_and_save">Поделится &amp; сохранить</string>
     <string name="creating_note">Cоздание заметки…</string>
     <string name="share_via">Поделится через</string>
     <string name="note_deleted">Заметка удалена</string>
@@ -47,4 +47,5 @@
     <string name="items_selected">элементов выбрано</string>
     <string name="view">Вид</string>
     <string name="select_view">Выберите вид</string>
+    <string name="share">Поделится</string>
 </resources>

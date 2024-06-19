@@ -27,11 +27,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
-import coder.behzod.presentation.utils.events.NotesEvent
 import coder.behzod.presentation.viewModels.MainViewModel
 
 @Composable
-fun MainScreenItem(
+fun MainScreenRowItem(
     notesModel: NotesModel,
     themeColor:Color,
     fontColor: Color,
@@ -167,6 +166,9 @@ fun MainScreenItem(
                         }
                     )
                 }
+            }else{
+                isItemSelected.value = false
+                isAllItemsSelected.value = false
             }
         }
     }

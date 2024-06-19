@@ -112,7 +112,7 @@ fun NewNoteScreen(
                 .padding(bottom = 20.dp, end = 20.dp),
                 labelFirst = stringResource(R.string.save),
                 painterFirst = R.drawable.ic_save,
-                labelSecond = stringResource(R.string.share),
+                labelSecond = stringResource(R.string.share_and_save),
                 painterSecond = R.drawable.ic_share,
                 onClickFirst = {
                     if (note.text == "" && note.text.isBlank()) {

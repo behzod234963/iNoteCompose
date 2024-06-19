@@ -1,12 +1,14 @@
 package coder.behzod.presentation.screens
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,15 +29,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.IconButton
 import androidx.compose.material.Scaffold
-import androidx.compose.material.TopAppBar
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -43,7 +47,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -54,15 +60,19 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
+import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.model.TrashModel
 import coder.behzod.presentation.items.MainScreenGridItem
-import coder.behzod.presentation.items.MainScreenItem
+import coder.behzod.presentation.items.MainScreenRowItem
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.utils.constants.KEY_FONT_SIZE
 import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.constants.KEY_LIST_STATUS
+import coder.behzod.presentation.utils.constants.KEY_VIEW_TYPE
 import coder.behzod.presentation.utils.events.NotesEvent
+import coder.behzod.presentation.utils.extensions.dataFormatter
+import coder.behzod.presentation.utils.helpers.ShareNote
 import coder.behzod.presentation.viewModels.MainViewModel
 import coder.behzod.presentation.views.BottomNavigationView
 import coder.behzod.presentation.views.MainTopAppBar
@@ -75,9 +85,11 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 
-@OptIn(ExperimentalFoundationApi::class)
+@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @SuppressLint("CoroutineCreationDuringComposition", "UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun MainScreen(
@@ -143,11 +155,20 @@ fun MainScreen(
 
     /* if view type is 0 -> List View
     *                  1 -> Grid View */
-    val viewType = remember { mutableIntStateOf(1) }
+    val viewType = viewModel.viewType.value
 
     val dialogType = remember { mutableIntStateOf(0) }
 
     val functionsCase = remember { mutableIntStateOf(0) }
+
+    val note = remember { mutableStateOf( NotesModel(
+        title = "",
+        content = "",
+        color = -1,
+        dataAdded = LocalDate.now().toString().dataFormatter()
+    ) ) }
+
+    val activityContext = LocalContext.current as Activity
 
     Scaffold(
         modifier = Modifier
@@ -162,6 +183,18 @@ fun MainScreen(
         topBar = {
             if (isSelected.value) {
                 TopAppBar(
+                    modifier = Modifier
+                        .border(
+                            width = 1.dp,
+                            color = if (themeColor.value == Color.Black) Color.White else fontColor.value,
+                            shape = RoundedCornerShape(10.dp)
+                        )
+                        .clip(RoundedCornerShape(10.dp))
+                        .padding(5.dp),
+
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = themeColor.value
+                    ),
                     title = {
                         Text(
                             text = if (selectedNotesCount.intValue == 0) "0 ${stringResource(id = R.string.items_selected)}"
@@ -175,13 +208,15 @@ fun MainScreen(
 
                         /* Button close */
                         IconButton(onClick = {
+
                             isClosed.value = true
                             Handler(Looper.getMainLooper()).postDelayed({
                                 isClosed.value = false
                                 isSelected.value = false
+                                viewModel.removeAllFromList()
+                                selectedNotesCount.intValue = selectedNotes.size
                             }, 1000)
-                            viewModel.removeAllFromList()
-                            selectedNotesCount.intValue = selectedNotes.size
+
                         }) {
                             if (isClosed.value) {
                                 LottieAnimation(
@@ -236,14 +271,19 @@ fun MainScreen(
                 /* Floating action button for functions */
                 SpeedDialFAB(
                     modifier = Modifier,
-                    labelFirst = stringResource(id = R.string.share),
+                    labelFirst = stringResource(R.string.share),
                     labelSecond = stringResource(id = R.string.delete),
                     painterFirst = R.drawable.ic_share,
                     painterSecond = R.drawable.ic_delete,
                     onClickFirst = {
 
                         /* Content for share  */
-                        TODO()
+                        ShareNote().execute(
+                            title = note.value.title,
+                            content = note.value.content,
+                            ctx = activityContext,
+                        ){}
+                        isSelected.value = false
                     }) {
                     /* Content for functions */
                     if (selectAllStatus) {
@@ -472,7 +512,7 @@ fun MainScreen(
 
                                         /* This is grid button in alert dialog */
                                         IconButton(onClick = {
-                                            viewType.intValue = 1
+                                            viewModel.onEvent(NotesEvent.ViewType(1))
                                             isDialogVisible.value = false
                                         }) {
                                             Icon(
@@ -487,7 +527,7 @@ fun MainScreen(
                                         /* This is list button in alert dialog */
                                         IconButton(
                                             onClick = {
-                                                viewType.intValue = 0
+                                                viewModel.onEvent(NotesEvent.ViewType(0))
                                                 isDialogVisible.value = false
                                             }) {
                                             Icon(
@@ -513,13 +553,17 @@ fun MainScreen(
                         .padding(10.dp)
                 ) {
                     Spacer(modifier = Modifier.height(5.dp))
-                    if (viewType.intValue == 0) {
+                    if (viewType == 0) {
                         /* Lazy Column List Item */
+
+                        sharedPrefs.sharedPreferences.edit().putInt(KEY_VIEW_TYPE,0).apply()
+
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxSize()
                         ) {
                             items(items = state.value.notes, key = { it.toString() }) { notes ->
+                                note.value = notes
                                 SwipeToDeleteContainer(item = notes,
                                     onDelete = {
                                         viewModel.saveToTrash(
@@ -535,7 +579,7 @@ fun MainScreen(
                                             viewModel.onEvent(NotesEvent.DeleteNote(it))
                                         }
                                     }) { item ->
-                                    MainScreenItem(
+                                    MainScreenRowItem(
                                         notesModel = item,
                                         themeColor = themeColor.value,
                                         fontColor = fontColor.value,
@@ -565,10 +609,14 @@ fun MainScreen(
                         }
                     } else {
                         /*  Lazy Column Grid Item  */
+
+                        sharedPrefs.sharedPreferences.edit().putInt(KEY_VIEW_TYPE,1).apply()
+
                         LazyVerticalGrid(columns = GridCells.Fixed(2)) {
                             items(state.value.notes, key = { notes ->
                                 notes.toString()
                             }) { model ->
+                                note.value = model
                                 MainScreenGridItem(
                                     themeColor = themeColor.value,
                                     fontColor = fontColor.value,

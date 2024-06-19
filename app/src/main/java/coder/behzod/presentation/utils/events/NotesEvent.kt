@@ -7,4 +7,5 @@ sealed class NotesEvent {
     data class Order(val noteOrder: NoteOrder): NotesEvent()
     data class DeleteNote(val note:NotesModel): NotesEvent()
     data class SelectAllStatus(val status:Boolean):NotesEvent()
+    data class ViewType(val viewType: Int):NotesEvent()
 }
