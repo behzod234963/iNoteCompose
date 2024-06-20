@@ -101,4 +101,7 @@ dependencies {
 
 //    SpeedDialFloatingActionButton
     implementation(libs.speedDialFabCompose)
+
+//    RevealSwipe
+    implementation(libs.revealSwipe)
 }

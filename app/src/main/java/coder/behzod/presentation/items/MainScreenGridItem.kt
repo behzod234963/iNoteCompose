@@ -24,10 +24,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coder.behzod.R
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.viewModels.MainViewModel
@@ -38,6 +40,7 @@ fun MainScreenGridItem(
     fontColor: Color,
     fontSize: Int,
     onClick: () -> Unit,
+    onShare:()->Unit,
     onChange: (Int) -> Unit,
     onDelete:()->Unit,
     isSelected: Boolean,
@@ -90,7 +93,7 @@ fun MainScreenGridItem(
     Card(
         modifier = Modifier
             .size(250.dp)
-            .padding(10.dp)
+            .padding(5.dp)
             .background(themeColor)
             .clickable { onClick() },
         elevation = CardDefaults.cardElevation(7.dp),
@@ -162,6 +165,30 @@ fun MainScreenGridItem(
                     )
                 }
             } else {
+
+                /* Button share */
+                Box(
+                    modifier = Modifier
+                    .fillMaxSize(),
+                    contentAlignment = Alignment.TopEnd
+                ){
+                    IconButton(
+                        modifier = Modifier
+                            .padding(start = 10.dp,top = 8.dp),
+                        onClick = {
+                            onShare()
+                        }) {
+                        Icon(
+                            modifier = Modifier
+                                .size(35.dp),
+                            painter = painterResource(id = R.drawable.ic_share),
+                            contentDescription = "btn share note",
+                            tint = colorFont.value
+                        )
+                    }
+                }
+
+                /* Button delete */
                 Box(
                     modifier = Modifier
                         .fillMaxSize(),
@@ -169,7 +196,7 @@ fun MainScreenGridItem(
                 ) {
                     IconButton(
                         modifier = Modifier
-                            .padding(end = 10.dp, bottom = 10.dp),
+                            .padding(start = 10.dp, bottom = 10.dp),
                         onClick = {
                             onDelete()
                         }) {

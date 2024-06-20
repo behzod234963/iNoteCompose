@@ -29,9 +29,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.IconButton
 import androidx.compose.material.Scaffold
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material.SnackbarResult
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -39,6 +40,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
@@ -76,8 +78,7 @@ import coder.behzod.presentation.utils.helpers.ShareNote
 import coder.behzod.presentation.viewModels.MainViewModel
 import coder.behzod.presentation.views.BottomNavigationView
 import coder.behzod.presentation.views.MainTopAppBar
-import coder.behzod.presentation.views.SpeedDialFAB
-import coder.behzod.presentation.views.SwipeToDeleteContainer
+import coder.behzod.presentation.views.RevealSwipeContent
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -268,36 +269,32 @@ fun MainScreen(
         floatingActionButton = {
             if (isSelected.value) {
 
-                /* Floating action button for functions */
-                SpeedDialFAB(
-                    modifier = Modifier,
-                    labelFirst = stringResource(R.string.share),
-                    labelSecond = stringResource(id = R.string.delete),
-                    painterFirst = R.drawable.ic_share,
-                    painterSecond = R.drawable.ic_delete,
-                    onClickFirst = {
-
-                        /* Content for share  */
-                        ShareNote().execute(
-                            title = note.value.title,
-                            content = note.value.content,
-                            ctx = activityContext,
-                        ){}
-                        isSelected.value = false
+            /* Floating action button for functions */
+                FloatingActionButton(
+                    modifier = Modifier
+                        .padding(end = 30.dp, bottom = 30.dp),
+                    containerColor = Color.Magenta,
+                    shape = CircleShape,
+                    onClick = {
+                        if (selectAllStatus) {
+                            dialogType.intValue = 0
+                            isDialogVisible.value = true
+                            functionsCase.intValue = 3
+                            isSelected.value = false
+                        } else {
+                            dialogType.intValue = 0
+                            isDialogVisible.value = true
+                            isSelected.value = false
+                            functionsCase.intValue = 2
+                        }
                     }) {
-                    /* Content for functions */
-                    if (selectAllStatus) {
-                        dialogType.intValue = 0
-                        isDialogVisible.value = true
-                        functionsCase.intValue = 3
-                        isSelected.value = false
-                    } else {
-                        dialogType.intValue = 0
-                        isDialogVisible.value = true
-                        isSelected.value = false
-                        functionsCase.intValue = 2
-                    }
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "btn delete",
+                        tint = fontColor.value
+                    )
                 }
+
             } else {
                 /* Floating Action Button add note */
                 FloatingActionButton(
@@ -563,22 +560,43 @@ fun MainScreen(
                                 .fillMaxSize()
                         ) {
                             items(items = state.value.notes, key = { it.toString() }) { notes ->
+
                                 note.value = notes
-                                SwipeToDeleteContainer(item = notes,
-                                    onDelete = {
-                                        viewModel.saveToTrash(
-                                            TrashModel(
-                                                title = it.title,
-                                                content = it.content,
-                                                color = it.color,
-                                                daysLeft = 30,
+                                RevealSwipeContent(
+                                    item = notes,
+                                    onShare = {shareItem->
+                                        ShareNote().execute(
+                                            title = shareItem.title,
+                                            content = shareItem.content,
+                                            ctx = activityContext
+                                        ){}
+                                    },
+                                    onDelete = {deleteItem->
+
+                                        coroutineScope.launch {
+                                            val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
+                                                message = activityContext.getString(R.string.note_deleted),
+                                                actionLabel = activityContext.getString(R.string.undo)
                                             )
-                                        )
-                                        coroutineScope.launch(Dispatchers.IO) {
-                                            delay(1000)
-                                            viewModel.onEvent(NotesEvent.DeleteNote(it))
+                                            if(snackbarResult == SnackbarResult.ActionPerformed){
+                                                viewModel.returnDeletedNote(deleteItem )
+                                            }else{
+                                                viewModel.saveToTrash(
+                                                    TrashModel(
+                                                        title = deleteItem.title,
+                                                        content = deleteItem.content,
+                                                        color = deleteItem.color,
+                                                        daysLeft = 30,
+                                                    )
+                                                )
+                                                coroutineScope.launch(Dispatchers.IO) {
+                                                    delay(100)
+                                                    viewModel.onEvent(NotesEvent.DeleteNote(deleteItem))
+                                                }
+                                            }
                                         }
-                                    }) { item ->
+                                    },
+                                ) { item ->
                                     MainScreenRowItem(
                                         notesModel = item,
                                         themeColor = themeColor.value,
@@ -621,9 +639,15 @@ fun MainScreen(
                                     themeColor = themeColor.value,
                                     fontColor = fontColor.value,
                                     fontSize = fontSize.intValue,
-                                    isSelected = isSelected.value,
                                     onClick = {
                                         navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/${model.id}")
+                                    },
+                                    onShare = {
+                                        ShareNote().execute(
+                                            title = model.title,
+                                            content = model.content,
+                                            ctx = activityContext
+                                        ){}
                                     },
                                     onChange = {
                                         if (it == 1) {
@@ -640,21 +664,32 @@ fun MainScreen(
                                         }
                                     },
                                     onDelete = {
-                                        viewModel.saveToTrash(
-                                            TrashModel(
-                                                id = model.id,
-                                                title = model.title,
-                                                content = model.content,
-                                                color = model.color,
-                                                daysLeft = 30
+                                        coroutineScope.launch {
+                                            val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
+                                                message = activityContext.getString(R.string.note_deleted),
+                                                actionLabel = activityContext.getString(R.string.undo)
                                             )
-                                        )
-                                        viewModel.onEvent(NotesEvent.DeleteNote(model))
+                                            if (snackbarResult == SnackbarResult.ActionPerformed){
+                                                viewModel.returnDeletedNote(model)
+                                            }else{
+                                                viewModel.saveToTrash(
+                                                    TrashModel(
+                                                        id = model.id,
+                                                        title = model.title,
+                                                        content = model.content,
+                                                        color = model.color,
+                                                        daysLeft = 30
+                                                    )
+                                                )
+                                                viewModel.onEvent(NotesEvent.DeleteNote(model))
+                                            }
+                                        }
                                     },
+                                    isSelected = isSelected.value,
+                                    notesModel = model,
                                     title = model.title,
                                     note = model.content,
                                     date = model.dataAdded,
-                                    notesModel = model,
                                     backgroundColor = model.color
                                 )
                             }

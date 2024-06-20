@@ -3,6 +3,7 @@ package coder.behzod.presentation.activity
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -22,17 +23,17 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val updateDayRequest: WorkRequest =
+            PeriodicWorkRequestBuilder<UpdateDayWorker>(
+                repeatInterval = 1L,
+                repeatIntervalTimeUnit = TimeUnit.DAYS,
+            ).build()
+
+        WorkManager.getInstance(this@MainActivity)
+            .enqueue(updateDayRequest)
+
         setContent {
             NavGraph()
-
-            val updateDayRequest: WorkRequest =
-                PeriodicWorkRequestBuilder<UpdateDayWorker>(
-                    repeatInterval = 1,
-                    repeatIntervalTimeUnit = TimeUnit.DAYS
-                )
-                    .build()
-            WorkManager.getInstance(this@MainActivity)
-                .enqueue(updateDayRequest)
         }
     }
 }
