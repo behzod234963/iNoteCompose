@@ -7,5 +7,6 @@ data class TrashUseCases(
     val delete:DeleteUseCase,
     val multipleDelete:MultipleDeleteUseCase,
     val getTrashedNotes: GetTrashedNotesUseCase,
+    val getListOfNotes: GetListOfNotes,
     val restoreAllUseCase: RestoreAllUseCase,
 )

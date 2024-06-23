@@ -37,6 +37,8 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.material)
+    implementation(libs.androidx.hilt.common)
+    implementation(libs.firebase.functions.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

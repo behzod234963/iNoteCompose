@@ -4,17 +4,26 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -28,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -47,14 +57,15 @@ import coder.behzod.presentation.utils.constants.KEY_FONT_SIZE
 import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.constants.colorList
 import coder.behzod.presentation.utils.events.NewNoteEvent
-import coder.behzod.presentation.utils.helpers.ShareNote
 import coder.behzod.presentation.utils.extensions.dataFormatter
+import coder.behzod.presentation.utils.helpers.ShareNote
 import coder.behzod.presentation.viewModels.NewNoteViewModel
 import coder.behzod.presentation.views.FunctionalTopAppBar
 import coder.behzod.presentation.views.SpeedDialFAB
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
+@OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -162,7 +173,7 @@ fun NewNoteScreen(
                             title = title.text,
                             content = note.text,
                             ctx = activityContext
-                        ){
+                        ) {
                             navController.navigate(ScreensRouter.MainScreenRoute.route)
                         }
 
@@ -186,7 +197,7 @@ fun NewNoteScreen(
                             title = title.text,
                             content = note.text,
                             ctx = activityContext,
-                        ){
+                        ) {
                             navController.navigate(ScreensRouter.MainScreenRoute.route)
                         }
 
@@ -217,7 +228,7 @@ fun NewNoteScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(if (arguments.id != -1) Color(vmColor) else color.value),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             /* Color select content */
@@ -273,60 +284,129 @@ fun NewNoteScreen(
                 }
             }
             /* This is title menu */
-            OutlinedTextField(modifier = Modifier
-                .fillMaxWidth()
-                .padding(5.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = if (arguments.id != -1) Color(vmColor) else color.value,
-                    unfocusedContainerColor = if (arguments.id != -1) Color(vmColor) else color.value
-                ),
-                maxLines = 1,
-                textStyle = TextStyle(
-                    color = scriptColor.value,
-                    fontSize = 32.sp,
-                    textAlign = TextAlign.Companion.Left,
-                ),
-                value = title.text,
-                onValueChange = {
-                    viewModel.newNoteEvent(NewNoteEvent.ChangedTitle(it))
-                },
-                placeholder = {
-                    Text(
-                        text = stringResource(id = R.string.title),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth(),
-                        fontFamily = FontFamily(fontAmidoneGrotesk),
-                        fontSize = 25.sp,
-                        color = scriptColor.value
-                    )
-                })
-            /* This is note menu */
-            OutlinedTextField(modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 10.dp)
-                .padding(5.dp),
-                value = note.text,
-                onValueChange = {
-                    viewModel.newNoteEvent(NewNoteEvent.ChangedNote(it))
-                },
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = if (arguments.id != -1) Color(vmColor) else color.value,
-                    unfocusedContainerColor = if (arguments.id != -1) Color(vmColor) else color.value
-                ),
-                textStyle = TextStyle(
-                    color = scriptColor.value,
-                    fontSize = fontSize.intValue.sp,
-                    textAlign = TextAlign.Start
-                ),
-                placeholder = {
-                    Text(
-                        text = stringResource(id = R.string.note),
-                        modifier = Modifier.fillMaxWidth(),
-                        fontSize = fontSize.intValue.plus(7).sp,
+            Card(
+                modifier = Modifier
+                    .padding(top = 10.dp)
+                    .padding(5.dp),
+                shape = RoundedCornerShape(10.dp),
+                elevation = 10.dp
+            ) {
+                OutlinedTextField(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(80.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = if (arguments.id != -1) Color(vmColor) else color.value,
+                        unfocusedContainerColor = if (arguments.id != -1) Color(vmColor) else color.value
+                    ),
+                    leadingIcon = {
+                        Icon(
+                            modifier = Modifier
+                                .size(25.dp),
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "notes title leading icon",
+                            tint = fontColor.value
+                        )
+                    },
+                    shape = RoundedCornerShape(10.dp),
+                    maxLines = 1,
+                    textStyle = TextStyle(
                         color = scriptColor.value,
-                        textAlign = TextAlign.Center
+                        fontSize = 32.sp,
+                        textAlign = TextAlign.Companion.Left,
+                    ),
+                    value = title.text,
+                    onValueChange = {
+                        viewModel.newNoteEvent(NewNoteEvent.ChangedTitle(it))
+                    },
+                    placeholder = {
+                        Text(
+                            text = stringResource(id = R.string.title),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth(),
+                            fontFamily = FontFamily(fontAmidoneGrotesk),
+                            fontSize = 25.sp,
+                            color = scriptColor.value
+                        )
+                    }
+                )
+            }
+
+            /* This is note content */
+            Card (
+                modifier = Modifier
+                    .padding(top = 10.dp)
+                    .padding(5.dp),
+                shape = RoundedCornerShape(10.dp),
+                elevation = 10.dp
+            ){
+                OutlinedTextField(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    value = note.text,
+                    onValueChange = {
+                        viewModel.newNoteEvent(NewNoteEvent.ChangedNote(it))
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = if (arguments.id != -1) Color(vmColor) else color.value,
+                        unfocusedContainerColor = if (arguments.id != -1) Color(vmColor) else color.value
+                    ),
+                    leadingIcon = {
+                        Icon(
+                            modifier = Modifier
+                                .size(35.dp),
+                            painter = painterResource(id = R.drawable.ic_notes),
+                            contentDescription = "notes content leading icon",
+                            tint = fontColor.value
+                        )
+                    },
+                    textStyle = TextStyle(
+                        color = scriptColor.value,
+                        fontSize = fontSize.intValue.sp,
+                        textAlign = TextAlign.Start
+                    ),
+                    shape = RoundedCornerShape(10.dp),
+                    placeholder = {
+                        Text(
+                            text = stringResource(id = R.string.note),
+                            modifier = Modifier.fillMaxWidth(),
+                            fontSize = fontSize.intValue.plus(7).sp,
+                            color = scriptColor.value,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                )
+            }
+
+            /* this is photo content */
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp)
+                    .padding(5.dp)
+                    .height(200.dp),
+                onClick = {
+                    TODO()
+                },
+                backgroundColor = themeColor.value,
+                shape = RoundedCornerShape(10.dp),
+                elevation = 10.dp,
+                border = BorderStroke(width = 1.dp, color = fontColor.value)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(50.dp),
+                    contentAlignment = Alignment.TopStart
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .size(35.dp)
+                            .padding(start = 5.dp, top = 5.dp),
+                        painter = painterResource(id = R.drawable.ic_add_photp),
+                        contentDescription = "add photo",
+                        tint = fontColor.value
                     )
-                })
+                }
+            }
         }
     }
 }

@@ -25,6 +25,9 @@ interface TrashDao {
     @Query("SELECT *FROM trash")
     fun getTrashedNotes():Flow<List<TrashModel>>
 
+    @Query("SELECT * FROM trash")
+    fun getListOfNotes():List<TrashModel>
+
     @Insert
     suspend fun restoreAll(notes:ArrayList<NotesModel>)
 

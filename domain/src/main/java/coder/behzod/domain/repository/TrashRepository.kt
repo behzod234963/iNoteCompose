@@ -11,5 +11,6 @@ interface TrashRepository {
     suspend fun updateDay(id:Int,day:Int)
     suspend fun multipleDelete(notes:ArrayList<TrashModel>)
     fun getTrashedNotes():Flow<List<TrashModel>>
+    fun getListOfNotes():List<TrashModel>
     suspend fun restoreAll(notes: ArrayList<NotesModel>)
 }

@@ -3,13 +3,14 @@ package coder.behzod.presentation.activity
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import androidx.work.WorkRequest
+import coder.behzod.data.AlarmManager
 import coder.behzod.data.workManager.workers.UpdateDayWorker
 import coder.behzod.presentation.navigation.NavGraph
 import dagger.hilt.android.AndroidEntryPoint
@@ -23,15 +24,17 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val updateDayRequest: WorkRequest =
-            PeriodicWorkRequestBuilder<UpdateDayWorker>(
-                repeatInterval = 1L,
-                repeatIntervalTimeUnit = TimeUnit.DAYS,
-            ).build()
+//        val updateDayRequest = PeriodicWorkRequestBuilder<UpdateDayWorker>(
+//            1,
+//            TimeUnit.DAYS
+//        ).build()
+//
+//        WorkManager
+//            .getInstance(applicationContext)
+//            .enqueue(updateDayRequest)
+//        Log.d("worker", "doWork: ${WorkManager.isInitialized()} ")
 
-        WorkManager.getInstance(this@MainActivity)
-            .enqueue(updateDayRequest)
-
+        AlarmManager(applicationContext).alarmNotification()
         setContent {
             NavGraph()
         }

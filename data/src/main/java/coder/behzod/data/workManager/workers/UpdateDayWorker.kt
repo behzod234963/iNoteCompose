@@ -1,39 +1,81 @@
 package coder.behzod.data.workManager.workers
 
+import android.app.Notification
+import android.app.NotificationManager
 import android.content.Context
-import android.widget.Toast
-import androidx.work.Worker
+import android.util.Log
+import androidx.core.app.NotificationCompat
+import androidx.hilt.work.HiltWorker
+import androidx.work.CoroutineWorker
+import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
-import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.TrashModel
 import coder.behzod.domain.useCase.trashUseCases.TrashUseCases
+import com.google.firebase.functions.dagger.assisted.Assisted
+import com.google.firebase.functions.dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class UpdateDayWorker(
-    private val ctx: Context,
-    parameters: WorkerParameters,
-    private val trashUseCases: TrashUseCases
-) : Worker(ctx, parameters) {
 
-    val model = ArrayList<TrashModel>()
-    val sharedPrefs = SharedPreferenceInstance(ctx)
+@HiltWorker
+class UpdateDayWorker @AssistedInject constructor(
+    @Assisted private val ctx: Context,
+    @Assisted parameters: WorkerParameters,
+    @Assisted private val useCases: TrashUseCases,
+) : CoroutineWorker(ctx, parameters) {
 
-    override fun doWork(): Result {
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        return ForegroundInfo(
+            1,notificationCreator(
+                title = "Work Manager",
+                content = "Updating..."
+            )
+        )
+    }
 
+    fun notificationCreator(title:String,content:String):Notification{
+
+        val notificationManager = ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val channelId = "1"
+
+        val notification = NotificationCompat.Builder(ctx, channelId)
+            .setSmallIcon(android.R.drawable.ic_delete)
+            .setContentText(content)
+            .setContentTitle(title)
+            .build()
+        notificationManager.notify(1,notification)
+        return notification
+    }
+
+    override suspend fun doWork(): Result {
+
+        Log.d("worker", "doWork: doWork is working ")
+
+        var notes: List<TrashModel> = emptyList()
+
+        useCases.getListOfNotes.invoke().also {
+            notes = it
+        }
+
+        Log.d("worker", "doWork: ${notes.size}")
         CoroutineScope(Dispatchers.IO).launch {
-            for (model in model) {
-                val incrementDay = model.daysLeft--
-                model.id?.let { trashUseCases.updateDayUseCase(it, incrementDay) }
-
-                val updateDayNotification = UpdateDayNotification(ctx)
-                updateDayNotification.showNotification(
-                    title = model.title,
-                    content = "days left ${model.daysLeft}\n$incrementDay"
+            for (note in notes) {
+                val model = TrashModel(
+                    id = note.id,
+                    title = note.title,
+                    content = note.content,
+                    color = note.color,
+                    daysLeft = note.daysLeft
                 )
+                val increment = model.daysLeft - 1
+                Log.d("worker", "doWork: increment value $increment ")
+
+                model.id?.let { useCases.updateDayUseCase(it, increment) }.also {
+                    Log.d("increment", "doWork: note was updated $note")
+                }
             }
         }
-        return Result.success()
+       return Result.success()
     }
 }

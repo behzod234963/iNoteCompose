@@ -14,6 +14,7 @@ import coder.behzod.domain.useCase.notesUseCases.SaveNoteUseCase
 import coder.behzod.domain.useCase.notesUseCases.NotesUseCases
 import coder.behzod.domain.useCase.trashUseCases.MultipleDeleteUseCase
 import coder.behzod.domain.useCase.trashUseCases.DeleteUseCase
+import coder.behzod.domain.useCase.trashUseCases.GetListOfNotes
 import coder.behzod.domain.useCase.trashUseCases.GetTrashedNotesUseCase
 import coder.behzod.domain.useCase.trashUseCases.RestoreAllUseCase
 import coder.behzod.domain.useCase.trashUseCases.SaveToTrashUseCase
@@ -49,6 +50,7 @@ class DomainModule {
             updateDayUseCase = UpdateDayUseCase(repository),
             multipleDelete = MultipleDeleteUseCase(repository),
             getTrashedNotes = GetTrashedNotesUseCase(repository),
+            getListOfNotes = GetListOfNotes(repository),
             restoreAllUseCase = RestoreAllUseCase(repository),
         )
 

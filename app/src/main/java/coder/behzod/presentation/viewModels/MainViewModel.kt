@@ -15,6 +15,7 @@ import coder.behzod.domain.utils.NoteOrder
 import coder.behzod.domain.utils.OrderType
 import coder.behzod.presentation.utils.constants.KEY_VIEW_TYPE
 import coder.behzod.presentation.utils.events.NotesEvent
+import coder.behzod.presentation.utils.events.TrashEvent
 import coder.behzod.presentation.utils.helpers.NotesState
 import coder.behzod.presentation.utils.helpers.ShareNote
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -76,6 +77,8 @@ class MainViewModel @Inject constructor(
             is NotesEvent.ViewType->{
                 _viewType.intValue = event.viewType
             }
+
+            is TrashEvent.PassObject -> TODO()
         }
     }
 
@@ -123,7 +126,9 @@ class MainViewModel @Inject constructor(
     }
 
     fun saveToTrash(note: TrashModel) = viewModelScope.launch {
+
         trashUseCase.saveToTrashUseCase(note)
+
     }
 
     fun returnDeletedNote(note: NotesModel) {

@@ -762,6 +762,7 @@ fun TrashScreen(
                         .padding(top = 5.dp)
                 ) {
                     items(trashedNotes) { selectedModel ->
+
                         if (selectAllStatus) {
                             viewModel.onEvent(
                                 event = TrashEvent.ClearList(selectedItems),
