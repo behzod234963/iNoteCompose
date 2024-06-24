@@ -221,7 +221,6 @@ fun SettingsScreen(
                 },
                 themeColor = themeColor.value,
                 fontColor = fontColor.value,
-                initialFontSize.intValue,
                 sharedPrefs
             )
         }

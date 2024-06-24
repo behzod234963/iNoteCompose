@@ -7,10 +7,9 @@ import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.work.PeriodicWorkRequest
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import coder.behzod.data.AlarmManager
 import coder.behzod.data.workManager.workers.UpdateDayWorker
 import coder.behzod.presentation.navigation.NavGraph
 import dagger.hilt.android.AndroidEntryPoint
@@ -19,24 +18,27 @@ import java.util.concurrent.TimeUnit
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var workManager: WorkManager
+
     @SuppressLint("RestrictedApi")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-//        val updateDayRequest = PeriodicWorkRequestBuilder<UpdateDayWorker>(
-//            1,
-//            TimeUnit.DAYS
-//        ).build()
-//
-//        WorkManager
-//            .getInstance(applicationContext)
-//            .enqueue(updateDayRequest)
-//        Log.d("worker", "doWork: ${WorkManager.isInitialized()} ")
+        workManager = WorkManager.getInstance(applicationContext)
 
-        AlarmManager(applicationContext).alarmNotification()
         setContent {
             NavGraph()
+            val updateDayRequest = PeriodicWorkRequestBuilder<UpdateDayWorker>(
+                1, TimeUnit.DAYS
+            ).build()
+
+            workManager.enqueueUniquePeriodicWork(
+                "updateDayUniqueWorker",
+                ExistingPeriodicWorkPolicy.UPDATE,
+                updateDayRequest
+            )
+            Log.d("worker", "WorkManager: ${WorkManager.isInitialized()} ")
         }
     }
 }

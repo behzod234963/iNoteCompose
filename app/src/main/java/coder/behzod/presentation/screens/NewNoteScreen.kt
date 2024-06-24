@@ -9,23 +9,26 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
@@ -49,18 +52,17 @@ import androidx.navigation.NavController
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
-import coder.behzod.presentation.items.ColorsItem
 import coder.behzod.presentation.navigation.Arguments
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.utils.constants.KEY_FONT_SIZE
 import coder.behzod.presentation.utils.constants.KEY_INDEX
-import coder.behzod.presentation.utils.constants.colorList
 import coder.behzod.presentation.utils.events.NewNoteEvent
 import coder.behzod.presentation.utils.extensions.dataFormatter
 import coder.behzod.presentation.utils.helpers.ShareNote
 import coder.behzod.presentation.viewModels.NewNoteViewModel
 import coder.behzod.presentation.views.FunctionalTopAppBar
+import coder.behzod.presentation.views.PrioritySelectButtons
 import coder.behzod.presentation.views.SpeedDialFAB
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -114,6 +116,16 @@ fun NewNoteScreen(
 
     val fontSize =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_FONT_SIZE, 18)) }
+
+    val priorityList = listOf(
+        Pair(stringResource(R.string.priority_low), Color.White),
+        Pair(stringResource(R.string.priority_medium), Color.Yellow),
+        Pair(stringResource(R.string.priority_high), Color.Green),
+        Pair(stringResource(R.string.priority_immediate), Color.Red)
+    )
+
+    val isSwitched = remember { mutableStateOf(false) }
+    val isOptionsExpanded = remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier
@@ -231,69 +243,40 @@ fun NewNoteScreen(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            /* Color select content */
-            LazyRow(
-                modifier = Modifier.height(70.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+
+            /* This is priority level select */
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 5.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                items(colorList) {
-                    ColorsItem(color = it, fontColor = scriptColor.value, onClick = {
-                        coroutineScope.launch {
-                            color.value = it
-                            viewModel.newNoteEvent(NewNoteEvent.NoteBackground(it.toArgb()))
-                            when (it) {
-                                Color.Black -> {
-                                    scriptColor.value = Color.White
-                                }
+                Text(
+                    text = stringResource(R.string.priority),
+                    color = scriptColor.value,
+                    fontFamily = FontFamily(fontAmidoneGrotesk),
+                    fontSize = fontSize.intValue.sp
+                )
 
-                                Color.White -> {
-                                    scriptColor.value = Color.Black
-                                }
-
-                                Color.Red -> {
-                                    scriptColor.value = Color.Black
-                                }
-
-                                Color.Magenta -> {
-                                    scriptColor.value = Color.Black
-                                }
-
-                                Color.Blue -> {
-                                    scriptColor.value = Color.White
-                                }
-
-                                Color.Cyan -> {
-                                    scriptColor.value = Color.Black
-                                }
-
-                                Color.DarkGray -> {
-                                    scriptColor.value = Color.White
-                                }
-
-                                Color.Green -> {
-                                    scriptColor.value = Color.Black
-                                }
-
-                                Color.Yellow -> {
-                                    scriptColor.value = Color.Black
-                                }
-                            }
-                        }
-                    })
-                }
+                PrioritySelectButtons(
+                    items = priorityList,
+                    onItemSelected = {},
+                    themeColor = themeColor.value,
+                    fontColor = fontColor.value
+                )
             }
+
             /* This is title menu */
             Card(
                 modifier = Modifier
-                    .padding(top = 10.dp)
-                    .padding(5.dp),
+                    .padding(top = 5.dp)
+                    .padding(5.dp)
+                    .fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
                 elevation = 10.dp
             ) {
-                OutlinedTextField(modifier = Modifier
-                    .fillMaxWidth()
-                    .height(80.dp),
+                OutlinedTextField(
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = if (arguments.id != -1) Color(vmColor) else color.value,
                         unfocusedContainerColor = if (arguments.id != -1) Color(vmColor) else color.value
@@ -311,7 +294,7 @@ fun NewNoteScreen(
                     maxLines = 1,
                     textStyle = TextStyle(
                         color = scriptColor.value,
-                        fontSize = 32.sp,
+                        fontSize = fontSize.intValue.sp,
                         textAlign = TextAlign.Companion.Left,
                     ),
                     value = title.text,
@@ -324,7 +307,7 @@ fun NewNoteScreen(
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth(),
                             fontFamily = FontFamily(fontAmidoneGrotesk),
-                            fontSize = 25.sp,
+                            fontSize = fontSize.intValue.plus(7).sp,
                             color = scriptColor.value
                         )
                     }
@@ -332,13 +315,13 @@ fun NewNoteScreen(
             }
 
             /* This is note content */
-            Card (
+            Card(
                 modifier = Modifier
-                    .padding(top = 10.dp)
+                    .padding(top = 5.dp)
                     .padding(5.dp),
                 shape = RoundedCornerShape(10.dp),
                 elevation = 10.dp
-            ){
+            ) {
                 OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -377,34 +360,115 @@ fun NewNoteScreen(
                 )
             }
 
-            /* this is photo content */
+            /* This is other options content */
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 10.dp)
-                    .padding(5.dp)
-                    .height(200.dp),
+                    .padding(top = 5.dp)
+                    .padding(horizontal = 5.dp),
                 onClick = {
-                    TODO()
+                    isOptionsExpanded.value = !isOptionsExpanded.value
                 },
                 backgroundColor = themeColor.value,
                 shape = RoundedCornerShape(10.dp),
                 elevation = 10.dp,
                 border = BorderStroke(width = 1.dp, color = fontColor.value)
             ) {
-                Box(
+                Row(
                     modifier = Modifier
-                        .size(50.dp),
-                    contentAlignment = Alignment.TopStart
+                        .fillMaxWidth()
+                        .padding(horizontal = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Icon(
-                        modifier = Modifier
-                            .size(35.dp)
-                            .padding(start = 5.dp, top = 5.dp),
-                        painter = painterResource(id = R.drawable.ic_add_photp),
-                        contentDescription = "add photo",
-                        tint = fontColor.value
+                    Text(
+                        text = "Other options",
+                        fontSize = fontSize.intValue.sp,
+                        color = fontColor.value,
+                        fontFamily = FontFamily(fontAmidoneGrotesk)
                     )
+                    if (isOptionsExpanded.value) {
+                        Icon(
+                            modifier = Modifier
+                                .size(35.dp),
+                            imageVector = Icons.Default.KeyboardArrowUp,
+                            contentDescription = "expand collapse other options content",
+                            tint = fontColor.value
+                        )
+                    } else {
+                        Icon(
+                            modifier = Modifier
+                                .size(35.dp),
+                            imageVector = Icons.Default.KeyboardArrowDown,
+                            contentDescription = "expand collapse other options content",
+                            tint = fontColor.value
+                        )
+                    }
+                }
+            }
+            if (isOptionsExpanded.value) {
+
+                /* this is photo content */
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 5.dp)
+                        .padding(horizontal = 10.dp)
+                        .height(180.dp),
+                    onClick = {
+                        TODO()
+                    },
+                    backgroundColor = themeColor.value,
+                    shape = RoundedCornerShape(10.dp),
+                    elevation = 10.dp,
+                    border = BorderStroke(width = 1.dp, color = fontColor.value)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(50.dp),
+                        contentAlignment = Alignment.TopStart
+                    ) {
+                        Icon(
+                            modifier = Modifier
+                                .size(35.dp)
+                                .padding(start = 5.dp, top = 5.dp),
+                            painter = painterResource(id = R.drawable.ic_add_photp),
+                            contentDescription = "add photo",
+                            tint = fontColor.value
+                        )
+                    }
+                }
+
+                /* This is alarm content */
+                Card(
+                    modifier = Modifier
+                        .padding(top = 5.dp)
+                        .padding(horizontal = 5.dp),
+                    backgroundColor = themeColor.value,
+                    shape = RoundedCornerShape(10.dp),
+                    border = BorderStroke(1.dp, color = fontColor.value),
+                    elevation = 10.dp
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = stringResource(R.string.set_alarm),
+                            fontSize = fontSize.intValue.sp,
+                            color = fontColor.value,
+                            fontFamily = FontFamily(fontAmidoneGrotesk)
+                        )
+                        Switch(
+                            checked = isSwitched.value,
+                            onCheckedChange = {
+                                isSwitched.value = it
+                            }
+                        )
+                    }
                 }
             }
         }

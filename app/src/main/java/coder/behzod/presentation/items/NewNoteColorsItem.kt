@@ -19,21 +19,12 @@ import androidx.core.graphics.toColor
 @Composable
 fun ColorsItem(
     color:Color,
-    onClick:()->Unit,
-    fontColor:Color
 ) {
     Column(
         modifier = Modifier
-            .size(60.dp)
-            .padding(10.dp)
-            .border(width = 1.dp, color = fontColor, shape = CircleShape)
+            .size(40.dp)
+            .padding(5.dp)
+            .border(width = 1.dp, color = color, shape = CircleShape)
             .clip(CircleShape)
-    ) {
-        Column (
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color)
-                .clickable { onClick() }
-        ){}
-    }
+    ) {}
 }

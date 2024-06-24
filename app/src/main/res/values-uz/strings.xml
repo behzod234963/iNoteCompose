@@ -48,4 +48,10 @@
     <string name="view">Ko\'rinish</string>
     <string name="select_view">Ko\'rinishni tanlang</string>
     <string name="share">Ulashish</string>
+    <string name="priority">Ustuvorlik</string>
+    <string name="priority_low">Past</string>
+    <string name="priority_medium">O\'rtacha</string>
+    <string name="priority_high">Baland</string>
+    <string name="priority_immediate">Shoshilinch</string>
+    <string name="set_alarm">Eslatma o\'rnatish</string>
 </resources>
