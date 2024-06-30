@@ -73,7 +73,7 @@ import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.constants.KEY_LIST_STATUS
 import coder.behzod.presentation.utils.constants.KEY_VIEW_TYPE
 import coder.behzod.presentation.utils.events.NotesEvent
-import coder.behzod.presentation.utils.extensions.dataFormatter
+import coder.behzod.presentation.utils.extensions.dateFormatter
 import coder.behzod.presentation.utils.helpers.ShareNote
 import coder.behzod.presentation.viewModels.MainViewModel
 import coder.behzod.presentation.views.BottomNavigationView
@@ -166,7 +166,7 @@ fun MainScreen(
         title = "",
         content = "",
         color = -1,
-        dataAdded = LocalDate.now().toString().dataFormatter()
+        dataAdded = LocalDate.now().toString().dateFormatter()
     ) ) }
 
     val activityContext = LocalContext.current as Activity

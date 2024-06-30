@@ -8,9 +8,9 @@ import java.util.Date
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("SimpleDateFormat")
-fun String.dataFormatter():String{
+fun String.dateFormatter():String{
 
-    val simpleDataFormatter = SimpleDateFormat("dd-MM-yyyy")
+    val simpleDataFormatter = SimpleDateFormat("dd.MM.yyyy")
     val result = simpleDataFormatter.format(Date())
     return result.toString()
 }

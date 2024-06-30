@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
             ).build()
 
             workManager.enqueueUniquePeriodicWork(
-                "updateDayUniqueWorker",
+                "My Worker",
                 ExistingPeriodicWorkPolicy.UPDATE,
                 updateDayRequest
             )

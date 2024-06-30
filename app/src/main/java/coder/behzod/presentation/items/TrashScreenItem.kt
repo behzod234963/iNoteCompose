@@ -34,7 +34,6 @@ import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.TrashModel
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.utils.constants.KEY_INT
-import coder.behzod.presentation.utils.helpers.periodicDeleting
 import coder.behzod.presentation.viewModels.TrashViewModel
 
 @Composable

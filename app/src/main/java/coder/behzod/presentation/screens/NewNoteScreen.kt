@@ -16,6 +16,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
@@ -24,6 +27,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
@@ -52,17 +57,21 @@ import androidx.navigation.NavController
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
+import coder.behzod.presentation.items.ColorsItem
 import coder.behzod.presentation.navigation.Arguments
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
+import coder.behzod.presentation.theme.green
+import coder.behzod.presentation.theme.liteGreen
+import coder.behzod.presentation.theme.yellow
 import coder.behzod.presentation.utils.constants.KEY_FONT_SIZE
 import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.events.NewNoteEvent
-import coder.behzod.presentation.utils.extensions.dataFormatter
+import coder.behzod.presentation.utils.extensions.dateFormatter
 import coder.behzod.presentation.utils.helpers.ShareNote
 import coder.behzod.presentation.viewModels.NewNoteViewModel
 import coder.behzod.presentation.views.FunctionalTopAppBar
-import coder.behzod.presentation.views.PrioritySelectButtons
+import coder.behzod.presentation.views.SetAlarmContent
 import coder.behzod.presentation.views.SpeedDialFAB
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -110,19 +119,46 @@ fun NewNoteScreen(
     } else {
         fontColor.value = Color.Black
     }
-
-    val color = remember { mutableStateOf(themeColor.value) }
     val scriptColor = remember { mutableStateOf(fontColor.value) }
+
+    val priorityColorIndex = remember { mutableIntStateOf(0) }
+    val priorityColor = remember { mutableStateOf(Color.Black) }
+
+    when (priorityColorIndex.intValue) {
+        0 -> {
+            priorityColor.value = themeColor.value
+        }
+
+        1 -> {
+            priorityColor.value = Color.White
+            themeColor.value = priorityColor.value
+        }
+
+        2 -> {
+            priorityColor.value = yellow
+            themeColor.value = priorityColor.value
+        }
+
+        3 -> {
+            priorityColor.value = green
+            themeColor.value = priorityColor.value
+        }
+
+        4 -> {
+            priorityColor.value = liteGreen
+            themeColor.value = priorityColor.value
+        }
+    }
+
+    val colorsList = listOf(
+        Color.White,
+        yellow,
+        green,
+        liteGreen
+    )
 
     val fontSize =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_FONT_SIZE, 18)) }
-
-    val priorityList = listOf(
-        Pair(stringResource(R.string.priority_low), Color.White),
-        Pair(stringResource(R.string.priority_medium), Color.Yellow),
-        Pair(stringResource(R.string.priority_high), Color.Green),
-        Pair(stringResource(R.string.priority_immediate), Color.Red)
-    )
 
     val isSwitched = remember { mutableStateOf(false) }
     val isOptionsExpanded = remember { mutableStateOf(false) }
@@ -153,8 +189,8 @@ fun NewNoteScreen(
                                     title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
                                         .text.capitalize(),
                                     content = note.text,
-                                    color = color.value.toArgb(),
-                                    dataAdded = date.value.toString().dataFormatter()
+                                    color = priorityColor.value.toArgb(),
+                                    dataAdded = date.value.toString().dateFormatter()
                                 )
                             )
                         } else {
@@ -163,8 +199,8 @@ fun NewNoteScreen(
                                     title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
                                         .text.capitalize(),
                                     content = note.text,
-                                    color = color.value.toArgb(),
-                                    dataAdded = date.value.toString().dataFormatter()
+                                    color = priorityColor.value.toArgb(),
+                                    dataAdded = date.value.toString().dateFormatter()
                                 )
                             )
                         }
@@ -198,8 +234,8 @@ fun NewNoteScreen(
                                     },
                                 content = note.text,
 
-                                color = color.value.toArgb(),
-                                dataAdded = date.value.toString().dataFormatter()
+                                color = priorityColor.value.toArgb(),
+                                dataAdded = date.value.toString().dateFormatter()
                             )
                         )
 
@@ -218,8 +254,8 @@ fun NewNoteScreen(
                                 title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
                                     .text.capitalize(),
                                 content = note.text,
-                                color = color.value.toArgb(),
-                                dataAdded = date.value.toString().dataFormatter()
+                                color = priorityColor.value.toArgb(),
+                                dataAdded = date.value.toString().dateFormatter()
                             )
                         )
                     }
@@ -228,10 +264,13 @@ fun NewNoteScreen(
         },
         topBar = {
             FunctionalTopAppBar(
-                themeColor = if (arguments.id != -1) Color(vmColor) else color.value,
+                themeColor = if (arguments.id != -1) Color(vmColor) else themeColor.value,
                 fontColor = scriptColor.value,
+                sharedPrefs = sharedPrefs,
                 navController = navController,
-                sharedPrefs = sharedPrefs
+                priorityColorSelector = {
+                    priorityColorIndex.intValue = it
+                }
             )
         },
         scaffoldState = scaffoldState
@@ -239,34 +278,10 @@ fun NewNoteScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(if (arguments.id != -1) Color(vmColor) else color.value),
+                .background(if (arguments.id != -1) Color(vmColor) else priorityColor.value),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            /* This is priority level select */
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 5.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = stringResource(R.string.priority),
-                    color = scriptColor.value,
-                    fontFamily = FontFamily(fontAmidoneGrotesk),
-                    fontSize = fontSize.intValue.sp
-                )
-
-                PrioritySelectButtons(
-                    items = priorityList,
-                    onItemSelected = {},
-                    themeColor = themeColor.value,
-                    fontColor = fontColor.value
-                )
-            }
-
             /* This is title menu */
             Card(
                 modifier = Modifier
@@ -278,8 +293,8 @@ fun NewNoteScreen(
             ) {
                 OutlinedTextField(
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = if (arguments.id != -1) Color(vmColor) else color.value,
-                        unfocusedContainerColor = if (arguments.id != -1) Color(vmColor) else color.value
+                        focusedContainerColor = if (arguments.id != -1) Color(vmColor) else priorityColor.value,
+                        unfocusedContainerColor = if (arguments.id != -1) Color(vmColor) else priorityColor.value
                     ),
                     leadingIcon = {
                         Icon(
@@ -330,8 +345,8 @@ fun NewNoteScreen(
                         viewModel.newNoteEvent(NewNoteEvent.ChangedNote(it))
                     },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = if (arguments.id != -1) Color(vmColor) else color.value,
-                        unfocusedContainerColor = if (arguments.id != -1) Color(vmColor) else color.value
+                        focusedContainerColor = if (arguments.id != -1) Color(vmColor) else priorityColor.value,
+                        unfocusedContainerColor = if (arguments.id != -1) Color(vmColor) else priorityColor.value
                     ),
                     leadingIcon = {
                         Icon(
@@ -369,7 +384,7 @@ fun NewNoteScreen(
                 onClick = {
                     isOptionsExpanded.value = !isOptionsExpanded.value
                 },
-                backgroundColor = themeColor.value,
+                backgroundColor = priorityColor.value,
                 shape = RoundedCornerShape(10.dp),
                 elevation = 10.dp,
                 border = BorderStroke(width = 1.dp, color = fontColor.value)
@@ -381,12 +396,22 @@ fun NewNoteScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(
-                        text = "Other options",
-                        fontSize = fontSize.intValue.sp,
-                        color = fontColor.value,
-                        fontFamily = FontFamily(fontAmidoneGrotesk)
-                    )
+                    Row {
+                        Icon(
+                            modifier = Modifier
+                                .size(30.dp),
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "repeating",
+                            tint = fontColor.value
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            text = "Other options",
+                            fontSize = fontSize.intValue.sp,
+                            color = fontColor.value,
+                            fontFamily = FontFamily(fontAmidoneGrotesk)
+                        )
+                    }
                     if (isOptionsExpanded.value) {
                         Icon(
                             modifier = Modifier
@@ -408,34 +433,37 @@ fun NewNoteScreen(
             }
             if (isOptionsExpanded.value) {
 
-                /* this is photo content */
-                Card(
+                /* Colors */
+                LazyRow(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 5.dp)
-                        .padding(horizontal = 10.dp)
-                        .height(180.dp),
-                    onClick = {
-                        TODO()
-                    },
-                    backgroundColor = themeColor.value,
-                    shape = RoundedCornerShape(10.dp),
-                    elevation = 10.dp,
-                    border = BorderStroke(width = 1.dp, color = fontColor.value)
+                        .height(40.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(50.dp),
-                        contentAlignment = Alignment.TopStart
-                    ) {
-                        Icon(
-                            modifier = Modifier
-                                .size(35.dp)
-                                .padding(start = 5.dp, top = 5.dp),
-                            painter = painterResource(id = R.drawable.ic_add_photp),
-                            contentDescription = "add photo",
-                            tint = fontColor.value
-                        )
+                    items(colorsList) { color ->
+                        ColorsItem(color = color, fontColor = fontColor.value) {
+                            when (color) {
+                                themeColor.value -> {
+                                    priorityColorIndex.intValue = 0
+                                }
+
+                                Color.White -> {
+                                    priorityColorIndex.intValue = 1
+                                }
+
+                                yellow -> {
+                                    priorityColorIndex.intValue = 2
+                                }
+
+                                green -> {
+                                    priorityColorIndex.intValue = 3
+                                }
+
+                                liteGreen -> {
+                                    priorityColorIndex.intValue = 4
+                                }
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(20.dp))
                     }
                 }
 
@@ -449,25 +477,42 @@ fun NewNoteScreen(
                     border = BorderStroke(1.dp, color = fontColor.value),
                     elevation = 10.dp
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = stringResource(R.string.set_alarm),
-                            fontSize = fontSize.intValue.sp,
-                            color = fontColor.value,
-                            fontFamily = FontFamily(fontAmidoneGrotesk)
-                        )
-                        Switch(
-                            checked = isSwitched.value,
-                            onCheckedChange = {
-                                isSwitched.value = it
-                            }
-                        )
+                    Column {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = stringResource(R.string.set_alarm),
+                                fontSize = fontSize.intValue.sp,
+                                color = fontColor.value,
+                                fontFamily = FontFamily(fontAmidoneGrotesk)
+                            )
+                            Switch(
+                                colors = androidx.compose.material3.SwitchDefaults.colors(
+                                    checkedTrackColor = green,
+                                    checkedThumbColor = priorityColor.value,
+                                    uncheckedThumbColor = priorityColor.value,
+                                    uncheckedTrackColor = fontColor.value
+                                ),
+                                checked = isSwitched.value,
+                                onCheckedChange = {
+                                    isSwitched.value = it
+                                }
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(5.dp))
+                        if (isSwitched.value) {
+                            SetAlarmContent(
+                                themeColor = priorityColor.value,
+                                fontColor = fontColor.value,
+                                fontSize = fontSize.intValue
+                            )
+                            
+                        }
                     }
                 }
             }
