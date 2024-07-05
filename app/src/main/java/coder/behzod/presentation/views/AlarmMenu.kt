@@ -1,8 +1,9 @@
 package coder.behzod.presentation.views
 
+import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Build
-import android.util.Log
+import android.widget.DatePicker
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,24 +14,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -39,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,9 +41,6 @@ import coder.behzod.R
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.theme.green
 import coder.behzod.presentation.utils.extensions.dateFormatter
-import coder.behzod.presentation.utils.helpers.DateUtils
-import kotlinx.coroutines.launch
-import java.time.LocalDate
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,32 +49,57 @@ import java.util.Calendar
 fun SetAlarmContent(
     themeColor: Color,
     fontColor: Color,
-    fontSize: Int
+    fontSize: Int,
+    onTimePicked:(Long)->Unit,
+    onDatePicked:(Long)->Unit,
 ) {
 
-    val isDatePickerVisible = remember { mutableStateOf(false) }
-    val isTimePickerVisible = remember { mutableStateOf(false) }
+    val isDatePicked = remember { mutableStateOf(false) }
+    val isTimePicked = remember { mutableStateOf(false) }
     val isRepeating = remember { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
     val ctx = LocalContext.current
 
-    val datePickerState = rememberDatePickerState()
-    val millisToLocalDate = datePickerState.selectedDateMillis?.let {
-        DateUtils().convertMillisToLocalDate(it)
-    }
-    val date = datePickerState.selectedDateMillis?.let {
-        DateUtils().dateToString(millisToLocalDate!!)
-    } ?: LocalDate.now().toString().dateFormatter()
+    val calendarInstance = Calendar.getInstance()
+    val year = calendarInstance.get(Calendar.YEAR)
+    val monthOfYear = calendarInstance.get(Calendar.MONTH)
+    val dayOfMonth = calendarInstance.get(Calendar.DAY_OF_MONTH)
+    val hours = calendarInstance.get(Calendar.HOUR_OF_DAY)
+    val minutes = calendarInstance.get(Calendar.MINUTE)
 
-    val calendar = Calendar.getInstance()
-    val hours = calendar.get(Calendar.HOUR_OF_DAY)
-    val minutes = calendar.get(Calendar.MINUTE)
+
+    val date = remember { mutableStateOf( "" ) }
+    val selectedDate = remember { mutableLongStateOf(0L) }
+
+//    val millisToLocalDate = datePickerState.selectedDateMillis?.let {
+//        DateUtils().convertMillisToLocalDate(it)
+//    }
+//    val date = datePickerState.selectedDateMillis?.let {
+//        DateUtils().dateToString(millisToLocalDate!!)
+//    } ?: LocalDate.now().toString().dateFormatter()
+
+    val datePickerDialog = DatePickerDialog(
+        ctx,
+        /* i = year
+        * i1 = month
+        * i2 = day */
+        { _: DatePicker, i: Int, i1: Int, i2: Int ->
+            val calendar = Calendar.getInstance()
+            calendar.set(i, i1, i2)
+            date.value = calendar.timeInMillis.toString().dateFormatter()
+            selectedDate.longValue = calendar.timeInMillis
+        }, year, monthOfYear, dayOfMonth
+    )
+
     val time = remember { mutableStateOf("") }
+    val selectedTime = remember { mutableLongStateOf( 0L ) }
+
     val timePickerDialog = TimePickerDialog(
         ctx,
         { _, hour: Int, minute: Int ->
             time.value = "$hour : $minute"
+            selectedTime.longValue = "$hour$minute".toLong()
         }, hours, minutes, true
     )
 
@@ -124,15 +140,15 @@ fun SetAlarmContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = date,
+                    text = date.value,
                     color = fontColor,
                     fontSize = fontSize.sp,
                     fontFamily = FontFamily(fontAmidoneGrotesk)
                 )
                 IconButton(
                     onClick = {
-                        isDatePickerVisible.value = true
-
+                        datePickerDialog.show()
+                        onDatePicked(selectedDate.longValue)
                     }) {
                     Icon(
                         modifier = Modifier.size(35.dp),
@@ -140,63 +156,6 @@ fun SetAlarmContent(
                         contentDescription = "datePicker visible",
                         tint = fontColor
                     )
-                }
-                if (isDatePickerVisible.value) {
-
-                    DatePickerDialog(
-                        onDismissRequest = {
-                            isDatePickerVisible.value = false
-                        },
-                        confirmButton = {
-                            Button(
-                                shape = RoundedCornerShape(10.dp),
-                                colors = ButtonColors(
-                                    contentColor = themeColor,
-                                    containerColor = themeColor,
-                                    disabledContentColor = themeColor,
-                                    disabledContainerColor = themeColor
-                                ),
-                                onClick = {
-                                    isDatePickerVisible.value = false
-                                    coroutineScope.launch {
-                                        datePickerState.selectedDateMillis
-                                        Log.d("UIcheck", "SetAlarm: ${date.toString()}")
-                                    }
-                                },
-                            ) {
-                                Text(
-                                    text = "ok",
-                                    color = fontColor,
-                                    fontSize = fontSize.sp,
-                                    fontFamily = FontFamily(fontAmidoneGrotesk)
-                                )
-                            }
-                        },
-                        dismissButton = {
-                            Button(
-                                shape = RoundedCornerShape(10.dp),
-                                colors = ButtonColors(
-                                    contentColor = themeColor,
-                                    containerColor = themeColor,
-                                    disabledContentColor = themeColor,
-                                    disabledContainerColor = themeColor
-                                ),
-                                onClick = {
-                                    isDatePickerVisible.value = false
-                                },
-                            ) {
-                                androidx.compose.material.Text(
-                                    text = stringResource(id = R.string.cancel),
-                                    color = fontColor,
-                                    fontSize = fontSize.sp,
-                                    fontFamily = FontFamily(fontAmidoneGrotesk)
-                                )
-                            }
-                        }
-                    )
-                    {
-                        DatePicker(state = datePickerState)
-                    }
                 }
             }
         }
@@ -240,6 +199,7 @@ fun SetAlarmContent(
                 IconButton(
                     onClick = {
                         timePickerDialog.show()
+                        onTimePicked(selectedTime.longValue)
                     }) {
                     Icon(
                         modifier = Modifier.size(35.dp),

@@ -8,7 +8,9 @@ import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
+import androidx.work.ListenableWorker.Result
 import androidx.work.WorkerParameters
+import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.TrashModel
 import coder.behzod.domain.useCase.trashUseCases.TrashUseCases
 import com.google.firebase.functions.dagger.assisted.Assisted
@@ -45,21 +47,24 @@ class UpdateDayWorker @AssistedInject constructor(
                 color = note.color,
                 daysLeft = note.daysLeft
             )
-            val increment = model.daysLeft--
+            val increment = model.daysLeft.minus(1)
             incrementDay = increment
             Log.d("worker", "doWork: incrementDay value $incrementDay ")
             modelValue = model.daysLeft
             Log.d("worker", "doWork: modelValue value $modelValue ")
 
             Log.d("worker", "doWork: increment value $increment ")
-
-            model.id?.let { useCases.updateDayUseCase(it, modelValue) }.also {
-                Log.d("increment", "doWork: note was updated $note")
+            if (incrementDay >= modelValue) {
+                Result.retry()
+            } else {
+                model.id?.let { useCases.updateDayUseCase(it, incrementDay) }.also {
+                    Log.d("increment", "doWork: note was updated $note")
+                }
             }
         }
-        return if (incrementDay >= modelValue){
+        return if (incrementDay >= modelValue) {
             Result.retry()
-        }else{
+        } else {
             Result.success()
         }
     }

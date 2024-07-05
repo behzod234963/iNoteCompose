@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Log
 import androidx.work.Configuration
 import coder.behzod.data.local.room.TrashDao
+import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.data.workManager.workers.UpdateDayWorkerFactory
 import coder.behzod.domain.useCase.trashUseCases.TrashUseCases
 import dagger.hilt.android.HiltAndroidApp

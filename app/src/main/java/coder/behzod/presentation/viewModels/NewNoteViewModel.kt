@@ -2,6 +2,7 @@ package coder.behzod.presentation.viewModels
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.LiveData
@@ -40,6 +41,15 @@ class NewNoteViewModel @Inject constructor(
     private val _status = MutableLiveData(false)
     val status:LiveData<Boolean> = _status
 
+    private val _dateAndTime = mutableLongStateOf(0L)
+    val dateAndTime:State<Long> = _dateAndTime
+
+    private val _date = mutableLongStateOf(0L)
+    val date :State<Long> = _date
+
+    private val _time = mutableLongStateOf(0L)
+    val time :State<Long> = _time
+
     init {
 
         viewModelScope.launch {
@@ -58,6 +68,19 @@ class NewNoteViewModel @Inject constructor(
                 }
             }
         }
+        saveDateAndTime()
+    }
+
+    fun saveDate(date:Long){
+        _date.longValue = date
+    }
+
+    fun saveTime(time:Long){
+        _time.longValue = time
+    }
+
+    fun saveDateAndTime(){
+        _dateAndTime.longValue = date.value+time.value
     }
 
     fun saveNote(note: NotesModel) = viewModelScope.launch(Dispatchers.IO) {

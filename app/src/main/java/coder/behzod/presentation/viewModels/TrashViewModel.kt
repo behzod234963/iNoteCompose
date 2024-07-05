@@ -46,6 +46,10 @@ class TrashViewModel @Inject constructor(
         }
     }
 
+    fun updateDay(id:Int,daysLeft:Int) = viewModelScope.launch(Dispatchers.IO) {
+        useCases.updateDayUseCase(id,daysLeft)
+    }
+
     fun delete(note: TrashModel) = viewModelScope.launch {
         useCases.delete(note)
     }
