@@ -10,8 +10,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.useCase.notesUseCases.NotesUseCases
+import coder.behzod.presentation.utils.constants.KEY_ALARM_DATE_AND_TIME
 import coder.behzod.presentation.utils.constants.colorList
 import coder.behzod.presentation.utils.events.NewNoteEvent
 import coder.behzod.presentation.utils.helpers.NewNotesState
@@ -25,6 +27,7 @@ import javax.inject.Inject
 class NewNoteViewModel @Inject constructor(
     private val useCases: NotesUseCases,
     savedStateHandle: SavedStateHandle,
+    sharedPreferenceInstance: SharedPreferenceInstance
 ) : ViewModel() {
 
     private val _title = mutableStateOf(NewNotesState(""))
@@ -38,8 +41,14 @@ class NewNoteViewModel @Inject constructor(
     private val _color = mutableIntStateOf(colorList.random().toArgb())
     val color: State<Int> = _color
 
-    private val _status = MutableLiveData(false)
-    val status:LiveData<Boolean> = _status
+    private val _status = mutableStateOf(false)
+    val status:State<Boolean> = _status
+
+    private val _isDatePicked = mutableStateOf(false)
+    val isDatePicked:State<Boolean> = _isDatePicked
+
+    private val _isTimePicked = mutableStateOf(false)
+    val isTimePicked:State<Boolean> = _isDatePicked
 
     private val _dateAndTime = mutableLongStateOf(0L)
     val dateAndTime:State<Long> = _dateAndTime
@@ -69,6 +78,19 @@ class NewNoteViewModel @Inject constructor(
             }
         }
         saveDateAndTime()
+        sharedPreferenceInstance.sharedPreferences.edit().putLong(KEY_ALARM_DATE_AND_TIME,dateAndTime.value).apply()
+    }
+
+    fun saveStatus(status:Boolean){
+        _status.value = status
+    }
+
+    fun isDateAndTimePicked(isDatePicked:Boolean){
+        _isDatePicked.value = isDatePicked
+    }
+
+    fun isDateAndTimePicked(isDatePicked:Boolean,isTimePicked:Boolean){
+        _isTimePicked.value = isTimePicked
     }
 
     fun saveDate(date:Long){

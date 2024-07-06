@@ -37,10 +37,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coder.behzod.R
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.theme.green
 import coder.behzod.presentation.utils.extensions.dateFormatter
+import coder.behzod.presentation.viewModels.NewNoteViewModel
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,8 +52,7 @@ fun SetAlarmContent(
     themeColor: Color,
     fontColor: Color,
     fontSize: Int,
-    onTimePicked:(Long)->Unit,
-    onDatePicked:(Long)->Unit,
+    viewModel: NewNoteViewModel = hiltViewModel()
 ) {
 
     val isDatePicked = remember { mutableStateOf(false) }
@@ -97,9 +98,9 @@ fun SetAlarmContent(
 
     val timePickerDialog = TimePickerDialog(
         ctx,
-        { _, hour: Int, minute: Int ->
-            time.value = "$hour : $minute"
-            selectedTime.longValue = "$hour$minute".toLong()
+        { _, hourOfDay: Int, pickedMinute: Int ->
+            time.value = "$hourOfDay:$pickedMinute"
+            selectedTime.longValue = "$hourOfDay$pickedMinute".toLong()
         }, hours, minutes, true
     )
 
@@ -148,7 +149,8 @@ fun SetAlarmContent(
                 IconButton(
                     onClick = {
                         datePickerDialog.show()
-                        onDatePicked(selectedDate.longValue)
+                        viewModel.saveDate(selectedDate.longValue)
+                        viewModel.isDateAndTimePicked(isDatePicked = true)
                     }) {
                     Icon(
                         modifier = Modifier.size(35.dp),
@@ -199,7 +201,8 @@ fun SetAlarmContent(
                 IconButton(
                     onClick = {
                         timePickerDialog.show()
-                        onTimePicked(selectedTime.longValue)
+                        viewModel.saveTime(selectedTime.longValue)
+                        viewModel.isDateAndTimePicked(isTimePicked = true, isDatePicked = true)
                     }) {
                     Icon(
                         modifier = Modifier.size(35.dp),

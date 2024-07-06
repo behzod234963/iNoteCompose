@@ -51,7 +51,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coder.behzod.R
@@ -60,13 +59,11 @@ import coder.behzod.domain.model.NotesModel
 import coder.behzod.presentation.items.ColorsItem
 import coder.behzod.presentation.navigation.Arguments
 import coder.behzod.presentation.navigation.ScreensRouter
-import coder.behzod.presentation.notifications.NotificationScheduler
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.theme.green
 import coder.behzod.presentation.theme.liteGreen
 import coder.behzod.presentation.theme.yellow
 import coder.behzod.presentation.utils.constants.KEY_ALARM_CONTENT
-import coder.behzod.presentation.utils.constants.KEY_ALARM_STATUS
 import coder.behzod.presentation.utils.constants.KEY_ALARM_TITLE
 import coder.behzod.presentation.utils.constants.KEY_FONT_SIZE
 import coder.behzod.presentation.utils.constants.KEY_INDEX
@@ -88,7 +85,6 @@ fun NewNoteScreen(
     navController: NavController,
     arguments: Arguments,
     sharedPrefs: SharedPreferenceInstance,
-    notificationScheduler: NotificationScheduler,
     viewModel: NewNoteViewModel = hiltViewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -202,28 +198,17 @@ fun NewNoteScreen(
                             )
 
                             /* alarm */
-                            if (viewModel.date.value == 0L || viewModel.time.value == 0L) {
+                            if (!viewModel.isDatePicked.value || !viewModel.isTimePicked.value) {
                                 coroutineScope.launch {
                                     scaffoldState.snackbarHostState.showSnackbar(
                                         "Invalid date or time"
                                     )
                                 }
                             } else {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-
-                                    ActivityCompat.requestPermissions(
-                                        activityContext,
-                                        arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
-                                        0
-                                    )
-                                }
                                 sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_TITLE, title.text).apply()
                                 sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_CONTENT, note.text).apply()
+                                viewModel.saveStatus(true)
 
-                                notificationScheduler.scheduleNotification(
-                                    activityContext,
-                                    viewModel.dateAndTime.value
-                                )
                             }
                         } else {
                             viewModel.saveNote(
@@ -235,28 +220,17 @@ fun NewNoteScreen(
                                     dataAdded = date.value.toString().dateFormatter()
                                 )
                             )
-                            if (viewModel.date.value == 0L || viewModel.time.value == 0L) {
+                            if (!viewModel.isDatePicked.value || !viewModel.isTimePicked.value) {
                                 coroutineScope.launch {
                                     scaffoldState.snackbarHostState.showSnackbar(
                                         "Invalid date or time"
                                     )
                                 }
                             } else {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-
-                                    ActivityCompat.requestPermissions(
-                                        activityContext,
-                                        arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
-                                        0
-                                    )
-                                }
                                 sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_TITLE, title.text).apply()
                                 sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_CONTENT, note.text).apply()
+                                viewModel.saveStatus(true)
 
-                                notificationScheduler.scheduleNotification(
-                                    activityContext,
-                                    viewModel.dateAndTime.value
-                                )
                             }
                         }
                         navController.navigate(ScreensRouter.MainScreenRoute.route)
@@ -293,28 +267,17 @@ fun NewNoteScreen(
                                 dataAdded = date.value.toString().dateFormatter()
                             )
                         )
-                        if (viewModel.date.value == 0L || viewModel.time.value == 0L) {
+                        if (!viewModel.isDatePicked.value || !viewModel.isTimePicked.value) {
                             coroutineScope.launch {
                                 scaffoldState.snackbarHostState.showSnackbar(
                                     "Invalid date or time"
                                 )
                             }
                         } else {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-
-                                ActivityCompat.requestPermissions(
-                                    activityContext,
-                                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
-                                    0
-                                )
-                            }
                             sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_TITLE, title.text).apply()
                             sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_CONTENT, note.text).apply()
+                            viewModel.saveStatus(true)
 
-                            notificationScheduler.scheduleNotification(
-                                activityContext,
-                                viewModel.dateAndTime.value
-                            )
                         }
 
                     } else {
@@ -336,28 +299,17 @@ fun NewNoteScreen(
                                 dataAdded = date.value.toString().dateFormatter()
                             )
                         )
-                        if (viewModel.date.value == 0L || viewModel.time.value == 0L) {
+                        if (!viewModel.isDatePicked.value || !viewModel.isTimePicked.value) {
                             coroutineScope.launch {
                                 scaffoldState.snackbarHostState.showSnackbar(
                                     "Invalid date or time"
                                 )
                             }
                         } else {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-
-                                ActivityCompat.requestPermissions(
-                                    activityContext,
-                                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
-                                    0
-                                )
-                            }
                             sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_TITLE, title.text).apply()
                             sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_CONTENT, note.text).apply()
+                            viewModel.saveStatus(true)
 
-                            notificationScheduler.scheduleNotification(
-                                activityContext,
-                                viewModel.dateAndTime.value
-                            )
                         }
                     }
                 }
@@ -610,13 +562,7 @@ fun NewNoteScreen(
                             SetAlarmContent(
                                 themeColor = priorityColor.value,
                                 fontColor = fontColor.value,
-                                fontSize = fontSize.intValue,
-                                onDatePicked = { pickedDate ->
-                                    viewModel.saveDate(pickedDate)
-                                },
-                                onTimePicked = { pickedTime ->
-                                    viewModel.saveTime(pickedTime)
-                                }
+                                fontSize = fontSize.intValue
                             )
 
                         }

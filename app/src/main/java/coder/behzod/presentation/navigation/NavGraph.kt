@@ -1,7 +1,7 @@
 package coder.behzod.presentation.navigation
 
 import android.app.AlarmManager
-import android.app.NotificationManager
+import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
@@ -14,7 +14,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
-import coder.behzod.presentation.notifications.NotificationScheduler
 import coder.behzod.presentation.screens.EmptyMainScreen
 import coder.behzod.presentation.screens.MainScreen
 import coder.behzod.presentation.screens.NewNoteScreen
@@ -24,12 +23,10 @@ import coder.behzod.presentation.screens.TrashScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun NavGraph(
-    notificationManager: NotificationManagerCompat,
-    alarmManager: AlarmManager
-) {
+fun NavGraph() {
     val navController = rememberNavController()
     val ctx = LocalContext.current
+
     NavHost(
         navController = navController,
         startDestination = ScreensRouter.SplashScreenRoute.route
@@ -68,13 +65,12 @@ fun NavGraph(
             NewNoteScreen(
                 navController = navController,
                 arguments = Arguments(id),
-                sharedPrefs = SharedPreferenceInstance(ctx),
-                notificationScheduler = NotificationScheduler(notificationManager, alarmManager)
+                sharedPrefs = SharedPreferenceInstance(ctx)
             )
         }
         composable(
             ScreensRouter.TrashScreen.route
-        ){
+        ) {
             TrashScreen(
                 sharedPrefs = SharedPreferenceInstance(ctx),
                 navController = navController,

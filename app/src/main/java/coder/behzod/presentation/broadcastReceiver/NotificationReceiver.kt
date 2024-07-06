@@ -29,20 +29,17 @@ class NotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
 
         val sharedPrefs = context?.let { SharedPreferenceInstance(it) }
-        val title = sharedPrefs?.sharedPreferences?.getString(KEY_ALARM_TITLE,"")
-        val content = sharedPrefs?.sharedPreferences?.getString(KEY_ALARM_CONTENT,"")
+        val title = sharedPrefs?.sharedPreferences?.getString(KEY_ALARM_TITLE, "")
+        val content = sharedPrefs?.sharedPreferences?.getString(KEY_ALARM_CONTENT, "")
         Log.d("TAG", "onCreate: NotificationReceiver is started")
 
         val notificationScheduler = NotificationScheduler(notificationManager, alarmManager)
-        if (context != null) {
-            notificationScheduler.scheduleNotification(context, 0)
+
+        notificationScheduler.scheduleNotification(context!!, 0)
+        if (title != null) {
+            notificationScheduler.showNotification(ctx = context, title = title, content!!)
         }
-        if (context != null) {
-            if (title != null) {
-                if (content != null) {
-                    notificationScheduler.showNotification(ctx = context, title = title,content)
-                }
-            }
-        }
+
+
     }
 }

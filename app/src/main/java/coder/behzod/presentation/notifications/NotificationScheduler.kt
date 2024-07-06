@@ -3,31 +3,20 @@ package coder.behzod.presentation.notifications
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlarmManager
-import android.app.Application
-import android.app.NotificationManager
 import android.app.PendingIntent
-import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
 import android.content.pm.PackageManager
-import android.media.AudioManager
-import android.media.RingtoneManager
 import android.os.Build
-import android.os.IBinder
-import android.os.Vibrator
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationCompat.STREAM_DEFAULT
-import androidx.core.app.NotificationCompat.StreamType
 import androidx.core.app.NotificationManagerCompat
 import coder.behzod.R
 import coder.behzod.presentation.activity.MainActivity
 import coder.behzod.presentation.broadcastReceiver.NotificationReceiver
 import coder.behzod.presentation.broadcastReceiver.StopAlarm
-import dagger.hilt.android.qualifiers.ActivityContext
 import javax.inject.Inject
 
 class NotificationScheduler @Inject constructor(
