@@ -3,6 +3,7 @@ package coder.behzod.presentation.screens
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -54,6 +55,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coder.behzod.R
+import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.presentation.items.ColorsItem
@@ -64,6 +66,7 @@ import coder.behzod.presentation.theme.green
 import coder.behzod.presentation.theme.liteGreen
 import coder.behzod.presentation.theme.yellow
 import coder.behzod.presentation.utils.constants.KEY_ALARM_CONTENT
+import coder.behzod.presentation.utils.constants.KEY_ALARM_STATUS
 import coder.behzod.presentation.utils.constants.KEY_ALARM_TITLE
 import coder.behzod.presentation.utils.constants.KEY_FONT_SIZE
 import coder.behzod.presentation.utils.constants.KEY_INDEX
@@ -85,6 +88,7 @@ fun NewNoteScreen(
     navController: NavController,
     arguments: Arguments,
     sharedPrefs: SharedPreferenceInstance,
+    dataStoreInstance: DataStoreInstance,
     viewModel: NewNoteViewModel = hiltViewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -199,16 +203,13 @@ fun NewNoteScreen(
 
                             /* alarm */
                             if (!viewModel.isDatePicked.value || !viewModel.isTimePicked.value) {
-                                coroutineScope.launch {
-                                    scaffoldState.snackbarHostState.showSnackbar(
-                                        "Invalid date or time"
-                                    )
-                                }
+                                Toast.makeText(activityContext, "invalid date or time date: ${pickedDate.value}", Toast.LENGTH_SHORT).show()
                             } else {
-                                sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_TITLE, title.text).apply()
-                                sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_CONTENT, note.text).apply()
-                                viewModel.saveStatus(true)
-
+                                coroutineScope.launch {
+                                    sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_TITLE, title.text).apply()
+                                    sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_CONTENT, note.text).apply()
+                                    dataStoreInstance.saveStatus("alarmStatus",true)
+                                }
                             }
                         } else {
                             viewModel.saveNote(
@@ -221,16 +222,13 @@ fun NewNoteScreen(
                                 )
                             )
                             if (!viewModel.isDatePicked.value || !viewModel.isTimePicked.value) {
-                                coroutineScope.launch {
-                                    scaffoldState.snackbarHostState.showSnackbar(
-                                        "Invalid date or time"
-                                    )
-                                }
+                                Toast.makeText(activityContext, "invalid date or time date: ${pickedDate.value}", Toast.LENGTH_SHORT).show()
                             } else {
-                                sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_TITLE, title.text).apply()
-                                sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_CONTENT, note.text).apply()
-                                viewModel.saveStatus(true)
-
+                                coroutineScope.launch {
+                                    sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_TITLE, title.text).apply()
+                                    sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_CONTENT, note.text).apply()
+                                    dataStoreInstance.saveStatus("alarmStatus",true)
+                                }
                             }
                         }
                         navController.navigate(ScreensRouter.MainScreenRoute.route)
@@ -268,16 +266,13 @@ fun NewNoteScreen(
                             )
                         )
                         if (!viewModel.isDatePicked.value || !viewModel.isTimePicked.value) {
-                            coroutineScope.launch {
-                                scaffoldState.snackbarHostState.showSnackbar(
-                                    "Invalid date or time"
-                                )
-                            }
+                            Toast.makeText(activityContext, "invalid date or time date: ${pickedDate.value}", Toast.LENGTH_SHORT).show()
                         } else {
-                            sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_TITLE, title.text).apply()
-                            sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_CONTENT, note.text).apply()
-                            viewModel.saveStatus(true)
-
+                            coroutineScope.launch {
+                                sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_TITLE, title.text).apply()
+                                sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_CONTENT, note.text).apply()
+                                dataStoreInstance.saveStatus("alarmStatus",true)
+                            }
                         }
 
                     } else {
@@ -306,9 +301,11 @@ fun NewNoteScreen(
                                 )
                             }
                         } else {
-                            sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_TITLE, title.text).apply()
-                            sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_CONTENT, note.text).apply()
-                            viewModel.saveStatus(true)
+                            coroutineScope.launch {
+                                sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_TITLE, title.text).apply()
+                                sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_CONTENT, note.text).apply()
+                                dataStoreInstance.saveStatus("alarmStatus",true)
+                            }
 
                         }
                     }

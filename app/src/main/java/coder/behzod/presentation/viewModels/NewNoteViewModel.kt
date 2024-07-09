@@ -5,8 +5,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.toArgb
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,7 +18,6 @@ import coder.behzod.presentation.utils.helpers.NewNotesState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -53,12 +50,6 @@ class NewNoteViewModel @Inject constructor(
     private val _dateAndTime = mutableLongStateOf(0L)
     val dateAndTime:State<Long> = _dateAndTime
 
-    private val _date = mutableLongStateOf(0L)
-    val date :State<Long> = _date
-
-    private val _time = mutableLongStateOf(0L)
-    val time :State<Long> = _time
-
     init {
 
         viewModelScope.launch {
@@ -77,7 +68,6 @@ class NewNoteViewModel @Inject constructor(
                 }
             }
         }
-        saveDateAndTime()
         sharedPreferenceInstance.sharedPreferences.edit().putLong(KEY_ALARM_DATE_AND_TIME,dateAndTime.value).apply()
     }
 
@@ -85,24 +75,16 @@ class NewNoteViewModel @Inject constructor(
         _status.value = status
     }
 
-    fun isDateAndTimePicked(isDatePicked:Boolean){
+    fun isDatePicked(isDatePicked:Boolean){
         _isDatePicked.value = isDatePicked
     }
 
-    fun isDateAndTimePicked(isDatePicked:Boolean,isTimePicked:Boolean){
-        _isTimePicked.value = isTimePicked
+    fun isTimePicked(timeStatus:Boolean){
+        _isTimePicked.value = timeStatus
     }
 
-    fun saveDate(date:Long){
-        _date.longValue = date
-    }
-
-    fun saveTime(time:Long){
-        _time.longValue = time
-    }
-
-    fun saveDateAndTime(){
-        _dateAndTime.longValue = date.value+time.value
+    fun saveTriggerAtMillis(trigger:Long){
+        _dateAndTime.longValue = trigger
     }
 
     fun saveNote(note: NotesModel) = viewModelScope.launch(Dispatchers.IO) {

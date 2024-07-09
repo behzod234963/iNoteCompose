@@ -25,7 +25,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -43,6 +42,9 @@ import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.theme.green
 import coder.behzod.presentation.utils.extensions.dateFormatter
 import coder.behzod.presentation.viewModels.NewNoteViewModel
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.ZoneId
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,15 +65,12 @@ fun SetAlarmContent(
     val ctx = LocalContext.current
 
     val calendarInstance = Calendar.getInstance()
-    val year = calendarInstance.get(Calendar.YEAR)
-    val monthOfYear = calendarInstance.get(Calendar.MONTH)
-    val dayOfMonth = calendarInstance.get(Calendar.DAY_OF_MONTH)
     val hours = calendarInstance.get(Calendar.HOUR_OF_DAY)
     val minutes = calendarInstance.get(Calendar.MINUTE)
 
 
-    val date = remember { mutableStateOf( "" ) }
-    val selectedDate = remember { mutableLongStateOf(0L) }
+    val date = remember { mutableStateOf("") }
+    val selectedDate = remember { mutableStateOf(LocalDateTime.now()) }
 
 //    val millisToLocalDate = datePickerState.selectedDateMillis?.let {
 //        DateUtils().convertMillisToLocalDate(it)
@@ -80,28 +79,23 @@ fun SetAlarmContent(
 //        DateUtils().dateToString(millisToLocalDate!!)
 //    } ?: LocalDate.now().toString().dateFormatter()
 
+    val time = remember { mutableStateOf("") }
+    val selectedTime = remember { mutableStateOf(LocalTime.now()) }
+
     val datePickerDialog = DatePickerDialog(
         ctx,
-        /* i = year
-        * i1 = month
-        * i2 = day */
-        { _: DatePicker, i: Int, i1: Int, i2: Int ->
-            val calendar = Calendar.getInstance()
-            calendar.set(i, i1, i2)
-            date.value = calendar.timeInMillis.toString().dateFormatter()
-            selectedDate.longValue = calendar.timeInMillis
-        }, year, monthOfYear, dayOfMonth
+        { _:DatePicker,year:Int,month:Int,day:Int ->
+            date.value = "$year$month$day".dateFormatter()
+            selectedDate.value = LocalDateTime.of(year,month+1,day,selectedTime.value.hour,selectedTime.value.minute)
+        },selectedDate.value.year,selectedDate.value.monthValue-1,selectedDate.value.dayOfMonth
     )
-
-    val time = remember { mutableStateOf("") }
-    val selectedTime = remember { mutableLongStateOf( 0L ) }
 
     val timePickerDialog = TimePickerDialog(
         ctx,
         { _, hourOfDay: Int, pickedMinute: Int ->
             time.value = "$hourOfDay:$pickedMinute"
-            selectedTime.longValue = "$hourOfDay$pickedMinute".toLong()
-        }, hours, minutes, true
+            selectedTime.value = LocalTime.of(hourOfDay,pickedMinute)
+        }, selectedTime.value.hour,selectedTime.value.minute, true
     )
 
     Column(
@@ -119,9 +113,9 @@ fun SetAlarmContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            Row (
+            Row(
                 verticalAlignment = Alignment.CenterVertically
-            ){
+            ) {
                 Icon(
                     modifier = Modifier
                         .size(30.dp),
@@ -149,8 +143,10 @@ fun SetAlarmContent(
                 IconButton(
                     onClick = {
                         datePickerDialog.show()
-                        viewModel.saveDate(selectedDate.longValue)
-                        viewModel.isDateAndTimePicked(isDatePicked = true)
+                        val triggerAtMillis = selectedDate.value.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                        viewModel.saveTriggerAtMillis(triggerAtMillis)
+                        isDatePicked.value = true
+                        viewModel.isDatePicked(true)
                     }) {
                     Icon(
                         modifier = Modifier.size(35.dp),
@@ -171,9 +167,9 @@ fun SetAlarmContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            Row (
+            Row(
                 verticalAlignment = Alignment.CenterVertically
-            ){
+            ) {
                 Icon(
                     modifier = Modifier
                         .size(30.dp),
@@ -201,8 +197,10 @@ fun SetAlarmContent(
                 IconButton(
                     onClick = {
                         timePickerDialog.show()
-                        viewModel.saveTime(selectedTime.longValue)
-                        viewModel.isDateAndTimePicked(isTimePicked = true, isDatePicked = true)
+                        val triggerAtMillis = selectedDate.value.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                        viewModel.saveTriggerAtMillis(triggerAtMillis)
+                        isTimePicked.value = true
+                        viewModel.isTimePicked(true)
                     }) {
                     Icon(
                         modifier = Modifier.size(35.dp),
@@ -222,9 +220,9 @@ fun SetAlarmContent(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row (
+            Row(
                 verticalAlignment = Alignment.CenterVertically
-            ){
+            ) {
                 Icon(
                     modifier = Modifier
                         .size(30.dp),

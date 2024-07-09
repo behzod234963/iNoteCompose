@@ -25,9 +25,7 @@ class StopAlarm:BroadcastReceiver() {
         val alarmIntent = Intent(context,NotificationReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(context,0,alarmIntent,
             PendingIntent.FLAG_IMMUTABLE)
-        alarmManager.cancel(pendingIntent).run {
-            notificationManager.cancel(0)
-        }
-        Log.d("TAG", "onCreate: Alarm is cancelled")
+        alarmManager.cancel(pendingIntent)
+        notificationManager.cancel(0)
     }
 }

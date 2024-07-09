@@ -31,7 +31,7 @@ class NotificationReceiver : BroadcastReceiver() {
         val sharedPrefs = context?.let { SharedPreferenceInstance(it) }
         val title = sharedPrefs?.sharedPreferences?.getString(KEY_ALARM_TITLE, "")
         val content = sharedPrefs?.sharedPreferences?.getString(KEY_ALARM_CONTENT, "")
-        Log.d("TAG", "onCreate: NotificationReceiver is started")
+        Log.d("alarm", "NotificationReceiver: NotificationReceiver is started")
 
         val notificationScheduler = NotificationScheduler(notificationManager, alarmManager)
 
@@ -39,7 +39,5 @@ class NotificationReceiver : BroadcastReceiver() {
         if (title != null) {
             notificationScheduler.showNotification(ctx = context, title = title, content!!)
         }
-
-
     }
 }

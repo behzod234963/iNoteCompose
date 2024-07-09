@@ -17,6 +17,7 @@ import coder.behzod.R
 import coder.behzod.presentation.activity.MainActivity
 import coder.behzod.presentation.broadcastReceiver.NotificationReceiver
 import coder.behzod.presentation.broadcastReceiver.StopAlarm
+import java.util.Calendar
 import javax.inject.Inject
 
 class NotificationScheduler @Inject constructor(
@@ -25,21 +26,20 @@ class NotificationScheduler @Inject constructor(
 ){
 
     @SuppressLint("ScheduleExactAlarm")
-    fun scheduleNotification(ctx: Context, delay:Long?){
+    fun scheduleNotification(ctx: Context, triggerAtMillis:Long){
 
-        Log.d("TAG", "onCreate: function scheduleNotification is started")
+        Log.d("alarm", "NotificationScheduler: function scheduleNotification is started")
         val alarmIntent = Intent(ctx, NotificationReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(ctx,0,alarmIntent,
             PendingIntent.FLAG_IMMUTABLE)
-        val alarmTime = System.currentTimeMillis() + delay!!
 
-        alarmManager.set(AlarmManager.RTC_WAKEUP,alarmTime,pendingIntent)
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,triggerAtMillis,pendingIntent)
     }
 
     @RequiresApi(Build.VERSION_CODES.P)
     fun showNotification(ctx:Context, title:String, content:String){
 
-        Log.d("TAG", "onCreate: function showNotification is started")
+        Log.d("alarm", "NotificationScheduler: function showNotification is started")
         val contentIntent = Intent(ctx,MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
