@@ -54,4 +54,6 @@
     <string name="priority_high">Baland</string>
     <string name="priority_immediate">Shoshilinch</string>
     <string name="set_alarm">Eslatma o\'rnatish</string>
+    <string name="time">Vaqt</string>
+    <string name="repeating">Takrorlash</string>
 </resources>

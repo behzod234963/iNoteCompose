@@ -12,7 +12,7 @@ import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.useCase.notesUseCases.NotesUseCases
 import coder.behzod.presentation.utils.constants.KEY_ALARM_DATE_AND_TIME
-import coder.behzod.presentation.utils.constants.colorList
+import coder.behzod.presentation.utils.constants.colorsList
 import coder.behzod.presentation.utils.events.NewNoteEvent
 import coder.behzod.presentation.utils.helpers.NewNotesState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,7 +35,7 @@ class NewNoteViewModel @Inject constructor(
     private val _note = mutableStateOf(NewNotesState(""))
     val note: State<NewNotesState> = _note
 
-    private val _color = mutableIntStateOf(colorList.random().toArgb())
+    private val _color = mutableIntStateOf(colorsList.random().toArgb())
     val color: State<Int> = _color
 
     private val _status = mutableStateOf(false)

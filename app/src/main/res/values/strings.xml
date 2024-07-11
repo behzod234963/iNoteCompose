@@ -53,4 +53,6 @@
     <string name="priority_high">High</string>
     <string name="priority_immediate">Immediate</string>
     <string name="set_alarm">Set alarm</string>
+    <string name="time">Time</string>
+    <string name="repeating">Repeating</string>
 </resources>

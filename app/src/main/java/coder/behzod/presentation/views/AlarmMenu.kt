@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Build
 import android.widget.DatePicker
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -33,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -125,7 +127,7 @@ fun SetAlarmContent(
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text = "Date",
+                    text = stringResource(id = R.string.date),
                     color = fontColor,
                     fontSize = fontSize.sp,
                     fontFamily = FontFamily(fontAmidoneGrotesk)
@@ -179,7 +181,7 @@ fun SetAlarmContent(
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text = "Time",
+                    text = stringResource(R.string.time),
                     color = fontColor,
                     fontSize = fontSize.sp,
                     fontFamily = FontFamily(fontAmidoneGrotesk)
@@ -232,12 +234,14 @@ fun SetAlarmContent(
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text = "Repeating",
+                    text = stringResource(R.string.repeating),
                     color = fontColor,
                     fontSize = fontSize.sp,
                     fontFamily = FontFamily(fontAmidoneGrotesk)
                 )
             }
+
+            /* Coming soon */
             Switch(
                 checked = isRepeating.value,
                 onCheckedChange = {

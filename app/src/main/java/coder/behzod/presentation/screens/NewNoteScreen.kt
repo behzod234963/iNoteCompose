@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +21,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
@@ -44,11 +47,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,15 +67,17 @@ import coder.behzod.domain.model.NotesModel
 import coder.behzod.presentation.items.ColorsItem
 import coder.behzod.presentation.navigation.Arguments
 import coder.behzod.presentation.navigation.ScreensRouter
+import coder.behzod.presentation.theme.blue
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.theme.green
 import coder.behzod.presentation.theme.liteGreen
+import coder.behzod.presentation.theme.red
 import coder.behzod.presentation.theme.yellow
 import coder.behzod.presentation.utils.constants.KEY_ALARM_CONTENT
-import coder.behzod.presentation.utils.constants.KEY_ALARM_STATUS
 import coder.behzod.presentation.utils.constants.KEY_ALARM_TITLE
 import coder.behzod.presentation.utils.constants.KEY_FONT_SIZE
 import coder.behzod.presentation.utils.constants.KEY_INDEX
+import coder.behzod.presentation.utils.constants.colorsList
 import coder.behzod.presentation.utils.events.NewNoteEvent
 import coder.behzod.presentation.utils.extensions.dateFormatter
 import coder.behzod.presentation.utils.helpers.ShareNote
@@ -109,14 +117,7 @@ fun NewNoteScreen(
 
     val themeIndex =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
-    val colorTheme = if (themeIndex.intValue == 0) Color.Black else Color.White
-    val themeColor = remember { mutableStateOf(colorTheme) }
-
-    if (colorTheme == Color.Black) {
-        themeColor.value = Color.Black
-    } else {
-        themeColor.value = Color.White
-    }
+    val themeColor = remember { mutableStateOf(if (themeIndex.intValue == 0)Color.Black else Color.White) }
 
     val colorFont = if (themeColor.value == Color.Black) Color.White else Color.Black
     val fontColor = remember { mutableStateOf(colorFont) }
@@ -126,49 +127,49 @@ fun NewNoteScreen(
     } else {
         fontColor.value = Color.Black
     }
-    val scriptColor = remember { mutableStateOf(fontColor.value) }
-
-    val priorityColorIndex = remember { mutableIntStateOf(0) }
-    val priorityColor = remember { mutableStateOf(Color.Black) }
-
-    when (priorityColorIndex.intValue) {
-        0 -> {
-            priorityColor.value = themeColor.value
-        }
-
-        1 -> {
-            priorityColor.value = Color.White
-            themeColor.value = priorityColor.value
-        }
-
-        2 -> {
-            priorityColor.value = yellow
-            themeColor.value = priorityColor.value
-        }
-
-        3 -> {
-            priorityColor.value = green
-            themeColor.value = priorityColor.value
-        }
-
-        4 -> {
-            priorityColor.value = liteGreen
-            themeColor.value = priorityColor.value
-        }
-    }
-
-    val colorsList = listOf(
-        Color.White,
-        yellow,
-        green,
-        liteGreen
-    )
 
     val fontSize =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_FONT_SIZE, 18)) }
 
     val isSwitched = remember { mutableStateOf(false) }
     val isOptionsExpanded = remember { mutableStateOf(false) }
+
+    when(themeIndex.intValue){
+        0->{
+            themeColor.value = Color.Black
+            fontColor.value = Color.White
+        }
+        1->{
+            themeColor.value = Color.White
+            fontColor.value = Color.Black
+        }
+        2->{
+            themeColor.value = yellow
+        }
+        3->{
+            themeColor.value = green
+        }
+        4-> {
+            themeColor.value = liteGreen
+        }
+        5->{
+            themeColor.value = red
+        }
+        6->{
+            themeColor.value = blue
+        }
+    }
+    when(vmColor){
+        Color.Black.toArgb()->{
+            fontColor.value = Color.White
+        }
+        Color.White.toArgb()->{
+            fontColor.value = Color.Black
+        }
+    }
+
+    val isKeyboardShown = remember { mutableStateOf( false) }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Scaffold(
         modifier = Modifier
@@ -196,7 +197,7 @@ fun NewNoteScreen(
                                     title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
                                         .text.capitalize(),
                                     content = note.text,
-                                    color = priorityColor.value.toArgb(),
+                                    color = themeColor.value.toArgb(),
                                     dataAdded = date.value.toString().dateFormatter()
                                 )
                             )
@@ -217,7 +218,7 @@ fun NewNoteScreen(
                                     title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
                                         .text.capitalize(),
                                     content = note.text,
-                                    color = priorityColor.value.toArgb(),
+                                    color = themeColor.value.toArgb(),
                                     dataAdded = date.value.toString().dateFormatter()
                                 )
                             )
@@ -261,7 +262,7 @@ fun NewNoteScreen(
                                     },
                                 content = note.text,
 
-                                color = priorityColor.value.toArgb(),
+                                color = themeColor.value.toArgb(),
                                 dataAdded = date.value.toString().dateFormatter()
                             )
                         )
@@ -290,7 +291,7 @@ fun NewNoteScreen(
                                 title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
                                     .text.capitalize(),
                                 content = note.text,
-                                color = priorityColor.value.toArgb(),
+                                color = themeColor.value.toArgb(),
                                 dataAdded = date.value.toString().dateFormatter()
                             )
                         )
@@ -315,12 +316,10 @@ fun NewNoteScreen(
         topBar = {
             FunctionalTopAppBar(
                 themeColor = if (arguments.id != -1) Color(vmColor) else themeColor.value,
-                fontColor = scriptColor.value,
+                fontColor = fontColor.value,
+                fontSize = fontSize.intValue,
                 sharedPrefs = sharedPrefs,
-                navController = navController,
-                priorityColorSelector = {
-                    priorityColorIndex.intValue = it
-                }
+                navController = navController
             )
         },
         scaffoldState = scaffoldState
@@ -328,7 +327,17 @@ fun NewNoteScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(if (arguments.id != -1) Color(vmColor) else priorityColor.value),
+                .pointerInput(Unit){
+                    detectTapGestures (
+                        onTap = {
+                            if (isKeyboardShown.value){
+                                keyboardController?.hide()
+                                isKeyboardShown.value = false
+                            }
+                        }
+                    )
+                }
+                .background(if (arguments.id != -1) Color(vmColor) else themeColor.value),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -339,12 +348,15 @@ fun NewNoteScreen(
                     .padding(5.dp)
                     .fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
-                elevation = 10.dp
+                elevation = 10.dp,
+                onClick = {
+                    isKeyboardShown.value = true
+                }
             ) {
                 OutlinedTextField(
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = if (arguments.id != -1) Color(vmColor) else priorityColor.value,
-                        unfocusedContainerColor = if (arguments.id != -1) Color(vmColor) else priorityColor.value
+                        focusedContainerColor = if (arguments.id != -1) Color(vmColor) else themeColor.value,
+                        unfocusedContainerColor = if (arguments.id != -1) Color(vmColor) else themeColor.value
                     ),
                     leadingIcon = {
                         Icon(
@@ -358,12 +370,13 @@ fun NewNoteScreen(
                     shape = RoundedCornerShape(10.dp),
                     maxLines = 1,
                     textStyle = TextStyle(
-                        color = scriptColor.value,
+                        color = fontColor.value,
                         fontSize = fontSize.intValue.sp,
                         textAlign = TextAlign.Companion.Left,
                     ),
                     value = title.text,
                     onValueChange = {
+                        isKeyboardShown.value = true
                         viewModel.newNoteEvent(NewNoteEvent.ChangedTitle(it))
                     },
                     placeholder = {
@@ -373,7 +386,7 @@ fun NewNoteScreen(
                             modifier = Modifier.fillMaxWidth(),
                             fontFamily = FontFamily(fontAmidoneGrotesk),
                             fontSize = fontSize.intValue.plus(7).sp,
-                            color = scriptColor.value
+                            color = fontColor.value
                         )
                     }
                 )
@@ -392,11 +405,12 @@ fun NewNoteScreen(
                         .fillMaxWidth(),
                     value = note.text,
                     onValueChange = {
+                        isKeyboardShown.value = true
                         viewModel.newNoteEvent(NewNoteEvent.ChangedNote(it))
                     },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = if (arguments.id != -1) Color(vmColor) else priorityColor.value,
-                        unfocusedContainerColor = if (arguments.id != -1) Color(vmColor) else priorityColor.value
+                        focusedContainerColor = if (arguments.id != -1) Color(vmColor) else themeColor.value,
+                        unfocusedContainerColor = if (arguments.id != -1) Color(vmColor) else themeColor.value
                     ),
                     leadingIcon = {
                         Icon(
@@ -408,7 +422,7 @@ fun NewNoteScreen(
                         )
                     },
                     textStyle = TextStyle(
-                        color = scriptColor.value,
+                        color = fontColor.value,
                         fontSize = fontSize.intValue.sp,
                         textAlign = TextAlign.Start
                     ),
@@ -418,7 +432,7 @@ fun NewNoteScreen(
                             text = stringResource(id = R.string.note),
                             modifier = Modifier.fillMaxWidth(),
                             fontSize = fontSize.intValue.plus(7).sp,
-                            color = scriptColor.value,
+                            color = fontColor.value,
                             textAlign = TextAlign.Center
                         )
                     }
@@ -434,7 +448,7 @@ fun NewNoteScreen(
                 onClick = {
                     isOptionsExpanded.value = !isOptionsExpanded.value
                 },
-                backgroundColor = priorityColor.value,
+                backgroundColor = if (arguments.id != -1) Color(vmColor) else themeColor.value,
                 shape = RoundedCornerShape(10.dp),
                 elevation = 10.dp,
                 border = BorderStroke(width = 1.dp, color = fontColor.value)
@@ -442,7 +456,8 @@ fun NewNoteScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 10.dp),
+                        .padding(horizontal = 10.dp)
+                        .background(if (arguments.id != -1) Color(vmColor) else themeColor.value),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -468,7 +483,7 @@ fun NewNoteScreen(
                                 .size(35.dp),
                             imageVector = Icons.Default.KeyboardArrowUp,
                             contentDescription = "expand collapse other options content",
-                            tint = fontColor.value
+                            tint = if (arguments.id != -1) Color(vmColor) else fontColor.value
                         )
                     } else {
                         Icon(
@@ -491,25 +506,30 @@ fun NewNoteScreen(
                 ) {
                     items(colorsList) { color ->
                         ColorsItem(color = color, fontColor = fontColor.value) {
+                            themeColor.value = color
+                            viewModel.newNoteEvent(NewNoteEvent.NoteBackground(color.toArgb()))
                             when (color) {
-                                themeColor.value -> {
-                                    priorityColorIndex.intValue = 0
-                                }
-
                                 Color.White -> {
-                                    priorityColorIndex.intValue = 1
+                                    themeIndex.intValue = 0
+                                    fontColor.value = Color.White
                                 }
 
                                 yellow -> {
-                                    priorityColorIndex.intValue = 2
+                                    themeIndex.intValue = 2
                                 }
 
                                 green -> {
-                                    priorityColorIndex.intValue = 3
+                                    themeIndex.intValue = 3
                                 }
 
                                 liteGreen -> {
-                                    priorityColorIndex.intValue = 4
+                                    themeIndex.intValue = 4
+                                }
+                                red->{
+                                    themeIndex.intValue = 5
+                                }
+                                blue->{
+                                    themeIndex.intValue = 6
                                 }
                             }
                         }
@@ -522,7 +542,7 @@ fun NewNoteScreen(
                     modifier = Modifier
                         .padding(top = 5.dp)
                         .padding(horizontal = 5.dp),
-                    backgroundColor = themeColor.value,
+                    backgroundColor = if (arguments.id != -1) Color(vmColor) else themeColor.value,
                     shape = RoundedCornerShape(10.dp),
                     border = BorderStroke(1.dp, color = fontColor.value),
                     elevation = 10.dp
@@ -544,8 +564,8 @@ fun NewNoteScreen(
                             Switch(
                                 colors = SwitchDefaults.colors(
                                     checkedTrackColor = green,
-                                    checkedThumbColor = priorityColor.value,
-                                    uncheckedThumbColor = priorityColor.value,
+                                    checkedThumbColor = if (arguments.id != -1) Color(vmColor) else themeColor.value,
+                                    uncheckedThumbColor = if (arguments.id != -1) Color(vmColor) else themeColor.value,
                                     uncheckedTrackColor = fontColor.value
                                 ),
                                 checked = isSwitched.value,
@@ -557,7 +577,7 @@ fun NewNoteScreen(
                         Spacer(modifier = Modifier.height(5.dp))
                         if (isSwitched.value) {
                             SetAlarmContent(
-                                themeColor = priorityColor.value,
+                                themeColor = if (arguments.id != -1) Color(vmColor) else themeColor.value,
                                 fontColor = fontColor.value,
                                 fontSize = fontSize.intValue
                             )

@@ -54,4 +54,6 @@
     <string name="priority_high">Высокий</string>
     <string name="priority_immediate">Срочный</string>
     <string name="set_alarm">Установить напоминание</string>
+    <string name="time">Время</string>
+    <string name="repeating">Повторение</string>
 </resources>
