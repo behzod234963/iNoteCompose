@@ -2,6 +2,7 @@ package coder.behzod.presentation.items
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,7 +33,7 @@ import coder.behzod.presentation.viewModels.MainViewModel
 @Composable
 fun MainScreenRowItem(
     notesModel: NotesModel,
-    themeColor:Color,
+    themeColor: Color,
     fontColor: Color,
     fontSize: Int,
     isSelected: Boolean,
@@ -80,50 +81,57 @@ fun MainScreenRowItem(
     }
 
     Card(
+        onClick = {
+            onClick.invoke()
+        },
         modifier = Modifier
             .fillMaxWidth()
-            .height(170.dp)
-            .padding(end = 5.dp,top = 15.dp),
+            .height(100.dp)
+            .padding( vertical = 5.dp, horizontal = 5.dp),
         shape = RoundedCornerShape(10.dp),
         border = BorderStroke(
             1.dp,
             if (themeColor == Color.Black) Color.White else Color.Transparent
         ),
         elevation = CardDefaults.cardElevation(15.dp),
-        onClick = {
-            onClick()
-            notesModel.id
-    }) {
-        Box{
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+        ){
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(170.dp)
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(Color(notesModel.color))
                 ) {
-                    Column{
+                    Column(
+                        verticalArrangement = Arrangement.SpaceEvenly
+                    ) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(10.dp),
+                                .padding(horizontal = 5.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             /* This is notes title */
                             Text(
                                 text = notesModel.title,
                                 color = colorFont.value,
+                                maxLines = 1,
                                 fontSize = fontSize.plus(7).sp,
                                 fontFamily = FontFamily(fontAmidoneGrotesk)
                             )
                             /* This is notes data added */
                             Text(
+                                modifier = Modifier
+                                    .padding(top = 5.dp),
                                 text = notesModel.dataAdded,
                                 color = colorFont.value,
-                                fontSize = fontSize.sp,
+                                fontSize = 20.sp,
                                 fontFamily = FontFamily(fontAmidoneGrotesk)
                             )
                         }
@@ -135,9 +143,10 @@ fun MainScreenRowItem(
                             /* This is notes text */
                             Text(
                                 modifier = Modifier
-                                    .padding(start = 10.dp),
+                                    .padding(horizontal = 5.dp),
                                 text = notesModel.content,
                                 color = colorFont.value,
+                                maxLines = 2,
                                 fontSize = fontSize.sp,
                                 fontFamily = FontFamily(fontAmidoneGrotesk)
                             )
@@ -166,7 +175,7 @@ fun MainScreenRowItem(
                         }
                     )
                 }
-            }else{
+            } else {
                 isItemSelected.value = false
                 isAllItemsSelected.value = false
             }

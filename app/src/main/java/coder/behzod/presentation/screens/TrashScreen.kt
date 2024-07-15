@@ -773,7 +773,7 @@ fun TrashScreen(
                         }
 
                         /* check the object after 30 day */
-                        if (selectedModel.daysLeft == 0) {
+                        if (selectedModel.daysLeft <= 0) {
                             viewModel.delete(selectedModel)
                         }
                         TrashScreenItem(

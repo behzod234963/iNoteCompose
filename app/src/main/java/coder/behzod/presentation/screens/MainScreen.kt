@@ -68,6 +68,7 @@ import coder.behzod.presentation.items.MainScreenGridItem
 import coder.behzod.presentation.items.MainScreenRowItem
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
+import coder.behzod.presentation.utils.constants.KEY_ALARM_STATUS
 import coder.behzod.presentation.utils.constants.KEY_FONT_SIZE
 import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.constants.KEY_LIST_STATUS
@@ -547,7 +548,6 @@ fun MainScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(themeColor.value)
-                        .padding(10.dp)
                 ) {
                     Spacer(modifier = Modifier.height(5.dp))
                     if (viewType == 0) {
@@ -573,6 +573,20 @@ fun MainScreen(
                                     },
                                     onDelete = {deleteItem->
 
+                                        viewModel.saveToTrash(
+                                            TrashModel(
+                                                title = deleteItem.title,
+                                                content = deleteItem.content,
+                                                color = deleteItem.color,
+                                                daysLeft = 30,
+                                            )
+                                        )
+                                        sharedPrefs.sharedPreferences.edit().putBoolean(
+                                            KEY_ALARM_STATUS,false).apply()
+                                        coroutineScope.launch(Dispatchers.IO) {
+                                            delay(100)
+                                            viewModel.onEvent(NotesEvent.DeleteNote(deleteItem))
+                                        }
                                         coroutineScope.launch {
                                             val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
                                                 message = activityContext.getString(R.string.note_deleted),
@@ -580,19 +594,6 @@ fun MainScreen(
                                             )
                                             if(snackbarResult == SnackbarResult.ActionPerformed){
                                                 viewModel.returnDeletedNote(deleteItem )
-                                            }else{
-                                                viewModel.saveToTrash(
-                                                    TrashModel(
-                                                        title = deleteItem.title,
-                                                        content = deleteItem.content,
-                                                        color = deleteItem.color,
-                                                        daysLeft = 30,
-                                                    )
-                                                )
-                                                coroutineScope.launch(Dispatchers.IO) {
-                                                    delay(100)
-                                                    viewModel.onEvent(NotesEvent.DeleteNote(deleteItem))
-                                                }
                                             }
                                         }
                                     },
@@ -619,7 +620,6 @@ fun MainScreen(
                                         },
                                         onClick = {
                                             navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/${item.id}")
-                                            navController.popBackStack()
                                         }
                                     )
                                 }
@@ -665,6 +665,8 @@ fun MainScreen(
                                     },
                                     onDelete = {
                                         coroutineScope.launch {
+                                            sharedPrefs.sharedPreferences.edit().putBoolean(
+                                                KEY_ALARM_STATUS,false).apply()
                                             val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
                                                 message = activityContext.getString(R.string.note_deleted),
                                                 actionLabel = activityContext.getString(R.string.undo)

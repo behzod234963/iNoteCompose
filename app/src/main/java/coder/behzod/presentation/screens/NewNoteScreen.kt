@@ -21,8 +21,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
@@ -54,7 +52,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -74,6 +71,7 @@ import coder.behzod.presentation.theme.liteGreen
 import coder.behzod.presentation.theme.red
 import coder.behzod.presentation.theme.yellow
 import coder.behzod.presentation.utils.constants.KEY_ALARM_CONTENT
+import coder.behzod.presentation.utils.constants.KEY_ALARM_STATUS
 import coder.behzod.presentation.utils.constants.KEY_ALARM_TITLE
 import coder.behzod.presentation.utils.constants.KEY_FONT_SIZE
 import coder.behzod.presentation.utils.constants.KEY_INDEX
@@ -117,7 +115,8 @@ fun NewNoteScreen(
 
     val themeIndex =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
-    val themeColor = remember { mutableStateOf(if (themeIndex.intValue == 0)Color.Black else Color.White) }
+    val themeColor =
+        remember { mutableStateOf(if (themeIndex.intValue == 0) Color.Black else Color.White) }
 
     val colorFont = if (themeColor.value == Color.Black) Color.White else Color.Black
     val fontColor = remember { mutableStateOf(colorFont) }
@@ -134,41 +133,48 @@ fun NewNoteScreen(
     val isSwitched = remember { mutableStateOf(false) }
     val isOptionsExpanded = remember { mutableStateOf(false) }
 
-    when(themeIndex.intValue){
-        0->{
+    when (themeIndex.intValue) {
+        0 -> {
             themeColor.value = Color.Black
             fontColor.value = Color.White
         }
-        1->{
+
+        1 -> {
             themeColor.value = Color.White
             fontColor.value = Color.Black
         }
-        2->{
+
+        2 -> {
             themeColor.value = yellow
         }
-        3->{
+
+        3 -> {
             themeColor.value = green
         }
-        4-> {
+
+        4 -> {
             themeColor.value = liteGreen
         }
-        5->{
+
+        5 -> {
             themeColor.value = red
         }
-        6->{
+
+        6 -> {
             themeColor.value = blue
         }
     }
-    when(vmColor){
-        Color.Black.toArgb()->{
+    when (vmColor) {
+        Color.Black.toArgb() -> {
             fontColor.value = Color.White
         }
-        Color.White.toArgb()->{
+
+        Color.White.toArgb() -> {
             fontColor.value = Color.Black
         }
     }
 
-    val isKeyboardShown = remember { mutableStateOf( false) }
+    val isKeyboardShown = remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Scaffold(
@@ -197,20 +203,25 @@ fun NewNoteScreen(
                                     title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
                                         .text.capitalize(),
                                     content = note.text,
-                                    color = themeColor.value.toArgb(),
+                                    color = vmColor,
                                     dataAdded = date.value.toString().dateFormatter()
                                 )
                             )
 
                             /* alarm */
                             if (!viewModel.isDatePicked.value || !viewModel.isTimePicked.value) {
-                                Toast.makeText(activityContext, "invalid date or time date: ${pickedDate.value}", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    activityContext,
+                                    "invalid date or time date: ${pickedDate.value}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             } else {
-                                coroutineScope.launch {
-                                    sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_TITLE, title.text).apply()
-                                    sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_CONTENT, note.text).apply()
-                                    dataStoreInstance.saveStatus("alarmStatus",true)
-                                }
+                                sharedPrefs.sharedPreferences.edit()
+                                    .putString(KEY_ALARM_TITLE, title.text).apply()
+                                sharedPrefs.sharedPreferences.edit()
+                                    .putString(KEY_ALARM_CONTENT, note.text).apply()
+                                sharedPrefs.sharedPreferences.edit()
+                                    .putBoolean(KEY_ALARM_STATUS, true).apply()
                             }
                         } else {
                             viewModel.saveNote(
@@ -223,13 +234,18 @@ fun NewNoteScreen(
                                 )
                             )
                             if (!viewModel.isDatePicked.value || !viewModel.isTimePicked.value) {
-                                Toast.makeText(activityContext, "invalid date or time date: ${pickedDate.value}", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    activityContext,
+                                    "invalid date or time date: ${pickedDate.value}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             } else {
-                                coroutineScope.launch {
-                                    sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_TITLE, title.text).apply()
-                                    sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_CONTENT, note.text).apply()
-                                    dataStoreInstance.saveStatus("alarmStatus",true)
-                                }
+                                sharedPrefs.sharedPreferences.edit()
+                                    .putString(KEY_ALARM_TITLE, title.text).apply()
+                                sharedPrefs.sharedPreferences.edit()
+                                    .putString(KEY_ALARM_CONTENT, note.text).apply()
+                                sharedPrefs.sharedPreferences.edit()
+                                    .putBoolean(KEY_ALARM_STATUS, true).apply()
                             }
                         }
                         navController.navigate(ScreensRouter.MainScreenRoute.route)
@@ -262,18 +278,23 @@ fun NewNoteScreen(
                                     },
                                 content = note.text,
 
-                                color = themeColor.value.toArgb(),
+                                color = vmColor,
                                 dataAdded = date.value.toString().dateFormatter()
                             )
                         )
                         if (!viewModel.isDatePicked.value || !viewModel.isTimePicked.value) {
-                            Toast.makeText(activityContext, "invalid date or time date: ${pickedDate.value}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                activityContext,
+                                "invalid date or time date: ${pickedDate.value}",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         } else {
-                            coroutineScope.launch {
-                                sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_TITLE, title.text).apply()
-                                sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_CONTENT, note.text).apply()
-                                dataStoreInstance.saveStatus("alarmStatus",true)
-                            }
+                            sharedPrefs.sharedPreferences.edit()
+                                .putString(KEY_ALARM_TITLE, title.text).apply()
+                            sharedPrefs.sharedPreferences.edit()
+                                .putString(KEY_ALARM_CONTENT, note.text).apply()
+                            sharedPrefs.sharedPreferences.edit().putBoolean(KEY_ALARM_STATUS, true)
+                                .apply()
                         }
 
                     } else {
@@ -302,12 +323,11 @@ fun NewNoteScreen(
                                 )
                             }
                         } else {
-                            coroutineScope.launch {
-                                sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_TITLE, title.text).apply()
-                                sharedPrefs.sharedPreferences.edit().putString(KEY_ALARM_CONTENT, note.text).apply()
-                                dataStoreInstance.saveStatus("alarmStatus",true)
-                            }
-
+                            sharedPrefs.sharedPreferences.edit()
+                                .putString(KEY_ALARM_TITLE, title.text).apply()
+                            sharedPrefs.sharedPreferences.edit()
+                                .putString(KEY_ALARM_CONTENT, note.text).apply()
+                            sharedPrefs.sharedPreferences.edit().putBoolean(KEY_ALARM_STATUS, true)
                         }
                     }
                 }
@@ -327,10 +347,10 @@ fun NewNoteScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .pointerInput(Unit){
-                    detectTapGestures (
+                .pointerInput(Unit) {
+                    detectTapGestures(
                         onTap = {
-                            if (isKeyboardShown.value){
+                            if (isKeyboardShown.value) {
                                 keyboardController?.hide()
                                 isKeyboardShown.value = false
                             }
@@ -525,10 +545,12 @@ fun NewNoteScreen(
                                 liteGreen -> {
                                     themeIndex.intValue = 4
                                 }
-                                red->{
+
+                                red -> {
                                     themeIndex.intValue = 5
                                 }
-                                blue->{
+
+                                blue -> {
                                     themeIndex.intValue = 6
                                 }
                             }

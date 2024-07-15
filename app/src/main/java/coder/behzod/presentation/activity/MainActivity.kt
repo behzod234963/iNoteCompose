@@ -21,6 +21,7 @@ import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.data.workManager.workers.UpdateDayWorker
 import coder.behzod.presentation.broadcastReceiver.NotificationReceiver
+import coder.behzod.presentation.broadcastReceiver.StopAlarm
 import coder.behzod.presentation.navigation.NavGraph
 import coder.behzod.presentation.notifications.NotificationScheduler
 import coder.behzod.presentation.utils.constants.KEY_ALARM_STATUS
@@ -28,6 +29,7 @@ import coder.behzod.presentation.viewModels.NewNoteViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -52,11 +54,16 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
 
             ActivityCompat.requestPermissions(
                 this@MainActivity,
                 arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                0
+            )
+            ActivityCompat.requestPermissions(
+                this@MainActivity,
+                arrayOf(android.Manifest.permission.SCHEDULE_EXACT_ALARM),
                 0
             )
         }
@@ -75,21 +82,15 @@ class MainActivity : AppCompatActivity() {
             )
             Log.d("worker", "WorkManager: ${WorkManager.isInitialized()} ")
 
-
             val newNoteViewModel: NewNoteViewModel = hiltViewModel()
-            val status = dataStoreInstance.getStatus("alarmStatus").collectAsState(initial = true)
+            val status = sharedPrefs.sharedPreferences.getBoolean(KEY_ALARM_STATUS,false)
 
-            if (status.value) {
+            if (status) {
                 Log.d("alarm", "MainActivity: notificationScheduler is started ")
                 NotificationScheduler(
                     notificationManager,
                     alarmManager
                 ).scheduleNotification(this@MainActivity, newNoteViewModel.dateAndTime.value)
-                CoroutineScope(Dispatchers.Default).launch {
-                    this@MainActivity.dataStoreInstance.saveStatus("alarmStatus",false)
-                }
-            }else{
-
             }
         }
     }

@@ -92,7 +92,7 @@ fun MainScreenGridItem(
 
     Card(
         modifier = Modifier
-            .size(250.dp)
+            .size(200.dp)
             .padding(5.dp)
             .background(themeColor)
             .clickable { onClick() },
@@ -121,8 +121,10 @@ fun MainScreenGridItem(
 
                 /* This is title */
                 Text(
-                    modifier = Modifier,
+                    modifier = Modifier
+                        .padding(end = 45.dp),
                     text = title,
+                    maxLines = 1,
                     fontSize = fontSize.plus(7).sp,
                     color = colorFont.value,
                     fontFamily = FontFamily(fontAmidoneGrotesk)
@@ -133,6 +135,7 @@ fun MainScreenGridItem(
                     text = note,
                     color = colorFont.value,
                     fontSize = fontSize.sp,
+                    maxLines = 2,
                     fontFamily = FontFamily(fontAmidoneGrotesk)
                 )
 
