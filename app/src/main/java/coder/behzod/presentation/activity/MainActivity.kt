@@ -54,16 +54,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
 
             ActivityCompat.requestPermissions(
                 this@MainActivity,
                 arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
-                0
-            )
-            ActivityCompat.requestPermissions(
-                this@MainActivity,
-                arrayOf(android.Manifest.permission.SCHEDULE_EXACT_ALARM),
                 0
             )
         }

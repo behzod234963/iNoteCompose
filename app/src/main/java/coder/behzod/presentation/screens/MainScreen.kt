@@ -558,6 +558,7 @@ fun MainScreen(
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxSize()
+                                .padding(bottom = 75.dp)
                         ) {
                             items(items = state.value.notes, key = { it.toString() }) { notes ->
 
@@ -664,6 +665,16 @@ fun MainScreen(
                                         }
                                     },
                                     onDelete = {
+                                        viewModel.saveToTrash(
+                                            TrashModel(
+                                                id = model.id,
+                                                title = model.title,
+                                                content = model.content,
+                                                color = model.color,
+                                                daysLeft = 30
+                                            )
+                                        )
+                                        viewModel.onEvent(NotesEvent.DeleteNote(model))
                                         coroutineScope.launch {
                                             sharedPrefs.sharedPreferences.edit().putBoolean(
                                                 KEY_ALARM_STATUS,false).apply()
@@ -673,17 +684,6 @@ fun MainScreen(
                                             )
                                             if (snackbarResult == SnackbarResult.ActionPerformed){
                                                 viewModel.returnDeletedNote(model)
-                                            }else{
-                                                viewModel.saveToTrash(
-                                                    TrashModel(
-                                                        id = model.id,
-                                                        title = model.title,
-                                                        content = model.content,
-                                                        color = model.color,
-                                                        daysLeft = 30
-                                                    )
-                                                )
-                                                viewModel.onEvent(NotesEvent.DeleteNote(model))
                                             }
                                         }
                                     },

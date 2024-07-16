@@ -25,7 +25,7 @@ fun <T> RevealSwipeContent(
 
     RevealSwipe(
         modifier = Modifier
-            .padding(top = 14.dp),
+            .padding(vertical = 5.dp),
         directions = setOf(
             RevealDirection.EndToStart,
             RevealDirection.StartToEnd

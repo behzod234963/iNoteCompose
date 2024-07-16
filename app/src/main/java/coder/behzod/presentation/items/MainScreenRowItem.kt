@@ -87,7 +87,7 @@ fun MainScreenRowItem(
         modifier = Modifier
             .fillMaxWidth()
             .height(100.dp)
-            .padding( vertical = 5.dp, horizontal = 5.dp),
+            .padding(vertical = 5.dp,horizontal = 5.dp),
         shape = RoundedCornerShape(10.dp),
         border = BorderStroke(
             1.dp,
@@ -143,10 +143,10 @@ fun MainScreenRowItem(
                             /* This is notes text */
                             Text(
                                 modifier = Modifier
-                                    .padding(horizontal = 5.dp),
+                                    .padding(end = 15.dp,start = 5.dp, top = 10.dp),
                                 text = notesModel.content,
                                 color = colorFont.value,
-                                maxLines = 2,
+                                maxLines = 1,
                                 fontSize = fontSize.sp,
                                 fontFamily = FontFamily(fontAmidoneGrotesk)
                             )

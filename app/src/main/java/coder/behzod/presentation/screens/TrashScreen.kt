@@ -778,7 +778,6 @@ fun TrashScreen(
                         }
                         TrashScreenItem(
                             model = selectedModel,
-                            themeColor = themeColor.value,
                             fontColor = fontColor.value,
                             fontSize = fontSize.intValue,
                             onClick = {

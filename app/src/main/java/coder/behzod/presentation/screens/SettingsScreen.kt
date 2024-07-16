@@ -9,6 +9,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,15 +21,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -82,7 +83,7 @@ fun SettingsScreen(
         mutableFloatStateOf(
             if (prefsFontSize == 18) {
                 0f
-            } else if (prefsFontSize == 25) {
+            } else if (prefsFontSize == 22) {
                 1f
             } else {
                 2f
@@ -135,8 +136,13 @@ fun SettingsScreen(
         )
     )
 
-    val initialFontSize = remember { mutableIntStateOf( sharedPrefs.sharedPreferences.getInt(
-        KEY_FONT_SIZE,18) ) }
+    val initialFontSize = remember {
+        mutableIntStateOf(
+            sharedPrefs.sharedPreferences.getInt(
+                KEY_FONT_SIZE, 18
+            )
+        )
+    }
     val fontSize = remember { mutableIntStateOf(18) }
     val experimentalFontSize = remember { mutableStateOf(18.sp) }
 
@@ -243,94 +249,98 @@ fun SettingsScreen(
                 fontFamily = FontFamily(fontAmidoneGrotesk),
                 fontSize = initialFontSize.intValue.sp
             )
-            ExposedDropdownMenuBox(
+            Box(
                 modifier = Modifier
-                    .background(color = Color.Transparent),
-                expanded = isExpanded.value,
-                onExpandedChange = { isExpanded.value = !isExpanded.value }
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.CenterEnd
             ) {
-                    OutlinedTextField(
-                        value = "",
-                        onValueChange = {},
-                        readOnly = true,
-                        colors = OutlinedTextFieldDefaults.colors(
-                          focusedContainerColor = themeColor.value,
-                          unfocusedContainerColor = themeColor.value
-                        ),
-                        modifier = Modifier
-                            .menuAnchor()
-                            .background(color = themeColor.value),
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded.value) }
+                IconButton(
+                    onClick = {
+                        isExpanded.value = !isExpanded.value
+                    }) {
+                    Icon(
+                        imageVector = if (isExpanded.value) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                        contentDescription = "locales",
+                        tint = fontColor.value
                     )
-                ExposedDropdownMenu(
-                    modifier = Modifier
-                        .background(color = themeColor.value),
-                    expanded = isExpanded.value,
-                    onDismissRequest = {
-                        isExpanded.value = false
-                    }
-                ) {
+                }
+                Column {
+                    DropdownMenu(
+                        expanded = isExpanded.value,
+                        modifier = Modifier
+                            .align(Alignment.End)
+                            .background(themeColor.value),
+                        onDismissRequest = {
+                            isExpanded.value = !isExpanded.value
+                        }
+                    ) {
+                        /* Select locale */
+                        localeOptions.keys.forEach { locale ->
+                            DropdownMenuItem(
+                                modifier = Modifier
+                                    .background(themeColor.value),
+                                colors = MenuDefaults.itemColors(
+                                    textColor = fontColor.value,
+                                    leadingIconColor = fontColor.value,
+                                ),
+                                leadingIcon = {
+                                    if (locale.contains(stringResource(id = R.string.default_language))) {
+                                        Icon(
+                                            modifier = Modifier
+                                                .size(30.dp),
+                                            painter = painterResource(id = R.drawable.ic_default),
+                                            contentDescription = "default locale icon",
+                                            tint = fontColor.value
+                                        )
+                                    } else {
+                                        when (locale) {
+                                            stringResource(id = R.string.english_language) -> {
+                                                Image(
+                                                    modifier = Modifier
+                                                        .size(30.dp),
+                                                    painter = painterResource(id = R.drawable.ic_eng_flag),
+                                                    contentDescription = "english leading icon",
+                                                )
+                                            }
 
-                    /* Select locale */
-                    localeOptions.keys.forEach { locale ->
-                        DropdownMenuItem(
-                            leadingIcon = {
-                                if (locale.contains(stringResource(id = R.string.default_language))) {
-                                    Icon(
-                                        modifier = Modifier
-                                            .size(30.dp),
-                                        painter = painterResource(id = R.drawable.ic_default),
-                                        contentDescription = "default locale icon",
-                                        tint = fontColor.value
-                                    )
-                                } else {
-                                    when (locale) {
-                                        stringResource(id = R.string.english_language) -> {
-                                            Image(
-                                                modifier = Modifier
-                                                    .size(30.dp),
-                                                painter = painterResource(id = R.drawable.ic_eng_flag),
-                                                contentDescription = "english leading icon",
-                                            )
-                                        }
+                                            stringResource(id = R.string.russian_language) -> {
+                                                Image(
+                                                    modifier = Modifier
+                                                        .size(30.dp),
+                                                    painter = painterResource(id = R.drawable.ic_ru_flag),
+                                                    contentDescription = "russian leading icon",
+                                                )
+                                            }
 
-                                        stringResource(id = R.string.russian_language) -> {
-                                            Image(
-                                                modifier = Modifier
-                                                    .size(30.dp),
-                                                painter = painterResource(id = R.drawable.ic_ru_flag),
-                                                contentDescription = "russian leading icon",
-                                            )
-                                        }
-
-                                        stringResource(id = R.string.uzbek_language) -> {
-                                            Image(
-                                                modifier = Modifier
-                                                    .size(30.dp),
-                                                painter = painterResource(id = R.drawable.ic_uz_flag),
-                                                contentDescription = "uzbek leading icon",
-                                            )
+                                            stringResource(id = R.string.uzbek_language) -> {
+                                                Image(
+                                                    modifier = Modifier
+                                                        .size(30.dp),
+                                                    painter = painterResource(id = R.drawable.ic_uz_flag),
+                                                    contentDescription = "uzbek leading icon",
+                                                )
+                                            }
                                         }
                                     }
-                                }
-                            },
-                            text = {
-                                Text(
-                                    text = locale,
-                                    fontSize = initialFontSize.intValue.sp,
-                                    color = fontColor.value
-                                )
-                            },
-                            onClick = {
-                                isExpanded.value = false
-                                isChanged.value = true
-                                AppCompatDelegate.setApplicationLocales(
-                                    LocaleListCompat.forLanguageTags(
-                                        localeOptions[locale]
+                                },
+                                text = {
+                                    Text(
+                                        text = locale,
+                                        fontSize = initialFontSize.intValue.sp,
+                                        color = fontColor.value
                                     )
-                                )
-                            }
-                        )
+                                },
+                                onClick = {
+                                    isExpanded.value = false
+                                    isChanged.value = true
+                                    AppCompatDelegate.setApplicationLocales(
+                                        LocaleListCompat.forLanguageTags(
+                                            localeOptions[locale]
+                                        )
+                                    )
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -370,14 +380,14 @@ fun SettingsScreen(
 
                     1f -> {
                         isChanged.value = true
-                        fontSize.intValue = 25
-                        experimentalFontSize.value = 25.sp
+                        fontSize.intValue = 22
+                        experimentalFontSize.value = 22.sp
                     }
 
                     2f -> {
                         isChanged.value = true
-                        fontSize.intValue = 32
-                        experimentalFontSize.value = 32.sp
+                        fontSize.intValue = 25
+                        experimentalFontSize.value = 25.sp
                     }
                 }
             },
@@ -418,7 +428,8 @@ fun SettingsScreen(
                         .apply()
                     Handler(Looper.getMainLooper()).postDelayed({
                         restartApp(context)
-                        sharedPrefs.sharedPreferences.edit().putInt(KEY_FONT_SIZE,fontSize.intValue).apply()
+                        sharedPrefs.sharedPreferences.edit()
+                            .putInt(KEY_FONT_SIZE, fontSize.intValue).apply()
                     }, 1000L)
                 },
                 text = stringResource(R.string.apply_changes),

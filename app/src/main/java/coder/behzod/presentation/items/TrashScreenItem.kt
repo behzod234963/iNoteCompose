@@ -39,7 +39,6 @@ import coder.behzod.presentation.viewModels.TrashViewModel
 @Composable
 fun TrashScreenItem(
     model: TrashModel,
-    themeColor: Color,
     fontColor: Color,
     fontSize:Int,
     onClick: () -> Unit,
@@ -60,7 +59,7 @@ fun TrashScreenItem(
     Card (
         modifier = Modifier
             .fillMaxWidth()
-            .height(170.dp)
+            .height(100.dp)
             .padding(top = 10.dp, start = 5.dp, end = 5.dp),
         elevation = CardDefaults.cardElevation(5.dp),
         shape = RoundedCornerShape(10.dp),
@@ -88,6 +87,7 @@ fun TrashScreenItem(
                         /* This is notes title */
                         Text(
                             text = model.title,
+                            maxLines = 1,
                             color = fontColor,
                             fontSize = fontSize.plus(7).sp,
                             fontFamily = FontFamily(fontAmidoneGrotesk)
@@ -114,6 +114,7 @@ fun TrashScreenItem(
                             text = model.content,
                             color = if (model.color == Color.Black.toArgb())Color.White else Color.Black,
                             fontSize = fontSize.sp,
+                            maxLines = 1,
                             fontFamily = FontFamily(fontAmidoneGrotesk)
                         )
                     }

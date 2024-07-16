@@ -209,19 +209,21 @@ fun NewNoteScreen(
                             )
 
                             /* alarm */
-                            if (!viewModel.isDatePicked.value || !viewModel.isTimePicked.value) {
-                                Toast.makeText(
-                                    activityContext,
-                                    "invalid date or time date: ${pickedDate.value}",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            } else {
-                                sharedPrefs.sharedPreferences.edit()
-                                    .putString(KEY_ALARM_TITLE, title.text).apply()
-                                sharedPrefs.sharedPreferences.edit()
-                                    .putString(KEY_ALARM_CONTENT, note.text).apply()
-                                sharedPrefs.sharedPreferences.edit()
-                                    .putBoolean(KEY_ALARM_STATUS, true).apply()
+                            if (isSwitched.value) {
+                                if (!viewModel.isDatePicked.value || !viewModel.isTimePicked.value) {
+                                    Toast.makeText(
+                                        activityContext,
+                                        "invalid date or time date: ${pickedDate.value}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                } else {
+                                    sharedPrefs.sharedPreferences.edit()
+                                        .putString(KEY_ALARM_TITLE, title.text).apply()
+                                    sharedPrefs.sharedPreferences.edit()
+                                        .putString(KEY_ALARM_CONTENT, note.text).apply()
+                                    sharedPrefs.sharedPreferences.edit()
+                                        .putBoolean(KEY_ALARM_STATUS, true).apply()
+                                }
                             }
                         } else {
                             viewModel.saveNote(
@@ -233,19 +235,21 @@ fun NewNoteScreen(
                                     dataAdded = date.value.toString().dateFormatter()
                                 )
                             )
-                            if (!viewModel.isDatePicked.value || !viewModel.isTimePicked.value) {
-                                Toast.makeText(
-                                    activityContext,
-                                    "invalid date or time date: ${pickedDate.value}",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            } else {
-                                sharedPrefs.sharedPreferences.edit()
-                                    .putString(KEY_ALARM_TITLE, title.text).apply()
-                                sharedPrefs.sharedPreferences.edit()
-                                    .putString(KEY_ALARM_CONTENT, note.text).apply()
-                                sharedPrefs.sharedPreferences.edit()
-                                    .putBoolean(KEY_ALARM_STATUS, true).apply()
+                            if (isSwitched.value) {
+                                if (!viewModel.isDatePicked.value || !viewModel.isTimePicked.value) {
+                                    Toast.makeText(
+                                        activityContext,
+                                        "invalid date or time date: ${pickedDate.value}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                } else {
+                                    sharedPrefs.sharedPreferences.edit()
+                                        .putString(KEY_ALARM_TITLE, title.text).apply()
+                                    sharedPrefs.sharedPreferences.edit()
+                                        .putString(KEY_ALARM_CONTENT, note.text).apply()
+                                    sharedPrefs.sharedPreferences.edit()
+                                        .putBoolean(KEY_ALARM_STATUS, true).apply()
+                                }
                             }
                         }
                         navController.navigate(ScreensRouter.MainScreenRoute.route)
@@ -282,21 +286,23 @@ fun NewNoteScreen(
                                 dataAdded = date.value.toString().dateFormatter()
                             )
                         )
-                        if (!viewModel.isDatePicked.value || !viewModel.isTimePicked.value) {
-                            Toast.makeText(
-                                activityContext,
-                                "invalid date or time date: ${pickedDate.value}",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } else {
-                            sharedPrefs.sharedPreferences.edit()
-                                .putString(KEY_ALARM_TITLE, title.text).apply()
-                            sharedPrefs.sharedPreferences.edit()
-                                .putString(KEY_ALARM_CONTENT, note.text).apply()
-                            sharedPrefs.sharedPreferences.edit().putBoolean(KEY_ALARM_STATUS, true)
-                                .apply()
+                        if (isSwitched.value) {
+                            if (!viewModel.isDatePicked.value || !viewModel.isTimePicked.value) {
+                                Toast.makeText(
+                                    activityContext,
+                                    "invalid date or time date: ${pickedDate.value}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                sharedPrefs.sharedPreferences.edit()
+                                    .putString(KEY_ALARM_TITLE, title.text).apply()
+                                sharedPrefs.sharedPreferences.edit()
+                                    .putString(KEY_ALARM_CONTENT, note.text).apply()
+                                sharedPrefs.sharedPreferences.edit()
+                                    .putBoolean(KEY_ALARM_STATUS, true)
+                                    .apply()
+                            }
                         }
-
                     } else {
 
                         ShareNote().execute(
@@ -316,18 +322,20 @@ fun NewNoteScreen(
                                 dataAdded = date.value.toString().dateFormatter()
                             )
                         )
-                        if (!viewModel.isDatePicked.value || !viewModel.isTimePicked.value) {
-                            coroutineScope.launch {
-                                scaffoldState.snackbarHostState.showSnackbar(
-                                    "Invalid date or time"
-                                )
+                        if (isSwitched.value){
+                            if (!viewModel.isDatePicked.value || !viewModel.isTimePicked.value) {
+                                coroutineScope.launch {
+                                    scaffoldState.snackbarHostState.showSnackbar(
+                                        "Invalid date or time"
+                                    )
+                                }
+                            } else {
+                                sharedPrefs.sharedPreferences.edit()
+                                    .putString(KEY_ALARM_TITLE, title.text).apply()
+                                sharedPrefs.sharedPreferences.edit()
+                                    .putString(KEY_ALARM_CONTENT, note.text).apply()
+                                sharedPrefs.sharedPreferences.edit().putBoolean(KEY_ALARM_STATUS, true)
                             }
-                        } else {
-                            sharedPrefs.sharedPreferences.edit()
-                                .putString(KEY_ALARM_TITLE, title.text).apply()
-                            sharedPrefs.sharedPreferences.edit()
-                                .putString(KEY_ALARM_CONTENT, note.text).apply()
-                            sharedPrefs.sharedPreferences.edit().putBoolean(KEY_ALARM_STATUS, true)
                         }
                     }
                 }
