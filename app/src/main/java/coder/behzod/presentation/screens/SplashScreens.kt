@@ -94,6 +94,7 @@ fun SplashScreens(
                 fontSize = 32.sp
             )
         }
+        Spacer(modifier = Modifier.height(20.dp))
         LottieAnimation(
             modifier = Modifier
                 .size(250.dp),
