@@ -22,29 +22,56 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import coder.behzod.R
+import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.presentation.navigation.ScreensRouter
+import coder.behzod.presentation.utils.constants.KEY_NOTES_ROUTE
+import coder.behzod.presentation.utils.constants.KEY_SETTINGS_ROUTE
+import coder.behzod.presentation.utils.constants.KEY_TRASH_ROUTE
 
 @Composable
 fun BottomNavigationView(
     themeColor: Color,
     fontColor: Color,
-    navController: NavController
+    sharedPrefs: SharedPreferenceInstance,
+    navController: NavHostController
 ) {
 
     val isNotesSelected = remember { mutableStateOf(false) }
+    val isNoteRepeating = remember {
+        mutableStateOf(
+            sharedPrefs.sharedPreferences.getBoolean(
+                KEY_NOTES_ROUTE, true
+            )
+        )
+    }
+
     val isTrashSelected = remember { mutableStateOf(false) }
+    val isTrashRepeating = remember {
+        mutableStateOf(
+            sharedPrefs.sharedPreferences.getBoolean(
+                KEY_TRASH_ROUTE, true
+            )
+        )
+    }
+
     val isSettingsSelected = remember { mutableStateOf(false) }
+    val isSettingsRepeating = remember {
+        mutableStateOf(
+            sharedPrefs.sharedPreferences.getBoolean(
+                KEY_SETTINGS_ROUTE,
+                true
+            )
+        )
+    }
 
     BottomNavigation(
         modifier = Modifier
-            .padding(5.dp)
+            .padding(2.dp)
             .border(width = 1.dp, shape = RoundedCornerShape(10.dp), color = fontColor),
         backgroundColor = themeColor,
         contentColor = fontColor,
@@ -53,7 +80,7 @@ fun BottomNavigationView(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(70.dp),
+                .height(55.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
@@ -65,13 +92,24 @@ fun BottomNavigationView(
                     isNotesSelected.value = true
                     isTrashSelected.value = false
                     isSettingsSelected.value = false
+                    navController.popBackStack()
 
-                    if (isNotesSelected.value) navController.navigate(ScreensRouter.MainScreenRoute.route)
+                    if (isNotesSelected.value) {
+                        if (isNoteRepeating.value) {
+                            navController.navigate(ScreensRouter.MainScreenRoute.route)
+                            sharedPrefs.sharedPreferences.edit().putBoolean(KEY_NOTES_ROUTE, false)
+                                .apply()
+                            sharedPrefs.sharedPreferences.edit().putBoolean(KEY_TRASH_ROUTE, true)
+                                .apply()
+                            sharedPrefs.sharedPreferences.edit()
+                                .putBoolean(KEY_SETTINGS_ROUTE, true).apply()
+                        }
+                    }
                 },
                 icon = {
                     Icon(
                         modifier = Modifier
-                            .size(40.dp),
+                            .size(35.dp),
                         painter = painterResource(id = R.drawable.ic_notes),
                         contentDescription = "all notes",
                         tint = fontColor
@@ -95,13 +133,24 @@ fun BottomNavigationView(
                     isTrashSelected.value = true
                     isSettingsSelected.value = false
                     isNotesSelected.value = false
+                    navController.popBackStack()
 
-                    if (isTrashSelected.value) navController.navigate(ScreensRouter.TrashScreen.route)
+                    if (isTrashSelected.value) {
+                        if (isTrashRepeating.value) {
+                            navController.navigate(ScreensRouter.TrashScreen.route)
+                            sharedPrefs.sharedPreferences.edit().putBoolean(KEY_NOTES_ROUTE, true)
+                                .apply()
+                            sharedPrefs.sharedPreferences.edit().putBoolean(KEY_TRASH_ROUTE, false)
+                                .apply()
+                            sharedPrefs.sharedPreferences.edit()
+                                .putBoolean(KEY_SETTINGS_ROUTE, true).apply()
+                        }
+                    }
                 },
                 icon = {
                     Icon(
                         modifier = Modifier
-                            .size(40.dp),
+                            .size(35.dp),
                         imageVector = Icons.Default.Delete,
                         contentDescription = "trashed notes",
                         tint = fontColor
@@ -125,13 +174,24 @@ fun BottomNavigationView(
                     isSettingsSelected.value = true
                     isNotesSelected.value = false
                     isTrashSelected.value = false
+                    navController.popBackStack()
 
-                    if (isSettingsSelected.value) navController.navigate(ScreensRouter.SettingsScreenRoute.route)
+                    if (isSettingsSelected.value) {
+                        if (isSettingsRepeating.value){
+                            navController.navigate(ScreensRouter.SettingsScreenRoute.route)
+                            sharedPrefs.sharedPreferences.edit().putBoolean(KEY_NOTES_ROUTE, true)
+                                .apply()
+                            sharedPrefs.sharedPreferences.edit().putBoolean(KEY_TRASH_ROUTE, true)
+                                .apply()
+                            sharedPrefs.sharedPreferences.edit().putBoolean(KEY_SETTINGS_ROUTE, false)
+                                .apply()
+                        }
+                    }
                 },
                 icon = {
                     Icon(
                         modifier = Modifier
-                            .size(40.dp),
+                            .size(35.dp),
                         imageVector = Icons.Default.Settings,
                         contentDescription = "all notes",
                         tint = fontColor
@@ -148,14 +208,4 @@ fun BottomNavigationView(
             )
         }
     }
-}
-
-@Preview
-@Composable
-fun PreviewBottomNav(modifier: Modifier = Modifier) {
-    BottomNavigationView(
-        themeColor = Color.Black,
-        fontColor = Color.White,
-        navController = NavController(LocalContext.current)
-    )
 }

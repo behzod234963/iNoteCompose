@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.os.LocaleListCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.presentation.navigation.ScreensRouter
@@ -74,7 +75,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    navController: NavController,
+    navController: NavHostController,
     viewModel: SettingsViewModel = hiltViewModel(),
     sharedPrefs: SharedPreferenceInstance,
 ) {
@@ -463,7 +464,8 @@ fun SettingsScreen(
         BottomNavigationView(
             themeColor = themeColor.value,
             fontColor = fontColor.value,
-            navController = navController
+            navController = navController,
+            sharedPrefs = sharedPrefs
         )
     }
 }

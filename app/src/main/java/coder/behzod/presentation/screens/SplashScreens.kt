@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.presentation.navigation.ScreensRouter
@@ -38,7 +39,7 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreens(
-    navController: NavController,
+    navController: NavHostController,
     sharedPrefs: SharedPreferenceInstance
 ) {
 
@@ -94,16 +95,17 @@ fun SplashScreens(
                 fontSize = 32.sp
             )
         }
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         LottieAnimation(
             modifier = Modifier
-                .size(250.dp),
+                .size(200.dp),
             composition = notesAnimComposition.value,
             isPlaying = true,
         )
     }
     LaunchedEffect(key1 = Unit) {
         delay(2500)
+        navController.popBackStack()
         if (isEmpty.value) {
             navController.navigate(ScreensRouter.EmptyMainScreenRoute.route)
         } else {

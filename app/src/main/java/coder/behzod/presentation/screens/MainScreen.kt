@@ -60,6 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
@@ -95,7 +96,7 @@ import java.time.LocalDate
 @SuppressLint("CoroutineCreationDuringComposition", "UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun MainScreen(
-    navController: NavController,
+    navController: NavHostController,
     sharedPrefs: SharedPreferenceInstance,
     viewModel: MainViewModel = hiltViewModel()
 ) {
@@ -179,7 +180,8 @@ fun MainScreen(
             BottomNavigationView(
                 themeColor = themeColor.value,
                 fontColor = fontColor.value,
-                navController = navController
+                navController = navController,
+                sharedPrefs = sharedPrefs
             )
         },
         topBar = {

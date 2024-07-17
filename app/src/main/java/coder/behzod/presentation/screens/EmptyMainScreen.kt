@@ -68,7 +68,8 @@ fun EmptyMainScreen(
           BottomNavigationView(
               themeColor = themeColor.value,
               fontColor = fontColor.value,
-              navController = navController
+              navController = navController,
+              sharedPrefs = sharedPrefs
           )
         },
         topBar = {

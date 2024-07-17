@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
@@ -82,7 +83,7 @@ import java.time.LocalDate
 fun TrashScreen(
     notesModel: NotesModel,
     sharedPrefs: SharedPreferenceInstance,
-    navController: NavController,
+    navController: NavHostController,
     viewModel: TrashViewModel = hiltViewModel(),
 ) {
 
@@ -181,7 +182,8 @@ fun TrashScreen(
             BottomNavigationView(
                 themeColor = themeColor.value,
                 fontColor = if (themeColor.value == Color.Black) Color.White else Color.Black,
-                navController = navController
+                navController = navController,
+                sharedPrefs = sharedPrefs
             )
         },
         floatingActionButton = {
