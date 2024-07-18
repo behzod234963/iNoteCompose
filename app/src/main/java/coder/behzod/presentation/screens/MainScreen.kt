@@ -55,11 +55,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
@@ -78,6 +76,7 @@ import coder.behzod.presentation.utils.events.NotesEvent
 import coder.behzod.presentation.utils.extensions.dateFormatter
 import coder.behzod.presentation.utils.helpers.ShareNote
 import coder.behzod.presentation.viewModels.MainViewModel
+import coder.behzod.presentation.views.AlertDialogInstance
 import coder.behzod.presentation.views.BottomNavigationView
 import coder.behzod.presentation.views.MainTopAppBar
 import coder.behzod.presentation.views.RevealSwipeContent
@@ -338,140 +337,63 @@ fun MainScreen(
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            AlertDialog(
-                                modifier = Modifier
-                                    .height(200.dp)
-                                    .border(
-                                        color = fontColor.value,
-                                        width = 1.dp,
-                                        shape = RoundedCornerShape(10.dp)
-                                    ),
-                                shape = RoundedCornerShape(10.dp),
-                                backgroundColor = themeColor.value,
-                                text = {
-                                    Column(
-                                        modifier = Modifier.fillMaxSize(),
-                                        verticalArrangement = Arrangement.Center,
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Text(
-                                            textAlign = TextAlign.Center,
-                                            text = when (functionsCase.intValue) {
-                                                2 -> {
-                                                    stringResource(R.string.delete_selected_notes)
-                                                }
+                            AlertDialogInstance(
+                                fontSize = fontSize.intValue,
+                                icon = Icons.Default.Delete,
+                                title = null,
+                                text = when (functionsCase.intValue) {
+                                    2 -> {
+                                        stringResource(R.string.delete_selected_notes)
+                                    }
 
-                                                3 -> {
-                                                    stringResource(id = R.string.delete_all_notes)
-                                                }
+                                    3 -> {
+                                        stringResource(id = R.string.delete_all_notes)
+                                    }
 
-                                                4 -> {
-                                                    stringResource(id = R.string.delete_all_notes)
-                                                }
-
-                                                else -> {
-                                                    ""
-                                                }
-                                            },
-                                            color = fontColor.value,
-                                            fontSize = fontSize.intValue.plus(7).sp,
-                                            fontFamily = FontFamily(fontAmidoneGrotesk)
-                                        )
+                                    4 -> {
+                                        stringResource(id = R.string.delete_all_notes)
+                                    }
+                                    else->{
+                                        ""
                                     }
                                 },
-                                onDismissRequest = {
+                                confirmButtonText = "Ok",
+                                confirmButton = {
+
+                                    when (functionsCase.intValue) {
+                                        /*This is delete selected */
+                                        2 -> {
+                                            isDialogVisible.value = false
+                                            isSelected.value = false
+                                            viewModel.saveAllToTrash(selectedNotes)
+                                            viewModel.multipleDelete(selectedNotes)
+                                        }
+
+                                        3 -> {
+                                            isDialogVisible.value = false
+                                            isSelected.value = false
+                                            viewModel.saveAllToTrash(selectedNotes)
+                                            viewModel.multipleDelete(selectedNotes)
+                                        }
+
+                                        4 -> {
+                                            isDialogVisible.value = false
+                                            isSelected.value = false
+                                            viewModel.saveAllToTrash(state.value.notes)
+                                        }
+                                    }
+                                    selectedNotesCount.intValue = selectedNotes.size
                                     isDialogVisible.value = false
                                     isSelected.value = false
                                 },
-
-                                buttons = {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceAround
-                                    ) {
-
-                                        /* This is dismiss button in alert dialog */
-                                        Button(
-                                            modifier = Modifier
-                                                .height(40.dp)
-                                                .padding(end = 7.dp),
-                                            colors = ButtonDefaults.buttonColors(
-                                                containerColor = fontColor.value
-                                            ),
-                                            shape = RoundedCornerShape(10.dp),
-                                            onClick = {
-                                                isDialogVisible.value = false
-                                                isSelected.value = false
-                                            }
-                                        ) {
-                                            Text(
-                                                text = stringResource(id = R.string.cancel),
-                                                color = themeColor.value,
-                                                fontSize = fontSize.intValue.sp
-                                            )
-                                        }
-
-                                        /* This is confirm button in alert dialog */
-                                        Button(
-                                            modifier = Modifier
-                                                .height(40.dp)
-                                                .padding(start = 7.dp),
-                                            colors = ButtonDefaults.buttonColors(
-                                                containerColor = fontColor.value
-                                            ),
-                                            shape = RoundedCornerShape(10.dp),
-                                            onClick = {
-                                                when (functionsCase.intValue) {
-
-                                                    /*This is delete selected */
-                                                    2 -> {
-                                                        isDialogVisible.value = false
-                                                        isSelected.value = false
-                                                        viewModel.saveAllToTrash(selectedNotes)
-                                                        viewModel.multipleDelete(selectedNotes)
-                                                    }
-
-                                                    3 -> {
-                                                        isDialogVisible.value = false
-                                                        isSelected.value = false
-                                                        viewModel.saveAllToTrash(selectedNotes)
-                                                        viewModel.multipleDelete(selectedNotes)
-                                                    }
-
-                                                    4 -> {
-                                                        isDialogVisible.value = false
-                                                        isSelected.value = false
-                                                        viewModel.saveAllToTrash(state.value.notes)
-                                                    }
-                                                }
-                                                selectedNotesCount.intValue = selectedNotes.size
-                                                isDialogVisible.value = false
-                                                isSelected.value = false
-                                            }
-                                        ) {
-                                            Text(
-                                                text = when (functionsCase.intValue) {
-                                                    2 -> {
-                                                        stringResource(id = R.string.delete)
-                                                    }
-
-                                                    3 -> {
-                                                        stringResource(id = R.string.delete)
-                                                    }
-
-                                                    4 -> {
-                                                        stringResource(id = R.string.delete)
-                                                    }
-
-                                                    else -> {
-                                                        ""
-                                                    }
-                                                },
-                                                color = themeColor.value,
-                                                fontSize = fontSize.intValue.sp
-                                            )
-                                        }
-                                    }
+                                dismissButtonText = stringResource(id = R.string.cancel),
+                                showDialog = isDialogVisible.value,
+                                onDismissRequest = {
+                                    isSelected.value = false
+                                },
+                                dismissButton = {
+                                    isDialogVisible.value = false
+                                    isSelected.value = false
                                 }
                             )
                         }

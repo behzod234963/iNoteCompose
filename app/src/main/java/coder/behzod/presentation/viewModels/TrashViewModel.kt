@@ -12,6 +12,7 @@ import coder.behzod.domain.model.TrashModel
 import coder.behzod.domain.useCase.notesUseCases.NotesUseCases
 import coder.behzod.domain.useCase.trashUseCases.TrashUseCases
 import coder.behzod.presentation.utils.events.TrashEvent
+import coder.behzod.presentation.utils.extensions.dateFormatter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -45,11 +46,6 @@ class TrashViewModel @Inject constructor(
             }
         }
     }
-
-    fun updateDay(id:Int,daysLeft:Int) = viewModelScope.launch(Dispatchers.IO) {
-        useCases.updateDayUseCase(id,daysLeft)
-    }
-
     fun delete(note: TrashModel) = viewModelScope.launch {
         useCases.delete(note)
     }
@@ -95,7 +91,7 @@ class TrashViewModel @Inject constructor(
                             color = i.color,
                             dataAdded = i.daysLeft.toString().replace(
                                 oldValue = i.daysLeft.toString(),
-                                newValue = LocalDate.now().toString()
+                                newValue = LocalDate.now().toString().dateFormatter()
                             )
                         )
                         noteUseCases.saveNoteUseCase(notesModel)
@@ -114,7 +110,7 @@ class TrashViewModel @Inject constructor(
                             color = i.color,
                             dataAdded = i.daysLeft.toString().replace(
                                 oldValue = i.daysLeft.toString(),
-                                newValue = LocalDate.now().toString()
+                                newValue = LocalDate.now().toString().dateFormatter()
                             )
                         )
                         restoreNote(note = notesModel, trashModel = i)

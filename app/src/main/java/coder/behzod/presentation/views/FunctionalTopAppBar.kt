@@ -24,6 +24,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavHost
+import androidx.navigation.NavHostController
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.presentation.navigation.ScreensRouter
@@ -37,12 +39,11 @@ fun FunctionalTopAppBar(
     fontColor: Color,
     fontSize:Int,
     sharedPrefs: SharedPreferenceInstance,
-    navController: NavController
+    navController: NavHostController
 ) {
     val isEmpty = remember {
         mutableStateOf(sharedPrefs.sharedPreferences.getBoolean(KEY_LIST_STATUS, true))
     }
-    val isExpanded = remember { mutableStateOf(false) }
 
     Card (
         modifier = Modifier
@@ -70,8 +71,10 @@ fun FunctionalTopAppBar(
             navigationIcon = {
                 IconButton(onClick = {
                     if (isEmpty.value) {
+                        navController.popBackStack()
                         navController.navigate(ScreensRouter.EmptyMainScreenRoute.route)
                     } else {
+                        navController.popBackStack()
                         navController.navigate(ScreensRouter.MainScreenRoute.route)
                     }
                 }) {

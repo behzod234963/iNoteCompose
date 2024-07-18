@@ -64,6 +64,7 @@ import coder.behzod.presentation.utils.constants.KEY_FONT_SIZE
 import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.constants.notes
 import coder.behzod.presentation.utils.events.TrashEvent
+import coder.behzod.presentation.utils.extensions.dateFormatter
 import coder.behzod.presentation.viewModels.TrashViewModel
 import coder.behzod.presentation.views.BottomNavigationView
 import coder.behzod.presentation.views.SpeedDialFAB
@@ -531,7 +532,7 @@ fun TrashScreen(
                                                     title = trashedNote.value.title,
                                                     content = trashedNote.value.content,
                                                     color = trashedNote.value.color,
-                                                    dataAdded = LocalDate.now().toString()
+                                                    dataAdded = LocalDate.now().toString().dateFormatter()
                                                 )
                                             )
                                             isDialogVisible.value = false
@@ -651,7 +652,7 @@ fun TrashScreen(
                                                     title = trashedNote.value.title,
                                                     content = trashedNote.value.content,
                                                     color = trashedNote.value.color,
-                                                    dataAdded = LocalDate.now().toString()
+                                                    dataAdded = LocalDate.now().toString().dateFormatter()
                                                 )
                                             )
                                             isDialogVisible.value = false

@@ -57,8 +57,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHost
+import androidx.navigation.NavHostController
 import coder.behzod.R
-import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.presentation.items.ColorsItem
@@ -91,10 +92,9 @@ import java.time.LocalDate
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NewNoteScreen(
-    navController: NavController,
+    navController: NavHostController,
     arguments: Arguments,
     sharedPrefs: SharedPreferenceInstance,
-    dataStoreInstance: DataStoreInstance,
     viewModel: NewNoteViewModel = hiltViewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -114,7 +114,7 @@ fun NewNoteScreen(
     val pickedDate = viewModel.dateAndTime
 
     val themeIndex =
-        remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
+        remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 1)) }
     val themeColor =
         remember { mutableStateOf(if (themeIndex.intValue == 0) Color.Black else Color.White) }
 
@@ -538,7 +538,7 @@ fun NewNoteScreen(
                             viewModel.newNoteEvent(NewNoteEvent.NoteBackground(color.toArgb()))
                             when (color) {
                                 Color.White -> {
-                                    themeIndex.intValue = 0
+                                    themeIndex.intValue = 1
                                     fontColor.value = Color.White
                                 }
 
