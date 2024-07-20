@@ -28,14 +28,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.IconButton
-import androidx.compose.material.Scaffold
+import androidx.compose.material3.Scaffold
 import androidx.compose.material.SnackbarResult
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.rememberScaffoldState
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -78,6 +76,7 @@ import coder.behzod.presentation.utils.helpers.ShareNote
 import coder.behzod.presentation.viewModels.MainViewModel
 import coder.behzod.presentation.views.AlertDialogInstance
 import coder.behzod.presentation.views.BottomNavigationView
+import coder.behzod.presentation.views.DialogViewInstance
 import coder.behzod.presentation.views.MainTopAppBar
 import coder.behzod.presentation.views.RevealSwipeContent
 import com.airbnb.lottie.compose.LottieAnimation
@@ -92,7 +91,9 @@ import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
-@SuppressLint("CoroutineCreationDuringComposition", "UnusedMaterialScaffoldPaddingParameter")
+@SuppressLint("CoroutineCreationDuringComposition", "UnusedMaterialScaffoldPaddingParameter",
+    "UnusedMaterial3ScaffoldPaddingParameter"
+)
 @Composable
 fun MainScreen(
     navController: NavHostController,
@@ -163,6 +164,8 @@ fun MainScreen(
 
     val functionsCase = remember { mutableIntStateOf(0) }
 
+    val isDialogViewVisible = remember { mutableStateOf( false ) }
+
     val note = remember { mutableStateOf( NotesModel(
         title = "",
         content = "",
@@ -175,12 +178,12 @@ fun MainScreen(
     Scaffold(
         modifier = Modifier
             .background(themeColor.value),
+       containerColor = Color.Transparent,
         bottomBar = {
             BottomNavigationView(
                 themeColor = themeColor.value,
                 fontColor = fontColor.value,
-                navController = navController,
-                sharedPrefs = sharedPrefs
+                navController = navController
             )
         },
         topBar = {
@@ -246,6 +249,7 @@ fun MainScreen(
                     contentView = {
                         isDialogVisible.value = true
                         dialogType.intValue = 1
+                        isDialogViewVisible.value = true
                     },
                     contentSelect = {
                         isSelected.value = true
@@ -326,14 +330,17 @@ fun MainScreen(
                 }
             }
         },
-        scaffoldState = scaffoldState
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+            .background(themeColor.value)
+        ) {
             if (isDialogVisible.value) {
                 when (dialogType.intValue) {
                     0 -> {
                         Column(
-                            modifier = Modifier,
+                            modifier = Modifier
+                                .background(themeColor.value),
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
@@ -402,62 +409,29 @@ fun MainScreen(
                     else -> {
                         Column(
                             modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.Gray),
+                                .background(themeColor.value),
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            AlertDialog(
-                                modifier = Modifier
-                                    .height(200.dp)
-                                    .background(Color.Gray)
-                                    .border(
-                                        color = fontColor.value,
-                                        width = 1.dp,
-                                        shape = RoundedCornerShape(10.dp)
-                                    ),
-                                shape = RoundedCornerShape(10.dp),
-                                backgroundColor = themeColor.value,
-                                text = {
-                                    Text(text = stringResource(R.string.select_view))
-                                },
-                                onDismissRequest = {
-                                    isDialogVisible.value = false
+                            DialogViewInstance(
+                                fontSize = fontSize.intValue,
+                                dismissRequest = {
+                                    isDialogViewVisible.value = false
                                     isSelected.value = false
+                                    isDialogVisible.value = false
                                 },
-
-                                buttons = {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceAround
-                                    ) {
-
-                                        /* This is grid button in alert dialog */
-                                        IconButton(onClick = {
-                                            viewModel.onEvent(NotesEvent.ViewType(1))
+                                isDialogVisible = isDialogViewVisible.value,
+                                viewIndex = {
+                                    when(it){
+                                        0->{
+                                            viewModel.onEvent(NotesEvent.ViewType(0))
+                                            isDialogViewVisible.value = false
                                             isDialogVisible.value = false
-                                        }) {
-                                            Icon(
-                                                modifier = Modifier
-                                                    .size(35.dp),
-                                                painter = painterResource(id = R.drawable.ic_grid),
-                                                contentDescription = "btn grid view",
-                                                tint = fontColor.value
-                                            )
                                         }
-
-                                        /* This is list button in alert dialog */
-                                        IconButton(
-                                            onClick = {
-                                                viewModel.onEvent(NotesEvent.ViewType(0))
-                                                isDialogVisible.value = false
-                                            }) {
-                                            Icon(
-                                                modifier = Modifier.size(35.dp),
-                                                painter = painterResource(id = R.drawable.ic_list),
-                                                contentDescription = "btn list",
-                                                tint = fontColor.value
-                                            )
+                                        1->{
+                                            viewModel.onEvent(NotesEvent.ViewType(1))
+                                            isDialogViewVisible.value = false
+                                            isDialogVisible.value = false
                                         }
                                     }
                                 }
@@ -465,27 +439,23 @@ fun MainScreen(
                         }
                     }
                 }
-
-
             } else {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(themeColor.value)
                 ) {
-                    Spacer(modifier = Modifier.height(5.dp))
                     if (viewType == 0) {
                         /* Lazy Column List Item */
 
                         sharedPrefs.sharedPreferences.edit().putInt(KEY_VIEW_TYPE,0).apply()
-
+                        Spacer(modifier = Modifier.height(65.dp))
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(bottom = 75.dp)
                         ) {
                             items(items = state.value.notes, key = { it.toString() }) { notes ->
-
                                 note.value = notes
                                 RevealSwipeContent(
                                     item = notes,
@@ -555,6 +525,7 @@ fun MainScreen(
 
                         sharedPrefs.sharedPreferences.edit().putInt(KEY_VIEW_TYPE,1).apply()
 
+                        Spacer(modifier = Modifier.height(65.dp))
                         LazyVerticalGrid(columns = GridCells.Fixed(2)) {
                             items(state.value.notes, key = { notes ->
                                 notes.toString()

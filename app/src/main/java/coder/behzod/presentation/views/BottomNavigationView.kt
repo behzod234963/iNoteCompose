@@ -27,47 +27,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coder.behzod.R
-import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.presentation.navigation.ScreensRouter
-import coder.behzod.presentation.utils.constants.KEY_NOTES_ROUTE
-import coder.behzod.presentation.utils.constants.KEY_SETTINGS_ROUTE
-import coder.behzod.presentation.utils.constants.KEY_TRASH_ROUTE
 
 @Composable
 fun BottomNavigationView(
     themeColor: Color,
     fontColor: Color,
-    sharedPrefs: SharedPreferenceInstance,
     navController: NavHostController
 ) {
 
     val isNotesSelected = remember { mutableStateOf(false) }
-    val isNoteRepeating = remember {
-        mutableStateOf(
-            sharedPrefs.sharedPreferences.getBoolean(
-                KEY_NOTES_ROUTE, true
-            )
-        )
-    }
-
     val isTrashSelected = remember { mutableStateOf(false) }
-    val isTrashRepeating = remember {
-        mutableStateOf(
-            sharedPrefs.sharedPreferences.getBoolean(
-                KEY_TRASH_ROUTE, true
-            )
-        )
-    }
-
     val isSettingsSelected = remember { mutableStateOf(false) }
-    val isSettingsRepeating = remember {
-        mutableStateOf(
-            sharedPrefs.sharedPreferences.getBoolean(
-                KEY_SETTINGS_ROUTE,
-                true
-            )
-        )
-    }
 
     BottomNavigation(
         modifier = Modifier
@@ -95,15 +66,7 @@ fun BottomNavigationView(
                     navController.popBackStack()
 
                     if (isNotesSelected.value) {
-                        if (isNoteRepeating.value) {
-                            navController.navigate(ScreensRouter.MainScreenRoute.route)
-                            sharedPrefs.sharedPreferences.edit().putBoolean(KEY_NOTES_ROUTE, false)
-                                .apply()
-                            sharedPrefs.sharedPreferences.edit().putBoolean(KEY_TRASH_ROUTE, true)
-                                .apply()
-                            sharedPrefs.sharedPreferences.edit()
-                                .putBoolean(KEY_SETTINGS_ROUTE, true).apply()
-                        }
+                        navController.navigate(ScreensRouter.MainScreenRoute.route)
                     }
                 },
                 icon = {
@@ -133,18 +96,9 @@ fun BottomNavigationView(
                     isTrashSelected.value = true
                     isSettingsSelected.value = false
                     isNotesSelected.value = false
-                    navController.popBackStack()
 
                     if (isTrashSelected.value) {
-                        if (isTrashRepeating.value) {
-                            navController.navigate(ScreensRouter.TrashScreen.route)
-                            sharedPrefs.sharedPreferences.edit().putBoolean(KEY_NOTES_ROUTE, true)
-                                .apply()
-                            sharedPrefs.sharedPreferences.edit().putBoolean(KEY_TRASH_ROUTE, false)
-                                .apply()
-                            sharedPrefs.sharedPreferences.edit()
-                                .putBoolean(KEY_SETTINGS_ROUTE, true).apply()
-                        }
+                        navController.navigate(ScreensRouter.TrashScreen.route)
                     }
                 },
                 icon = {
@@ -174,18 +128,9 @@ fun BottomNavigationView(
                     isSettingsSelected.value = true
                     isNotesSelected.value = false
                     isTrashSelected.value = false
-                    navController.popBackStack()
 
                     if (isSettingsSelected.value) {
-                        if (isSettingsRepeating.value){
-                            navController.navigate(ScreensRouter.SettingsScreenRoute.route)
-                            sharedPrefs.sharedPreferences.edit().putBoolean(KEY_NOTES_ROUTE, true)
-                                .apply()
-                            sharedPrefs.sharedPreferences.edit().putBoolean(KEY_TRASH_ROUTE, true)
-                                .apply()
-                            sharedPrefs.sharedPreferences.edit().putBoolean(KEY_SETTINGS_ROUTE, false)
-                                .apply()
-                        }
+                        navController.navigate(ScreensRouter.SettingsScreenRoute.route)
                     }
                 },
                 icon = {

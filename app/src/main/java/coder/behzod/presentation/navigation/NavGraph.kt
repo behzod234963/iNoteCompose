@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.presentation.screens.EmptyMainScreen
@@ -62,7 +63,8 @@ fun NavGraph() {
             NewNoteScreen(
                 navController = navController,
                 arguments = Arguments(id),
-                sharedPrefs = SharedPreferenceInstance(ctx)
+                sharedPrefs = SharedPreferenceInstance(ctx),
+                dataStore = DataStoreInstance(ctx)
             )
         }
         composable(

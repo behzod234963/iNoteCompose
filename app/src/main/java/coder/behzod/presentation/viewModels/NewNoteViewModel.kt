@@ -8,10 +8,12 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.useCase.notesUseCases.NotesUseCases
 import coder.behzod.presentation.utils.constants.KEY_ALARM_DATE_AND_TIME
+import coder.behzod.presentation.utils.constants.KEY_TRIGGER
 import coder.behzod.presentation.utils.constants.colorsList
 import coder.behzod.presentation.utils.events.NewNoteEvent
 import coder.behzod.presentation.utils.helpers.NewNotesState
@@ -24,7 +26,8 @@ import javax.inject.Inject
 class NewNoteViewModel @Inject constructor(
     private val useCases: NotesUseCases,
     savedStateHandle: SavedStateHandle,
-    sharedPreferenceInstance: SharedPreferenceInstance
+    private val dataStore:DataStoreInstance,
+    private val sharedPreferenceInstance: SharedPreferenceInstance
 ) : ViewModel() {
 
     private val _title = mutableStateOf(NewNotesState(""))
@@ -70,11 +73,6 @@ class NewNoteViewModel @Inject constructor(
         }
         sharedPreferenceInstance.sharedPreferences.edit().putLong(KEY_ALARM_DATE_AND_TIME,dateAndTime.value).apply()
     }
-
-    fun saveStatus(status:Boolean){
-        _status.value = status
-    }
-
     fun isDatePicked(isDatePicked:Boolean){
         _isDatePicked.value = isDatePicked
     }
@@ -83,8 +81,10 @@ class NewNoteViewModel @Inject constructor(
         _isTimePicked.value = timeStatus
     }
 
-    fun saveTriggerAtMillis(trigger:Long){
+    fun saveTriggerAtMillis(trigger:Long) = viewModelScope.launch {
         _dateAndTime.longValue = trigger
+        dataStore.saveTrigger(KEY_TRIGGER,trigger)
+        sharedPreferenceInstance.sharedPreferences.edit().putLong(KEY_TRIGGER,trigger).apply()
     }
 
     fun saveNote(note: NotesModel) = viewModelScope.launch(Dispatchers.IO) {

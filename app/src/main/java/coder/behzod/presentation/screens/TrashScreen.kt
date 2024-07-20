@@ -51,7 +51,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
@@ -183,8 +182,7 @@ fun TrashScreen(
             BottomNavigationView(
                 themeColor = themeColor.value,
                 fontColor = if (themeColor.value == Color.Black) Color.White else Color.Black,
-                navController = navController,
-                sharedPrefs = sharedPrefs
+                navController = navController
             )
         },
         floatingActionButton = {

@@ -5,7 +5,9 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -26,7 +28,6 @@ class DataStoreInstance(private val ctx: Context) {
         val indexKey = intPreferencesKey(key)
         val flow: Flow<Int> = ctx.dataStore.data
             .map {
-
                 it[indexKey]!!
             }
         return flow
@@ -46,5 +47,19 @@ class DataStoreInstance(private val ctx: Context) {
                 it[statusKey] == true
             }
         return flow
+    }
+    suspend fun saveTrigger(key:String,trigger:Long){
+        val longKey = longPreferencesKey(key)
+        ctx.dataStore.edit {
+            it[longKey] = trigger
+        }
+    }
+    fun getTrigger(key: String):Flow<Long>{
+        val longKey = longPreferencesKey(key)
+        val triggerFlow :Flow<Long> = ctx.dataStore.data
+            .map {
+                it[longKey]!!
+            }
+        return triggerFlow
     }
 }

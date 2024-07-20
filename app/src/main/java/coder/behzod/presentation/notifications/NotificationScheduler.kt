@@ -29,11 +29,15 @@ class NotificationScheduler @Inject constructor(
     fun scheduleNotification(ctx: Context, triggerAtMillis:Long){
 
         Log.d("alarm", "NotificationScheduler: function scheduleNotification is started")
+        val flag =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                PendingIntent.FLAG_IMMUTABLE
+            else
+                0
         val alarmIntent = Intent(ctx, NotificationReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(ctx,0,alarmIntent,
-            PendingIntent.FLAG_IMMUTABLE)
-
-        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,triggerAtMillis,pendingIntent)
+            flag)
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP,triggerAtMillis,pendingIntent)
     }
 
     @RequiresApi(Build.VERSION_CODES.P)
@@ -43,14 +47,17 @@ class NotificationScheduler @Inject constructor(
         val contentIntent = Intent(ctx,MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
+
         val flag =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                 PendingIntent.FLAG_IMMUTABLE
             else
                 0
+
         val contentIntentPendingIntent = PendingIntent.getActivity(ctx,2,contentIntent, PendingIntent.FLAG_IMMUTABLE)
         val stopAlarmIntent = Intent(ctx, StopAlarm::class.java)
         val stopAlarmPendingIntent = PendingIntent.getBroadcast(ctx,1,stopAlarmIntent,flag)
+
         val notification =  NotificationCompat.Builder(ctx,"Main Channel ID")
             .setContentTitle(title)
             .setContentText(content)

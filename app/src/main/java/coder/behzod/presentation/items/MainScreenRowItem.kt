@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -119,6 +120,8 @@ fun MainScreenRowItem(
                         ) {
                             /* This is notes title */
                             Text(
+                                modifier = Modifier
+                                    .width(250.dp),
                                 text = notesModel.title,
                                 color = colorFont.value,
                                 maxLines = 1,

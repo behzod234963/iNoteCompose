@@ -10,6 +10,7 @@ import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.asLongState
 import androidx.compose.runtime.collectAsState
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
@@ -31,6 +32,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -78,14 +81,17 @@ class MainActivity : AppCompatActivity() {
             Log.d("worker", "WorkManager: ${WorkManager.isInitialized()} ")
 
             val newNoteViewModel: NewNoteViewModel = hiltViewModel()
-            val status = sharedPrefs.sharedPreferences.getBoolean(KEY_ALARM_STATUS,false)
+            val status = dataStoreInstance.getStatus(KEY_ALARM_STATUS).collectAsState(initial = false)
+            val triggerAtMillis = newNoteViewModel.dateAndTime.asLongState().longValue
 
-            if (status) {
+            if (status.value) {
                 Log.d("alarm", "MainActivity: notificationScheduler is started ")
-                NotificationScheduler(
-                    notificationManager,
-                    alarmManager
-                ).scheduleNotification(this@MainActivity, newNoteViewModel.dateAndTime.value)
+                if (triggerAtMillis == LocalDateTime.now().toString().toLong()){
+                    NotificationScheduler(
+                        notificationManager,
+                        alarmManager
+                    ).scheduleNotification(this@MainActivity, triggerAtMillis)
+                }
             }
         }
     }

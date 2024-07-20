@@ -13,6 +13,7 @@ import coder.behzod.presentation.utils.constants.KEY_ALARM_STATUS
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,7 +25,7 @@ class StopAlarm : BroadcastReceiver() {
     @Inject
     lateinit var notificationManager: NotificationManagerCompat
     @Inject
-    lateinit var sharedPrefs: SharedPreferenceInstance
+    lateinit var dataStore:DataStoreInstance
 
     override fun onReceive(context: Context?, intent: Intent?) {
         val alarmIntent = Intent(context, NotificationReceiver::class.java)
@@ -32,7 +33,9 @@ class StopAlarm : BroadcastReceiver() {
             context, 0, alarmIntent,
             PendingIntent.FLAG_IMMUTABLE
         )
-        sharedPrefs.sharedPreferences.edit().putBoolean(KEY_ALARM_STATUS,false).apply()
+        CoroutineScope(Dispatchers.Default).launch {
+            dataStore.saveStatus(KEY_ALARM_STATUS,false)
+        }
         alarmManager.cancel(pendingIntent)
         pendingIntent.cancel()
         notificationManager.cancel(0)

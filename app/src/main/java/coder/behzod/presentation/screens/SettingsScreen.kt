@@ -53,7 +53,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.os.LocaleListCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
@@ -464,8 +463,7 @@ fun SettingsScreen(
         BottomNavigationView(
             themeColor = themeColor.value,
             fontColor = fontColor.value,
-            navController = navController,
-            sharedPrefs = sharedPrefs
+            navController = navController
         )
     }
 }

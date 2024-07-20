@@ -8,10 +8,12 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationManagerCompat
+import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.presentation.notifications.NotificationScheduler
 import coder.behzod.presentation.utils.constants.KEY_ALARM_CONTENT
 import coder.behzod.presentation.utils.constants.KEY_ALARM_TITLE
+import coder.behzod.presentation.utils.constants.KEY_TRIGGER
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -33,11 +35,16 @@ class NotificationReceiver : BroadcastReceiver() {
         val content = sharedPrefs?.sharedPreferences?.getString(KEY_ALARM_CONTENT, "")
         Log.d("alarm", "NotificationReceiver: NotificationReceiver is started")
 
+        val dataStore = context?.let { DataStoreInstance(it).getTrigger(KEY_TRIGGER) }
         val notificationScheduler = NotificationScheduler(notificationManager, alarmManager)
 
-        notificationScheduler.scheduleNotification(context!!, 0)
-        if (title != null) {
-            notificationScheduler.showNotification(ctx = context, title = title, content!!)
+        val trigger = sharedPrefs?.sharedPreferences?.getLong(KEY_TRIGGER,0L)
+
+        if (trigger != null) {
+            notificationScheduler.scheduleNotification(context, trigger)
         }
+            if (title != null) {
+                notificationScheduler.showNotification(ctx = context, title = title, content!!)
+            }
     }
 }

@@ -56,10 +56,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
 import coder.behzod.R
+import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.presentation.items.ColorsItem
@@ -68,7 +67,7 @@ import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.theme.blue
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.theme.green
-import coder.behzod.presentation.theme.liteGreen
+import coder.behzod.presentation.theme.cyan
 import coder.behzod.presentation.theme.red
 import coder.behzod.presentation.theme.yellow
 import coder.behzod.presentation.utils.constants.KEY_ALARM_CONTENT
@@ -95,6 +94,7 @@ fun NewNoteScreen(
     navController: NavHostController,
     arguments: Arguments,
     sharedPrefs: SharedPreferenceInstance,
+    dataStore:DataStoreInstance,
     viewModel: NewNoteViewModel = hiltViewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -122,9 +122,9 @@ fun NewNoteScreen(
     val fontColor = remember { mutableStateOf(colorFont) }
 
     if (colorFont == Color.White) {
-        fontColor.value = Color.White
+        fontColor.value = Color.Gray
     } else {
-        fontColor.value = Color.Black
+        fontColor.value = Color.Gray
     }
 
     val fontSize =
@@ -133,10 +133,11 @@ fun NewNoteScreen(
     val isSwitched = remember { mutableStateOf(false) }
     val isOptionsExpanded = remember { mutableStateOf(false) }
 
+    /* Color identifier */
     when (themeIndex.intValue) {
         0 -> {
             themeColor.value = Color.Black
-            fontColor.value = Color.White
+            fontColor.value = Color.Gray
         }
 
         1 -> {
@@ -146,22 +147,27 @@ fun NewNoteScreen(
 
         2 -> {
             themeColor.value = yellow
+            fontColor.value = Color.Black
         }
 
         3 -> {
             themeColor.value = green
+            fontColor.value = Color.Black
         }
 
         4 -> {
-            themeColor.value = liteGreen
+            themeColor.value = cyan
+            fontColor.value = Color.Black
         }
 
         5 -> {
             themeColor.value = red
+            fontColor.value = Color.Black
         }
 
         6 -> {
             themeColor.value = blue
+            fontColor.value = Color.Black
         }
     }
     when (vmColor) {
@@ -221,8 +227,7 @@ fun NewNoteScreen(
                                         .putString(KEY_ALARM_TITLE, title.text).apply()
                                     sharedPrefs.sharedPreferences.edit()
                                         .putString(KEY_ALARM_CONTENT, note.text).apply()
-                                    sharedPrefs.sharedPreferences.edit()
-                                        .putBoolean(KEY_ALARM_STATUS, true).apply()
+                                    coroutineScope.launch { dataStore.saveStatus(KEY_ALARM_STATUS,true) }
                                 }
                             }
                         } else {
@@ -247,8 +252,7 @@ fun NewNoteScreen(
                                         .putString(KEY_ALARM_TITLE, title.text).apply()
                                     sharedPrefs.sharedPreferences.edit()
                                         .putString(KEY_ALARM_CONTENT, note.text).apply()
-                                    sharedPrefs.sharedPreferences.edit()
-                                        .putBoolean(KEY_ALARM_STATUS, true).apply()
+                                    coroutineScope.launch { dataStore.saveStatus(KEY_ALARM_STATUS,true) }
                                 }
                             }
                         }
@@ -298,9 +302,7 @@ fun NewNoteScreen(
                                     .putString(KEY_ALARM_TITLE, title.text).apply()
                                 sharedPrefs.sharedPreferences.edit()
                                     .putString(KEY_ALARM_CONTENT, note.text).apply()
-                                sharedPrefs.sharedPreferences.edit()
-                                    .putBoolean(KEY_ALARM_STATUS, true)
-                                    .apply()
+                                coroutineScope.launch { dataStore.saveStatus(KEY_ALARM_STATUS,true) }
                             }
                         }
                     } else {
@@ -334,7 +336,7 @@ fun NewNoteScreen(
                                     .putString(KEY_ALARM_TITLE, title.text).apply()
                                 sharedPrefs.sharedPreferences.edit()
                                     .putString(KEY_ALARM_CONTENT, note.text).apply()
-                                sharedPrefs.sharedPreferences.edit().putBoolean(KEY_ALARM_STATUS, true)
+                                coroutineScope.launch { dataStore.saveStatus(KEY_ALARM_STATUS,true) }
                             }
                         }
                     }
@@ -550,7 +552,7 @@ fun NewNoteScreen(
                                     themeIndex.intValue = 3
                                 }
 
-                                liteGreen -> {
+                                cyan -> {
                                     themeIndex.intValue = 4
                                 }
 
