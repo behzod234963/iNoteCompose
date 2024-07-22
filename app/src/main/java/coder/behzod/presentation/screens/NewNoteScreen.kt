@@ -114,7 +114,7 @@ fun NewNoteScreen(
     val pickedDate = viewModel.dateAndTime
 
     val themeIndex =
-        remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 1)) }
+        remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
     val themeColor =
         remember { mutableStateOf(if (themeIndex.intValue == 0) Color.Black else Color.White) }
 

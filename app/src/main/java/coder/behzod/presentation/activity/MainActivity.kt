@@ -2,15 +2,12 @@ package coder.behzod.presentation.activity
 
 import android.annotation.SuppressLint
 import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.runtime.asLongState
 import androidx.compose.runtime.collectAsState
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
@@ -21,19 +18,11 @@ import androidx.work.WorkManager
 import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.data.workManager.workers.UpdateDayWorker
-import coder.behzod.presentation.broadcastReceiver.NotificationReceiver
-import coder.behzod.presentation.broadcastReceiver.StopAlarm
 import coder.behzod.presentation.navigation.NavGraph
 import coder.behzod.presentation.notifications.NotificationScheduler
 import coder.behzod.presentation.utils.constants.KEY_ALARM_STATUS
 import coder.behzod.presentation.viewModels.NewNoteViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -47,7 +36,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var alarmManager: AlarmManager
     private lateinit var workManager: WorkManager
 
-    @Inject lateinit var dataStoreInstance: DataStoreInstance
+    @Inject
+    lateinit var dataStoreInstance: DataStoreInstance
 
     @Inject
     lateinit var sharedPrefs: SharedPreferenceInstance
@@ -78,21 +68,19 @@ class MainActivity : AppCompatActivity() {
                 ExistingPeriodicWorkPolicy.UPDATE,
                 updateDayRequest
             )
-            Log.d("worker", "WorkManager: ${WorkManager.isInitialized()} ")
 
             val newNoteViewModel: NewNoteViewModel = hiltViewModel()
-            val status = dataStoreInstance.getStatus(KEY_ALARM_STATUS).collectAsState(initial = false)
-            val triggerAtMillis = newNoteViewModel.dateAndTime.asLongState().longValue
-
+            val status =
+                dataStoreInstance.getStatus(KEY_ALARM_STATUS).collectAsState(initial = false)
+            val triggerAtMillis = newNoteViewModel.dateAndTime.value
             if (status.value) {
                 Log.d("alarm", "MainActivity: notificationScheduler is started ")
-                if (triggerAtMillis == LocalDateTime.now().toString().toLong()){
-                    NotificationScheduler(
-                        notificationManager,
-                        alarmManager
-                    ).scheduleNotification(this@MainActivity, triggerAtMillis)
-                }
+                NotificationScheduler(
+                    notificationManager,
+                    alarmManager
+                ).scheduleNotification(this@MainActivity, triggerAtMillis)
             }
+
         }
     }
 }

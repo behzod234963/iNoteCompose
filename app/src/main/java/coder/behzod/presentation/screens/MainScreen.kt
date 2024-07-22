@@ -10,12 +10,9 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -26,9 +23,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.IconButton
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.IconButton
 import androidx.compose.material.SnackbarResult
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -37,6 +32,7 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -91,7 +87,8 @@ import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
-@SuppressLint("CoroutineCreationDuringComposition", "UnusedMaterialScaffoldPaddingParameter",
+@SuppressLint(
+    "CoroutineCreationDuringComposition", "UnusedMaterialScaffoldPaddingParameter",
     "UnusedMaterial3ScaffoldPaddingParameter"
 )
 @Composable
@@ -164,21 +161,24 @@ fun MainScreen(
 
     val functionsCase = remember { mutableIntStateOf(0) }
 
-    val isDialogViewVisible = remember { mutableStateOf( false ) }
+    val isDialogViewVisible = remember { mutableStateOf(false) }
 
-    val note = remember { mutableStateOf( NotesModel(
-        title = "",
-        content = "",
-        color = -1,
-        dataAdded = LocalDate.now().toString().dateFormatter()
-    ) ) }
+    val note = remember {
+        mutableStateOf(
+            NotesModel(
+                title = "",
+                content = "",
+                color = -1,
+                dataAdded = LocalDate.now().toString().dateFormatter()
+            )
+        )
+    }
 
     val activityContext = LocalContext.current as Activity
 
     Scaffold(
         modifier = Modifier
             .background(themeColor.value),
-       containerColor = Color.Transparent,
         bottomBar = {
             BottomNavigationView(
                 themeColor = themeColor.value,
@@ -275,7 +275,7 @@ fun MainScreen(
         floatingActionButton = {
             if (isSelected.value) {
 
-            /* Floating action button for functions */
+                /* Floating action button for functions */
                 FloatingActionButton(
                     modifier = Modifier
                         .padding(end = 30.dp, bottom = 30.dp),
@@ -330,266 +330,266 @@ fun MainScreen(
                 }
             }
         },
+        scaffoldState = scaffoldState
     ) {
-        Box(
-            modifier = Modifier
-            .background(themeColor.value)
-        ) {
-            if (isDialogVisible.value) {
-                when (dialogType.intValue) {
-                    0 -> {
-                        Column(
-                            modifier = Modifier
-                                .background(themeColor.value),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            AlertDialogInstance(
-                                fontSize = fontSize.intValue,
-                                icon = Icons.Default.Delete,
-                                title = null,
-                                text = when (functionsCase.intValue) {
+        if (isDialogVisible.value) {
+            when (dialogType.intValue) {
+                0 -> {
+                    Column(
+                        modifier = Modifier
+                            .background(themeColor.value),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        AlertDialogInstance(
+                            fontSize = fontSize.intValue,
+                            icon = Icons.Default.Delete,
+                            title = null,
+                            text = when (functionsCase.intValue) {
+                                2 -> {
+                                    stringResource(R.string.delete_selected_notes)
+                                }
+
+                                3 -> {
+                                    stringResource(id = R.string.delete_all_notes)
+                                }
+
+                                4 -> {
+                                    stringResource(id = R.string.delete_all_notes)
+                                }
+
+                                else -> {
+                                    ""
+                                }
+                            },
+                            confirmButtonText = "Ok",
+                            confirmButton = {
+
+                                when (functionsCase.intValue) {
+                                    /*This is delete selected */
                                     2 -> {
-                                        stringResource(R.string.delete_selected_notes)
+                                        isDialogVisible.value = false
+                                        isSelected.value = false
+                                        viewModel.saveAllToTrash(selectedNotes)
+                                        viewModel.multipleDelete(selectedNotes)
                                     }
 
                                     3 -> {
-                                        stringResource(id = R.string.delete_all_notes)
+                                        isDialogVisible.value = false
+                                        isSelected.value = false
+                                        viewModel.saveAllToTrash(selectedNotes)
+                                        viewModel.multipleDelete(selectedNotes)
                                     }
 
                                     4 -> {
-                                        stringResource(id = R.string.delete_all_notes)
-                                    }
-                                    else->{
-                                        ""
-                                    }
-                                },
-                                confirmButtonText = "Ok",
-                                confirmButton = {
-
-                                    when (functionsCase.intValue) {
-                                        /*This is delete selected */
-                                        2 -> {
-                                            isDialogVisible.value = false
-                                            isSelected.value = false
-                                            viewModel.saveAllToTrash(selectedNotes)
-                                            viewModel.multipleDelete(selectedNotes)
-                                        }
-
-                                        3 -> {
-                                            isDialogVisible.value = false
-                                            isSelected.value = false
-                                            viewModel.saveAllToTrash(selectedNotes)
-                                            viewModel.multipleDelete(selectedNotes)
-                                        }
-
-                                        4 -> {
-                                            isDialogVisible.value = false
-                                            isSelected.value = false
-                                            viewModel.saveAllToTrash(state.value.notes)
-                                        }
-                                    }
-                                    selectedNotesCount.intValue = selectedNotes.size
-                                    isDialogVisible.value = false
-                                    isSelected.value = false
-                                },
-                                dismissButtonText = stringResource(id = R.string.cancel),
-                                showDialog = isDialogVisible.value,
-                                onDismissRequest = {
-                                    isSelected.value = false
-                                },
-                                dismissButton = {
-                                    isDialogVisible.value = false
-                                    isSelected.value = false
-                                }
-                            )
-                        }
-                    }
-
-                    else -> {
-                        Column(
-                            modifier = Modifier
-                                .background(themeColor.value),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            DialogViewInstance(
-                                fontSize = fontSize.intValue,
-                                dismissRequest = {
-                                    isDialogViewVisible.value = false
-                                    isSelected.value = false
-                                    isDialogVisible.value = false
-                                },
-                                isDialogVisible = isDialogViewVisible.value,
-                                viewIndex = {
-                                    when(it){
-                                        0->{
-                                            viewModel.onEvent(NotesEvent.ViewType(0))
-                                            isDialogViewVisible.value = false
-                                            isDialogVisible.value = false
-                                        }
-                                        1->{
-                                            viewModel.onEvent(NotesEvent.ViewType(1))
-                                            isDialogViewVisible.value = false
-                                            isDialogVisible.value = false
-                                        }
+                                        isDialogVisible.value = false
+                                        isSelected.value = false
+                                        viewModel.saveAllToTrash(state.value.notes)
                                     }
                                 }
-                            )
-                        }
+                                selectedNotesCount.intValue = selectedNotes.size
+                                isDialogVisible.value = false
+                                isSelected.value = false
+                            },
+                            dismissButtonText = stringResource(id = R.string.cancel),
+                            showDialog = isDialogVisible.value,
+                            onDismissRequest = {
+                                isDialogVisible.value = false
+                                isSelected.value = false
+                            },
+                            dismissButton = {
+                                isDialogVisible.value = false
+                                isSelected.value = false
+                            }
+                        )
                     }
                 }
-            } else {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(themeColor.value)
-                ) {
-                    if (viewType == 0) {
-                        /* Lazy Column List Item */
 
-                        sharedPrefs.sharedPreferences.edit().putInt(KEY_VIEW_TYPE,0).apply()
-                        Spacer(modifier = Modifier.height(65.dp))
-                        LazyColumn(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(bottom = 75.dp)
-                        ) {
-                            items(items = state.value.notes, key = { it.toString() }) { notes ->
-                                note.value = notes
-                                RevealSwipeContent(
-                                    item = notes,
-                                    onShare = {shareItem->
-                                        ShareNote().execute(
-                                            title = shareItem.title,
-                                            content = shareItem.content,
-                                            ctx = activityContext
-                                        ){}
-                                    },
-                                    onDelete = {deleteItem->
+                else -> {
+                    Column(
+                        modifier = Modifier
+                            .background(themeColor.value),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        DialogViewInstance(
+                            fontSize = fontSize.intValue,
+                            dismissRequest = {
+                                isDialogViewVisible.value = false
+                                isSelected.value = false
+                                isDialogVisible.value = false
+                            },
+                            isDialogVisible = isDialogViewVisible.value,
+                            viewIndex = {
+                                when (it) {
+                                    0 -> {
+                                        viewModel.onEvent(NotesEvent.ViewType(0))
+                                        isDialogViewVisible.value = false
+                                        isDialogVisible.value = false
+                                    }
 
-                                        viewModel.saveToTrash(
-                                            TrashModel(
-                                                title = deleteItem.title,
-                                                content = deleteItem.content,
-                                                color = deleteItem.color,
-                                                daysLeft = 30,
-                                            )
+                                    1 -> {
+                                        viewModel.onEvent(NotesEvent.ViewType(1))
+                                        isDialogViewVisible.value = false
+                                        isDialogVisible.value = false
+                                    }
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(themeColor.value)
+            ) {
+                if (viewType == 0) {
+                    /* Lazy Column List Item */
+
+                    sharedPrefs.sharedPreferences.edit().putInt(KEY_VIEW_TYPE, 0).apply()
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(bottom = 75.dp)
+                    ) {
+                        items(items = state.value.notes, key = { it.toString() }) { notes ->
+                            note.value = notes
+                            RevealSwipeContent(
+                                item = notes,
+                                onShare = { shareItem ->
+                                    ShareNote().execute(
+                                        title = shareItem.title,
+                                        content = shareItem.content,
+                                        ctx = activityContext
+                                    ) {}
+                                },
+                                onDelete = { deleteItem ->
+
+                                    viewModel.saveToTrash(
+                                        TrashModel(
+                                            title = deleteItem.title,
+                                            content = deleteItem.content,
+                                            color = deleteItem.color,
+                                            daysLeft = 30,
                                         )
-                                        sharedPrefs.sharedPreferences.edit().putBoolean(
-                                            KEY_ALARM_STATUS,false).apply()
-                                        coroutineScope.launch(Dispatchers.IO) {
-                                            delay(100)
-                                            viewModel.onEvent(NotesEvent.DeleteNote(deleteItem))
-                                        }
-                                        coroutineScope.launch {
-                                            val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
+                                    )
+                                    sharedPrefs.sharedPreferences.edit().putBoolean(
+                                        KEY_ALARM_STATUS, false
+                                    ).apply()
+                                    coroutineScope.launch(Dispatchers.IO) {
+                                        delay(100)
+                                        viewModel.onEvent(NotesEvent.DeleteNote(deleteItem))
+                                    }
+                                    coroutineScope.launch {
+                                        val snackbarResult =
+                                            scaffoldState.snackbarHostState.showSnackbar(
                                                 message = activityContext.getString(R.string.note_deleted),
                                                 actionLabel = activityContext.getString(R.string.undo)
                                             )
-                                            if(snackbarResult == SnackbarResult.ActionPerformed){
-                                                viewModel.returnDeletedNote(deleteItem )
-                                            }
+                                        if (snackbarResult == SnackbarResult.ActionPerformed) {
+                                            viewModel.returnDeletedNote(deleteItem)
                                         }
-                                    },
-                                ) { item ->
-                                    MainScreenRowItem(
-                                        notesModel = item,
-                                        themeColor = themeColor.value,
-                                        fontColor = fontColor.value,
-                                        fontSize = fontSize.intValue,
-                                        isSelected = isSelected.value,
-                                        onCheckedChange = {
-                                            if (it == 1) {
-                                                if (selectAllStatus) {
-                                                    viewModel.addAllToList()
-                                                    selectedNotesCount.intValue = selectedNotes.size
-                                                } else {
-                                                    viewModel.addNoteToList(item)
-                                                    selectedNotesCount.intValue = selectedNotes.size
-                                                }
-                                            } else {
-                                                viewModel.removeFromList(item)
-                                                selectedNotesCount.intValue = selectedNotes.size
-                                            }
-                                        },
-                                        onClick = {
-                                            navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/${item.id}")
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                    } else {
-                        /*  Lazy Column Grid Item  */
-
-                        sharedPrefs.sharedPreferences.edit().putInt(KEY_VIEW_TYPE,1).apply()
-
-                        Spacer(modifier = Modifier.height(65.dp))
-                        LazyVerticalGrid(columns = GridCells.Fixed(2)) {
-                            items(state.value.notes, key = { notes ->
-                                notes.toString()
-                            }) { model ->
-                                note.value = model
-                                MainScreenGridItem(
+                                    }
+                                },
+                            ) { item ->
+                                MainScreenRowItem(
+                                    notesModel = item,
                                     themeColor = themeColor.value,
                                     fontColor = fontColor.value,
                                     fontSize = fontSize.intValue,
-                                    onClick = {
-                                        navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/${model.id}")
-                                    },
-                                    onShare = {
-                                        ShareNote().execute(
-                                            title = model.title,
-                                            content = model.content,
-                                            ctx = activityContext
-                                        ){}
-                                    },
-                                    onChange = {
+                                    isSelected = isSelected.value,
+                                    onCheckedChange = {
                                         if (it == 1) {
                                             if (selectAllStatus) {
                                                 viewModel.addAllToList()
                                                 selectedNotesCount.intValue = selectedNotes.size
                                             } else {
-                                                viewModel.addNoteToList(model)
+                                                viewModel.addNoteToList(item)
                                                 selectedNotesCount.intValue = selectedNotes.size
                                             }
                                         } else {
-                                            viewModel.removeFromList(model)
+                                            viewModel.removeFromList(item)
                                             selectedNotesCount.intValue = selectedNotes.size
                                         }
                                     },
-                                    onDelete = {
-                                        viewModel.saveToTrash(
-                                            TrashModel(
-                                                id = model.id,
-                                                title = model.title,
-                                                content = model.content,
-                                                color = model.color,
-                                                daysLeft = 30
-                                            )
+                                    onClick = {
+                                        navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/${item.id}")
+                                    }
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    /*  Lazy Column Grid Item  */
+
+                    sharedPrefs.sharedPreferences.edit().putInt(KEY_VIEW_TYPE, 1).apply()
+                    LazyVerticalGrid(columns = GridCells.Fixed(2)) {
+                        items(state.value.notes, key = { notes ->
+                            notes.toString()
+                        }) { model ->
+                            note.value = model
+                            MainScreenGridItem(
+                                themeColor = themeColor.value,
+                                fontColor = fontColor.value,
+                                fontSize = fontSize.intValue,
+                                onClick = {
+                                    navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/${model.id}")
+                                },
+                                onShare = {
+                                    ShareNote().execute(
+                                        title = model.title,
+                                        content = model.content,
+                                        ctx = activityContext
+                                    ) {}
+                                },
+                                onChange = {
+                                    if (it == 1) {
+                                        if (selectAllStatus) {
+                                            viewModel.addAllToList()
+                                            selectedNotesCount.intValue = selectedNotes.size
+                                        } else {
+                                            viewModel.addNoteToList(model)
+                                            selectedNotesCount.intValue = selectedNotes.size
+                                        }
+                                    } else {
+                                        viewModel.removeFromList(model)
+                                        selectedNotesCount.intValue = selectedNotes.size
+                                    }
+                                },
+                                onDelete = {
+                                    viewModel.saveToTrash(
+                                        TrashModel(
+                                            id = model.id,
+                                            title = model.title,
+                                            content = model.content,
+                                            color = model.color,
+                                            daysLeft = 30
                                         )
-                                        viewModel.onEvent(NotesEvent.DeleteNote(model))
-                                        coroutineScope.launch {
-                                            sharedPrefs.sharedPreferences.edit().putBoolean(
-                                                KEY_ALARM_STATUS,false).apply()
-                                            val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
+                                    )
+                                    viewModel.onEvent(NotesEvent.DeleteNote(model))
+                                    coroutineScope.launch {
+                                        sharedPrefs.sharedPreferences.edit().putBoolean(
+                                            KEY_ALARM_STATUS, false
+                                        ).apply()
+                                        val snackbarResult =
+                                            scaffoldState.snackbarHostState.showSnackbar(
                                                 message = activityContext.getString(R.string.note_deleted),
                                                 actionLabel = activityContext.getString(R.string.undo)
                                             )
-                                            if (snackbarResult == SnackbarResult.ActionPerformed){
-                                                viewModel.returnDeletedNote(model)
-                                            }
+                                        if (snackbarResult == SnackbarResult.ActionPerformed) {
+                                            viewModel.returnDeletedNote(model)
                                         }
-                                    },
-                                    isSelected = isSelected.value,
-                                    notesModel = model,
-                                    title = model.title,
-                                    note = model.content,
-                                    date = model.dataAdded,
-                                    backgroundColor = model.color
-                                )
-                            }
+                                    }
+                                },
+                                isSelected = isSelected.value,
+                                notesModel = model,
+                                title = model.title,
+                                note = model.content,
+                                date = model.dataAdded,
+                                backgroundColor = model.color
+                            )
                         }
                     }
                 }

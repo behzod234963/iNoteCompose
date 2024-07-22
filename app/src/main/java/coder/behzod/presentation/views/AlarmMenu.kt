@@ -4,7 +4,6 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Build
 import android.widget.DatePicker
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +25,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -44,9 +44,8 @@ import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.theme.green
 import coder.behzod.presentation.utils.extensions.dateFormatter
 import coder.behzod.presentation.viewModels.NewNoteViewModel
-import java.time.LocalDateTime
+import java.time.LocalDate
 import java.time.LocalTime
-import java.time.ZoneId
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,12 +66,11 @@ fun SetAlarmContent(
     val ctx = LocalContext.current
 
     val calendarInstance = Calendar.getInstance()
-    val hours = calendarInstance.get(Calendar.HOUR_OF_DAY)
-    val minutes = calendarInstance.get(Calendar.MINUTE)
 
 
     val date = remember { mutableStateOf("") }
-    val selectedDate = remember { mutableStateOf(LocalDateTime.now()) }
+    val selectedDate = remember { mutableStateOf(LocalDate.now()) }
+    val selectedDateTime = remember { mutableLongStateOf(System.currentTimeMillis()) }
 
 //    val millisToLocalDate = datePickerState.selectedDateMillis?.let {
 //        DateUtils().convertMillisToLocalDate(it)
@@ -86,18 +84,22 @@ fun SetAlarmContent(
 
     val datePickerDialog = DatePickerDialog(
         ctx,
-        { _:DatePicker,year:Int,month:Int,day:Int ->
+        { _: DatePicker, year, month, day ->
             date.value = "$year$month$day".dateFormatter()
-            selectedDate.value = LocalDateTime.of(year,month+1,day,selectedTime.value.hour,selectedTime.value.minute)
-        },selectedDate.value.year,selectedDate.value.monthValue-1,selectedDate.value.dayOfMonth
+            calendarInstance.set(Calendar.YEAR,year)
+            calendarInstance.set(Calendar.MONTH,month)
+            calendarInstance.set(Calendar.DAY_OF_MONTH,day)
+        }, calendarInstance.get(Calendar.YEAR),calendarInstance.get(Calendar.MONTH),calendarInstance.get(Calendar.DAY_OF_MONTH)
     )
+
 
     val timePickerDialog = TimePickerDialog(
         ctx,
-        { _, hourOfDay: Int, pickedMinute: Int ->
+        { _, hourOfDay, pickedMinute ->
             time.value = "$hourOfDay:$pickedMinute"
-            selectedTime.value = LocalTime.of(hourOfDay,pickedMinute)
-        }, selectedTime.value.hour,selectedTime.value.minute, true
+            calendarInstance.set(Calendar.HOUR_OF_DAY,hourOfDay)
+            calendarInstance.set(Calendar.MINUTE,pickedMinute)
+        }, calendarInstance.get(Calendar.HOUR_OF_DAY),calendarInstance.get(Calendar.MINUTE), true
     )
 
     Column(
@@ -145,8 +147,6 @@ fun SetAlarmContent(
                 IconButton(
                     onClick = {
                         datePickerDialog.show()
-                        val triggerAtMillis = selectedDate.value.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                        viewModel.saveTriggerAtMillis(triggerAtMillis)
                         isDatePicked.value = true
                         viewModel.isDatePicked(true)
                     }) {
@@ -199,9 +199,8 @@ fun SetAlarmContent(
                 IconButton(
                     onClick = {
                         timePickerDialog.show()
-                        val triggerAtMillis = selectedDate.value.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                        viewModel.saveTriggerAtMillis(triggerAtMillis)
-                        isTimePicked.value = true
+                        val triggerTime = calendarInstance.timeInMillis
+                        viewModel.saveTriggerAtMillis(triggerTime)
                         viewModel.isTimePicked(true)
                     }) {
                     Icon(

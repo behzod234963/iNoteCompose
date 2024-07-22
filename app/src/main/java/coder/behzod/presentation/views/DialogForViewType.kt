@@ -39,12 +39,17 @@ fun DialogViewInstance(
     dismissRequest:()->Unit
 ) {
     val showDialog = remember { mutableStateOf(isDialogVisible) }
+    val dialogProperties = DialogProperties()
     if (showDialog.value) {
 
         AlertDialog(
             onDismissRequest = {
                 showDialog.value = false
                 dismissRequest()
+                if (dialogProperties.dismissOnClickOutside || dialogProperties.dismissOnBackPress){
+                    showDialog.value = false
+                    dismissRequest()
+                }
             },
             confirmButton = {
 
@@ -59,8 +64,8 @@ fun DialogViewInstance(
             containerColor = Color.Transparent,
             tonalElevation = 10.dp,
             properties = DialogProperties(
-                dismissOnClickOutside = false,
-                dismissOnBackPress = false,
+                dismissOnClickOutside = true,
+                dismissOnBackPress = true,
             ),
             title = {
                     Text(

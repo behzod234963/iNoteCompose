@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -32,7 +33,7 @@ import coder.behzod.presentation.theme.red
 @Composable
 fun AlertDialogInstance(
     fontSize: Int,
-    icon: ImageVector,
+    icon: ImageVector? = null,
     title: String?,
     text: String,
     showDialog: Boolean = false,
@@ -43,9 +44,11 @@ fun AlertDialogInstance(
     onDismissRequest: () -> Unit
 ) {
     val isDialogOn = remember { mutableStateOf(showDialog) }
+    val dialogProperties = DialogProperties()
     if (isDialogOn.value) {
         AlertDialog(
             modifier = Modifier
+                .fillMaxWidth()
                 .background(Color.Transparent)
                 .border(
                     width = 0.5.dp,
@@ -55,17 +58,18 @@ fun AlertDialogInstance(
             containerColor = Color.Transparent,
             tonalElevation = 10.dp,
             properties = DialogProperties(
-                dismissOnClickOutside = false,
-                dismissOnBackPress = false,
+                dismissOnBackPress = true,
+                dismissOnClickOutside = true
             ),
             icon = {
 
-                Icon(
-                    imageVector = icon,
-                    contentDescription = "example Icon",
-                    tint = Color.White
-                )
-
+                icon?.let {
+                    Icon(
+                        imageVector = it,
+                        contentDescription = "example Icon",
+                        tint = Color.White
+                    )
+                }
             },
             title = {
                 if (title != null) {
@@ -94,6 +98,10 @@ fun AlertDialogInstance(
             onDismissRequest = {
                 isDialogOn.value = false
                 onDismissRequest()
+                if (dialogProperties.dismissOnBackPress || dialogProperties.dismissOnClickOutside){
+                    isDialogOn.value = false
+                    onDismissRequest()
+                }
             }, confirmButton = {
                 Row(
                     modifier = Modifier,
@@ -101,7 +109,7 @@ fun AlertDialogInstance(
                 ) {
                     Button(
                         modifier = Modifier
-                            .width(100.dp),
+                            .width(110.dp),
                         shape = RoundedCornerShape(10.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = green

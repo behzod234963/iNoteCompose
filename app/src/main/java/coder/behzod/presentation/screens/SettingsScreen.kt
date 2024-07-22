@@ -340,6 +340,7 @@ fun SettingsScreen(
                                     )
                                 }
                             )
+                            HorizontalDivider()
                         }
                     }
                 }

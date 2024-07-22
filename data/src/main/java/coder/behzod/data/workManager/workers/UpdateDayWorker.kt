@@ -27,8 +27,6 @@ class UpdateDayWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
 
-        Log.d("worker", "doWork: doWork is working ")
-
         var notes: List<TrashModel>
 
         useCases.getListOfNotes.invoke().also {
@@ -37,8 +35,6 @@ class UpdateDayWorker @AssistedInject constructor(
 
         var incrementDay = 0
         var modelValue = 0
-
-        Log.d("worker", "doWork: ${notes.size}")
         for (note in notes) {
             val model = TrashModel(
                 id = note.id,
@@ -49,17 +45,11 @@ class UpdateDayWorker @AssistedInject constructor(
             )
             val increment = model.daysLeft.minus(1)
             incrementDay = increment
-            Log.d("worker", "doWork: incrementDay value $incrementDay ")
             modelValue = model.daysLeft
-            Log.d("worker", "doWork: modelValue value $modelValue ")
-
-            Log.d("worker", "doWork: increment value $increment ")
             if (incrementDay >= modelValue) {
                 Result.retry()
             } else {
-                model.id?.let { useCases.updateDayUseCase(it, incrementDay) }.also {
-                    Log.d("increment", "doWork: note was updated $note")
-                }
+                model.id?.let { useCases.updateDayUseCase(it, incrementDay) }
             }
         }
         return if (incrementDay >= modelValue) {

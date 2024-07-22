@@ -10,27 +10,24 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.AlertDialog
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -47,7 +44,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -65,6 +61,7 @@ import coder.behzod.presentation.utils.constants.notes
 import coder.behzod.presentation.utils.events.TrashEvent
 import coder.behzod.presentation.utils.extensions.dateFormatter
 import coder.behzod.presentation.viewModels.TrashViewModel
+import coder.behzod.presentation.views.AlertDialogInstance
 import coder.behzod.presentation.views.BottomNavigationView
 import coder.behzod.presentation.views.SpeedDialFAB
 import com.airbnb.lottie.compose.LottieAnimation
@@ -357,6 +354,15 @@ fun TrashScreen(
 
                             /* DropDownMenu Item for content "Select without case" */
                             DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(
+                                        modifier = Modifier
+                                            .size(20.dp),
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = "select",
+                                        tint = fontColor.value
+                                    )
+                                },
                                 text = {
                                     Text(
                                         text = stringResource(R.string.select),
@@ -379,9 +385,19 @@ fun TrashScreen(
                                     isExpanded.value = false
                                 }
                             )
+                            HorizontalDivider()
 
                             /* DropDownMenu Item for content "Select all without case" */
                             DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(
+                                        modifier = Modifier
+                                            .size(25.dp),
+                                        painter = painterResource(id = R.drawable.ic_select_all),
+                                        contentDescription = "view",
+                                        tint = fontColor.value
+                                    )
+                                },
                                 text = {
                                     Text(
                                         text = stringResource(R.string.select_all),
@@ -399,9 +415,19 @@ fun TrashScreen(
                                     )
                                 }
                             )
+                            HorizontalDivider()
 
                             /* DropDownMenu Item for content "Restore all case-4" */
                             DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(
+                                        modifier = Modifier
+                                            .size(20.dp),
+                                        painter = painterResource(id = R.drawable.ic_restore),
+                                        contentDescription = "restore",
+                                        tint = fontColor.value
+                                    )
+                                },
                                 text = {
                                     Text(
                                         text = stringResource(R.string.restore_all),
@@ -416,9 +442,19 @@ fun TrashScreen(
                                     functionsCase.intValue = 4
                                 }
                             )
+                            HorizontalDivider()
 
                             /* DropDownMenu Item for content "Delete all  case-3" */
                             DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(
+                                        modifier = Modifier
+                                            .size(25.dp),
+                                        painter = painterResource(id = R.drawable.ic_delete_all),
+                                        contentDescription = "view",
+                                        tint = fontColor.value
+                                    )
+                                },
                                 text = {
                                     Text(
                                         text = stringResource(R.string.delete_all),
@@ -450,307 +486,131 @@ fun TrashScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                AlertDialog(
-                    modifier = Modifier
-                        .height(300.dp)
-                        .background(Color.Gray)
-                        .border(
-                            color = if (themeColor.value == Color.Black) Color.White else Color.Black,
-                            width = 1.dp,
-                            shape = RoundedCornerShape(10.dp)
-                        ),
-                    shape = RoundedCornerShape(10.dp),
-                    backgroundColor = themeColor.value,
-                    text = {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                textAlign = TextAlign.Center,
-                                text = when (functionsCase.intValue) {
-                                    1 -> {
-                                        stringResource(id = R.string.delete_selected_notes)
-                                    }
 
-                                    2 -> {
-                                        stringResource(R.string.action_with_a_note)
-                                    }
+                AlertDialogInstance(
+                    showDialog = isDialogVisible.value,
+                    fontSize = fontSize.intValue,
+                    icon = null,
+                    title = null,
+                    text = when (functionsCase.intValue) {
+                        1 -> {
+                            stringResource(id = R.string.delete_selected_notes)
+                        }
 
-                                    3 -> {
-                                        stringResource(id = R.string.delete_all_notes)
-                                    }
+                        2 -> {
+                            stringResource(R.string.action_with_a_note)
+                        }
 
-                                    4 -> {
-                                        stringResource(id = R.string.restore_all)
-                                    }
+                        3 -> {
+                            stringResource(id = R.string.delete_all_notes)
+                        }
 
-                                    5 -> {
-                                        stringResource(id = R.string.restore_selected)
-                                    }
+                        4 -> {
+                            stringResource(id = R.string.restore_all)
+                        }
 
-                                    else -> {
-                                        ""
-                                    }
-                                },
-                                color = if (themeColor.value == Color.Black) Color.White else Color.Black,
-                                fontSize = 25.sp,
-                                fontFamily = FontFamily(fontAmidoneGrotesk)
-                            )
+                        5 -> {
+                            stringResource(id = R.string.restore_selected)
+                        }
+
+                        else -> {
+                            ""
                         }
                     },
-                    onDismissRequest = {
+                    confirmButtonText = when (functionsCase.intValue) {
+                        1 -> {
+                            stringResource(id = R.string.delete)
+                        }
+
+                        2 -> {
+                            stringResource(id = R.string.delete)
+                        }
+
+                        3 -> {
+                            stringResource(id = R.string.delete)
+                        }
+
+                        4 -> {
+                            stringResource(id = R.string.restore)
+                        }
+
+                        5 -> {
+                            stringResource(id = R.string.restore)
+                        }
+
+                        else -> {
+                            ""
+                        }
+                    },
+                    confirmButton = {
+
+                        when (functionsCase.intValue) {
+
+                            /*This is delete selected */
+                            1 -> {
+                                viewModel.multipleDelete(selectedItems)
+                            }
+
+                            /*This is delete*/
+                            2 -> {
+                                viewModel.delete(trashedNote.value)
+                            }
+
+                            /*This is clear*/
+                            3 -> {
+                                viewModel.multipleDelete(trashedNotes)
+                            }
+
+                            4 -> {
+                                viewModel.onEvent(
+                                    event = TrashEvent.RestoreAllNotes(
+                                        notesModelList = notes,
+                                        trashedNotesList = trashedNotes,
+                                    ),
+                                    trashedNotes = trashedNotes
+                                )
+
+                            }
+
+                            5 -> {
+                                /* This will be restore selected function */
+                                viewModel.onEvent(
+                                    event = TrashEvent.RestoreSelected(),
+                                    trashedNotes = trashedNotes
+                                )
+                            }
+                        }
+                        selectedItemsCount.intValue = selectedItems.size
                         isDialogVisible.value = false
-                        isSelected.value = false
                     },
-                    buttons = {
-                        isFontSizeIsBig.value = fontSize.intValue == 25 || fontSize.intValue == 32
+                    dismissButtonText = if (functionsCase.intValue != 2) stringResource(
+                        R.string.cancel
+                    )
+                    else stringResource(R.string.restore),
+                    dismissButton = {
 
-                        if (isFontSizeIsBig.value) {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Button(
-                                    modifier = Modifier
-                                        .height(if (isFontSizeIsBig.value) 60.dp else 40.dp)
-                                        .padding(end = 7.dp, bottom = 10.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (themeColor.value == Color.Black) Color.White else Color.Black
-                                    ),
-                                    shape = RoundedCornerShape(10.dp),
-                                    onClick = {
-                                        if (functionsCase.intValue == 2) {
-                                            viewModel.restoreNote(
-                                                trashModel = trashedNote.value,
-                                                note = NotesModel(
-                                                    id = trashedNote.value.id,
-                                                    title = trashedNote.value.title,
-                                                    content = trashedNote.value.content,
-                                                    color = trashedNote.value.color,
-                                                    dataAdded = LocalDate.now().toString().dateFormatter()
-                                                )
-                                            )
-                                            isDialogVisible.value = false
-                                            isSelected.value = false
-                                        } else {
-                                            isDialogVisible.value = false
-                                            isSelected.value = false
-                                        }
-                                    }
-                                ) {
-                                    Text(
-                                        text = if (functionsCase.intValue != 2) stringResource(R.string.cancel)
-                                        else stringResource(R.string.restore),
-                                        color = themeColor.value,
-                                        fontSize = fontSize.intValue.sp
-                                    )
-                                }
-                                Button(
-                                    modifier = Modifier
-                                        .height(if (isFontSizeIsBig.value) 60.dp else 40.dp)
-                                        .padding(start = 7.dp, bottom = 10.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (themeColor.value == Color.Black) Color.White else Color.Black
-                                    ),
-                                    shape = RoundedCornerShape(10.dp),
-                                    onClick = {
-                                        when (functionsCase.intValue) {
-
-                                            /*This is delete selected */
-                                            1 -> {
-                                                viewModel.multipleDelete(selectedItems)
-                                            }
-
-                                            /*This is delete*/
-                                            2 -> {
-                                                viewModel.delete(trashedNote.value)
-                                            }
-
-                                            /*This is clear*/
-                                            3 -> {
-                                                viewModel.multipleDelete(trashedNotes)
-                                            }
-
-                                            4 -> {
-                                                viewModel.onEvent(
-                                                    event = TrashEvent.RestoreAllNotes(
-                                                        notesModelList = notes,
-                                                        trashedNotesList = trashedNotes,
-                                                    ),
-                                                    trashedNotes = trashedNotes
-                                                )
-
-                                            }
-
-                                            5 -> {
-                                                /* This will be restore selected function */
-                                                viewModel.onEvent(
-                                                    event = TrashEvent.RestoreSelected(),
-                                                    trashedNotes = trashedNotes
-                                                )
-                                            }
-                                        }
-                                        selectedItemsCount.intValue = selectedItems.size
-                                        isDialogVisible.value = false
-                                    }
-                                ) {
-                                    Text(
-                                        text = when (functionsCase.intValue) {
-                                            1 -> {
-                                                stringResource(id = R.string.delete)
-                                            }
-
-                                            2 -> {
-                                                stringResource(id = R.string.delete)
-                                            }
-
-                                            3 -> {
-                                                stringResource(id = R.string.delete)
-                                            }
-
-                                            4 -> {
-                                                stringResource(id = R.string.restore)
-                                            }
-
-                                            5 -> {
-                                                stringResource(id = R.string.restore)
-                                            }
-
-                                            else -> {
-                                                ""
-                                            }
-                                        },
-                                        color = themeColor.value,
-                                        fontSize = fontSize.intValue.sp
-                                    )
-                                }
-                            }
+                        if (functionsCase.intValue == 2) {
+                            viewModel.restoreNote(
+                                trashModel = trashedNote.value,
+                                note = NotesModel(
+                                    id = trashedNote.value.id,
+                                    title = trashedNote.value.title,
+                                    content = trashedNote.value.content,
+                                    color = trashedNote.value.color,
+                                    dataAdded = LocalDate.now().toString()
+                                        .dateFormatter()
+                                )
+                            )
+                            isDialogVisible.value = false
+                            isSelected.value = false
                         } else {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceAround
-                            ) {
-                                Button(
-                                    modifier = Modifier
-                                        .height(40.dp)
-                                        .padding(end = 7.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (themeColor.value == Color.Black) Color.White else Color.Black
-                                    ),
-                                    shape = RoundedCornerShape(10.dp),
-                                    onClick = {
-                                        if (functionsCase.intValue == 2) {
-                                            viewModel.restoreNote(
-                                                trashModel = trashedNote.value,
-                                                note = NotesModel(
-                                                    id = trashedNote.value.id,
-                                                    title = trashedNote.value.title,
-                                                    content = trashedNote.value.content,
-                                                    color = trashedNote.value.color,
-                                                    dataAdded = LocalDate.now().toString().dateFormatter()
-                                                )
-                                            )
-                                            isDialogVisible.value = false
-                                            isSelected.value = false
-                                        } else {
-                                            isDialogVisible.value = false
-                                            isSelected.value = false
-                                        }
-                                    }
-                                ) {
-                                    Text(
-                                        text = if (functionsCase.intValue != 2) stringResource(R.string.cancel)
-                                        else stringResource(R.string.restore),
-                                        color = themeColor.value,
-                                        fontSize = fontSize.intValue.sp
-                                    )
-                                }
-                                Button(
-                                    modifier = Modifier
-                                        .height(40.dp)
-                                        .padding(start = 7.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (themeColor.value == Color.Black) Color.White else Color.Black
-                                    ),
-                                    shape = RoundedCornerShape(10.dp),
-                                    onClick = {
-                                        when (functionsCase.intValue) {
-
-                                            /*This is delete selected */
-                                            1 -> {
-                                                viewModel.multipleDelete(selectedItems)
-                                            }
-
-                                            /*This is delete*/
-                                            2 -> {
-                                                viewModel.delete(trashedNote.value)
-                                            }
-
-                                            /*This is clear*/
-                                            3 -> {
-                                                viewModel.multipleDelete(trashedNotes)
-                                            }
-
-                                            4 -> {
-                                                viewModel.onEvent(
-                                                    event = TrashEvent.RestoreAllNotes(
-                                                        notesModelList = notes,
-                                                        trashedNotesList = trashedNotes,
-                                                    ),
-                                                    trashedNotes = trashedNotes
-                                                )
-
-                                            }
-
-                                            5 -> {
-                                                /* This will be restore selected function */
-                                                viewModel.onEvent(
-                                                    event = TrashEvent.RestoreSelected(),
-                                                    trashedNotes = trashedNotes
-                                                )
-                                            }
-                                        }
-                                        selectedItemsCount.intValue = selectedItems.size
-                                        isDialogVisible.value = false
-                                    }
-                                ) {
-                                    Text(
-                                        text = when (functionsCase.intValue) {
-                                            1 -> {
-                                                stringResource(id = R.string.delete)
-                                            }
-
-                                            2 -> {
-                                                stringResource(id = R.string.delete)
-                                            }
-
-                                            3 -> {
-                                                stringResource(id = R.string.delete)
-                                            }
-
-                                            4 -> {
-                                                stringResource(id = R.string.restore)
-                                            }
-
-                                            5 -> {
-                                                stringResource(id = R.string.restore)
-                                            }
-
-                                            else -> {
-                                                ""
-                                            }
-                                        },
-                                        color = themeColor.value,
-                                        fontSize = fontSize.intValue.sp
-                                    )
-                                }
-                            }
+                            isDialogVisible.value = false
+                            isSelected.value = false
                         }
-                    }
-                )
+                    }) {
+                    isDialogVisible.value = false
+                    isSelected.value = false
+                }
             }
         } else {
             Column(
@@ -760,7 +620,7 @@ fun TrashScreen(
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(top = 5.dp)
+                        .padding(top = 5.dp, bottom = 70.dp)
                 ) {
                     items(trashedNotes) { selectedModel ->
 

@@ -40,7 +40,7 @@ class NotificationReceiver : BroadcastReceiver() {
 
         val trigger = sharedPrefs?.sharedPreferences?.getLong(KEY_TRIGGER,0L)
 
-        if (trigger != null) {
+        if (trigger != null && trigger != 0L) {
             notificationScheduler.scheduleNotification(context, trigger)
         }
             if (title != null) {
