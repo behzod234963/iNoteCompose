@@ -3,6 +3,7 @@ package coder.behzod.di.modules
 import android.app.Application
 import android.content.Context
 import androidx.room.Room
+import androidx.work.WorkManager
 import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.room.NotesDao
 import coder.behzod.data.local.room.RoomInstance

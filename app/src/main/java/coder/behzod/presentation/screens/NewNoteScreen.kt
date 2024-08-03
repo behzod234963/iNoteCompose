@@ -109,7 +109,7 @@ fun NewNoteScreen(
 
     val vmColor = viewModel.color.value
 
-    val date = remember { mutableStateOf(LocalDate.now()) }
+    val date = remember { mutableStateOf(0) }
 
     val pickedDate = viewModel.dateAndTime
 
@@ -118,14 +118,7 @@ fun NewNoteScreen(
     val themeColor =
         remember { mutableStateOf(if (themeIndex.intValue == 0) Color.Black else Color.White) }
 
-    val colorFont = if (themeColor.value == Color.Black) Color.White else Color.Black
-    val fontColor = remember { mutableStateOf(colorFont) }
-
-    if (colorFont == Color.White) {
-        fontColor.value = Color.Gray
-    } else {
-        fontColor.value = Color.Gray
-    }
+    val fontColor = remember { mutableStateOf(if (themeColor.value == Color.Black) Color.White else Color.Black) }
 
     val fontSize =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_FONT_SIZE, 18)) }
@@ -135,48 +128,48 @@ fun NewNoteScreen(
 
     /* Color identifier */
     when (themeIndex.intValue) {
-        0 -> {
+        0->{
             themeColor.value = Color.Black
-            fontColor.value = Color.Gray
+            fontColor.value = Color.White
         }
-
-        1 -> {
+        1->{
             themeColor.value = Color.White
             fontColor.value = Color.Black
         }
-
         2 -> {
             themeColor.value = yellow
-            fontColor.value = Color.Black
+            fontColor.value = Color.White
         }
 
         3 -> {
             themeColor.value = green
-            fontColor.value = Color.Black
+            fontColor.value = Color.White
         }
 
         4 -> {
             themeColor.value = cyan
-            fontColor.value = Color.Black
+            fontColor.value = Color.White
         }
 
         5 -> {
             themeColor.value = red
-            fontColor.value = Color.Black
+            fontColor.value = Color.White
         }
 
         6 -> {
             themeColor.value = blue
-            fontColor.value = Color.Black
-        }
-    }
-    when (vmColor) {
-        Color.Black.toArgb() -> {
             fontColor.value = Color.White
         }
+    }
+    if (arguments.id != -1){
+        when (vmColor) {
+            Color.Black.toArgb() -> {
+                fontColor.value = Color.White
+            }
 
-        Color.White.toArgb() -> {
-            fontColor.value = Color.Black
+            Color.White.toArgb() -> {
+                fontColor.value = Color.Black
+            }
         }
     }
 
@@ -611,7 +604,8 @@ fun NewNoteScreen(
                             SetAlarmContent(
                                 themeColor = if (arguments.id != -1) Color(vmColor) else themeColor.value,
                                 fontColor = fontColor.value,
-                                fontSize = fontSize.intValue
+                                fontSize = fontSize.intValue,
+                                dataStore
                             )
 
                         }

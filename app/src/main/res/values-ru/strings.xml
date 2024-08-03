@@ -56,4 +56,5 @@
     <string name="set_alarm">Установить напоминание</string>
     <string name="time">Время</string>
     <string name="repeating">Повторение</string>
+    <string name="please_pick_the_date">Please pick the date</string>
 </resources>

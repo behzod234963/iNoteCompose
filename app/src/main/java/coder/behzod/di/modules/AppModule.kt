@@ -20,33 +20,25 @@ import javax.inject.Singleton
 class AppModule {
 
     @Provides
+    @Singleton
     fun provideNavController(@ApplicationContext ctx: Context): NavController = NavController(ctx)
 
     @Provides
     @Singleton
     fun provideNotificationManager(@ApplicationContext ctx : Context):NotificationManagerCompat{
         val notificationManager = NotificationManagerCompat.from(ctx)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            val channel = NotificationChannel(
-                "Main Channel ID",
-                "Main Channel",
-                NotificationManager.IMPORTANCE_HIGH
-            )
-            notificationManager.createNotificationChannel(channel)
-        }
+        val channel = NotificationChannel(
+            "Main Channel ID",
+            "Main Channel",
+            NotificationManager.IMPORTANCE_HIGH
+        )
+        notificationManager.createNotificationChannel(channel)
         return notificationManager
     }
 
     @Provides
     @Singleton
-    fun provideAlarmManager(@ApplicationContext ctx: Context):AlarmManager{
-        val alarmManager = ctx.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        return alarmManager
-    }
-
-    @Provides
-    @Singleton
-    fun provideNotificationScheduler(notificationManager: NotificationManagerCompat,alarmManager:AlarmManager):NotificationScheduler{
-        return NotificationScheduler(notificationManager,alarmManager)
+    fun provideNotificationScheduler(notificationManager: NotificationManagerCompat):NotificationScheduler{
+        return NotificationScheduler(notificationManager)
     }
 }

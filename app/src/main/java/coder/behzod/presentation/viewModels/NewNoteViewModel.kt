@@ -1,5 +1,6 @@
 package coder.behzod.presentation.viewModels
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -84,7 +85,8 @@ class NewNoteViewModel @Inject constructor(
     fun saveTriggerAtMillis(trigger:Long) = viewModelScope.launch {
         _dateAndTime.longValue = trigger
         dataStore.saveTrigger(KEY_TRIGGER,trigger)
-        sharedPreferenceInstance.sharedPreferences.edit().putLong(KEY_TRIGGER,trigger).apply()
+        sharedPreferenceInstance.sharedPreferences.edit().putLong(KEY_TRIGGER,_dateAndTime.longValue).apply()
+        Log.d("AlarmTrack", "saveTriggerAtMillis: $_dateAndTime")
     }
 
     fun saveNote(note: NotesModel) = viewModelScope.launch(Dispatchers.IO) {

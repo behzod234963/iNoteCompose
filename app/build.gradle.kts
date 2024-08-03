@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "coder.behzod"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"

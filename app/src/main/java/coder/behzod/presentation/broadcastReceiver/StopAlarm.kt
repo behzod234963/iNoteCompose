@@ -19,15 +19,13 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class StopAlarm : BroadcastReceiver() {
-
-    @Inject
-    lateinit var alarmManager: AlarmManager
     @Inject
     lateinit var notificationManager: NotificationManagerCompat
     @Inject
     lateinit var dataStore:DataStoreInstance
 
-    override fun onReceive(context: Context?, intent: Intent?) {
+    override fun onReceive(context: Context, intent: Intent?) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val alarmIntent = Intent(context, NotificationReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
             context, 0, alarmIntent,

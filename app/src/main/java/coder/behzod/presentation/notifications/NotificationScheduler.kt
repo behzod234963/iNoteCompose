@@ -1,8 +1,6 @@
 package coder.behzod.presentation.notifications
 
 import android.Manifest
-import android.annotation.SuppressLint
-import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -15,44 +13,23 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import coder.behzod.R
 import coder.behzod.presentation.activity.MainActivity
-import coder.behzod.presentation.broadcastReceiver.NotificationReceiver
 import coder.behzod.presentation.broadcastReceiver.StopAlarm
-import java.util.Calendar
 import javax.inject.Inject
 
 class NotificationScheduler @Inject constructor(
     private val notificationManager: NotificationManagerCompat,
-    private val alarmManager: AlarmManager
 ){
-
-    @SuppressLint("ScheduleExactAlarm")
-    fun scheduleNotification(ctx: Context, triggerAtMillis:Long){
-
-        Log.d("alarm", "NotificationScheduler: function scheduleNotification is started")
-        val flag =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                PendingIntent.FLAG_IMMUTABLE
-            else
-                0
-        val alarmIntent = Intent(ctx, NotificationReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(ctx,0,alarmIntent,
-            flag)
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP,triggerAtMillis,pendingIntent)
-    }
 
     @RequiresApi(Build.VERSION_CODES.P)
     fun showNotification(ctx:Context, title:String, content:String){
 
-        Log.d("alarm", "NotificationScheduler: function showNotification is started")
+        Log.d("AlarmTrack", "NotificationScheduler: function showNotification is started")
         val contentIntent = Intent(ctx,MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
 
         val flag =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                PendingIntent.FLAG_IMMUTABLE
-            else
-                0
+            PendingIntent.FLAG_IMMUTABLE
 
         val contentIntentPendingIntent = PendingIntent.getActivity(ctx,2,contentIntent, PendingIntent.FLAG_IMMUTABLE)
         val stopAlarmIntent = Intent(ctx, StopAlarm::class.java)

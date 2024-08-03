@@ -56,4 +56,5 @@
     <string name="set_alarm">Eslatma o\'rnatish</string>
     <string name="time">Vaqt</string>
     <string name="repeating">Takrorlash</string>
+    <string name="please_pick_the_date">Please pick the date</string>
 </resources>
