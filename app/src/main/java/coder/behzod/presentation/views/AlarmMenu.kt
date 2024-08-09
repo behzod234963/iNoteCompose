@@ -2,6 +2,8 @@ package coder.behzod.presentation.views
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.util.Log
+import android.widget.DatePicker
 import android.widget.TimePicker
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -39,18 +41,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import coder.behzod.R
 import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.theme.green
-import coder.behzod.presentation.utils.constants.KEY_DAY
-import coder.behzod.presentation.utils.constants.KEY_MONTH
-import coder.behzod.presentation.utils.constants.KEY_TRIGGER
-import coder.behzod.presentation.utils.constants.KEY_YEAR
-import coder.behzod.presentation.utils.extensions.dateFormatter
-import coder.behzod.presentation.viewModels.NewNoteViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,8 +58,9 @@ fun SetAlarmContent(
     themeColor: Color,
     fontColor: Color,
     fontSize: Int,
-    dataStore: DataStoreInstance,
-    viewModel: NewNoteViewModel = hiltViewModel()
+    onDateSet: (Int) -> Unit,
+    onTimeSet: (Long) -> Unit,
+    onPicked: (date: Boolean, time: Boolean) -> Unit,
 ) {
 
     val isRepeating = remember { mutableStateOf(false) }
@@ -71,10 +71,7 @@ fun SetAlarmContent(
     val date = remember { mutableStateOf("") }
     val time = remember { mutableStateOf("") }
 
-    val selectedDate = remember { mutableLongStateOf( System.currentTimeMillis() ) }
     val selectedTime = remember { mutableLongStateOf(System.currentTimeMillis()) }
-
-    val triggerTime = remember { mutableLongStateOf(System.currentTimeMillis()) }
 
     val pickedYear = calendarInstance.get(Calendar.YEAR)
     val pickedMonth = calendarInstance.get(Calendar.MONTH)
@@ -82,14 +79,31 @@ fun SetAlarmContent(
     val pickedHour = calendarInstance.get(Calendar.HOUR_OF_DAY)
     val pickedMinute = calendarInstance.get(Calendar.MINUTE)
 
+    val localYear = remember { mutableIntStateOf(0) }
+    val localMonth = remember { mutableIntStateOf(0) }
+    val localDay = remember { mutableIntStateOf(0) }
+    val localDateOf = remember { mutableStateOf(LocalDate.now()) }
+    val localDate = remember { mutableIntStateOf(0) }
+
+    val isDatePicked = remember { mutableStateOf(false) }
+    val isTimePicked = remember { mutableStateOf(false) }
 
     val datePickerDialog = DatePickerDialog(
         ctx,
-        { _, year, month, dayOfMonth ->
-            date.value = "$year.$month.$dayOfMonth".dateFormatter()
+        { _: DatePicker, year, month, dayOfMonth ->
+
             calendarInstance.set(Calendar.YEAR, year)
             calendarInstance.set(Calendar.MONTH, month)
             calendarInstance.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+
+            localDateOf.value = LocalDate.of(year, month + 1, dayOfMonth)
+
+            localYear.intValue = localDateOf.value.year
+            localMonth.intValue = localDateOf.value.month.value
+            localDay.intValue = localDateOf.value.dayOfMonth
+
+            date.value = "${localDay.intValue}.${localMonth.intValue}.${localYear.intValue}"
+
         },
         pickedYear, pickedMonth, pickedDayOfMonth,
     )
@@ -150,6 +164,7 @@ fun SetAlarmContent(
                 IconButton(
                     onClick = {
                         datePickerDialog.show()
+                        isDatePicked.value = true
                     }) {
                     Icon(
                         modifier = Modifier.size(35.dp),
@@ -200,6 +215,7 @@ fun SetAlarmContent(
                 IconButton(
                     onClick = {
                         timePickerDialog.show()
+                        isTimePicked.value = true
                     }) {
                     Icon(
                         modifier = Modifier.size(35.dp),
@@ -256,6 +272,8 @@ fun SetAlarmContent(
             modifier = Modifier
                 .height(10.dp)
         )
+
+        /* Set alarm */
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -267,12 +285,36 @@ fun SetAlarmContent(
                     containerColor = themeColor
                 ),
                 onClick = {
-                    triggerTime.longValue = selectedTime.longValue
 
-                    SharedPreferenceInstance(ctx).sharedPreferences.edit().putLong(KEY_TRIGGER, triggerTime.longValue).apply()
+                    CoroutineScope(Dispatchers.IO).launch {
+                        DataStoreInstance(ctx).saveYear("LOCAL_YEAR", localYear.intValue)
+                        DataStoreInstance(ctx).saveMonth("LOCAL_MONTH", localMonth.intValue)
+                        DataStoreInstance(ctx).saveDay("LOCAL_DAY", localDay.intValue)
+                        Log.d("AlarmFix", "SetAlarmLocalYear: ${localYear.intValue}")
+                        Log.d("AlarmFix", "SetAlarmLocalMonth: ${localMonth.intValue}")
+                        Log.d("AlarmFix", "SetAlarmLocalDay: ${localDay.intValue}")
+                    }
 
-                    viewModel.isTimePicked(true)
-                    viewModel.isDatePicked(true)
+                    localDate.intValue =
+                        localYear.intValue + localMonth.intValue + localDay.intValue
+                    Log.d("AlarmFix", "SetAlarmLocalDate: ${localDate.intValue}")
+
+                    onDateSet(localDate.intValue)
+                    Log.d("AlarmFix", "SetAlarmOnDateSet: ${onDateSet(localDate.intValue)}")
+
+                    onTimeSet(selectedTime.longValue)
+                    Log.d("AlarmFix", "SetAlarmOnTimeSte: ${onTimeSet(selectedTime.longValue)}")
+
+                    if (isDatePicked.value && isTimePicked.value) {
+                        SharedPreferenceInstance(ctx).sharedPreferences.edit()
+                            .putBoolean("PICKED_ALARM_STATUS", true).apply()
+                        onPicked(isDatePicked.value, isTimePicked.value)
+                    }
+                    Log.d(
+                        "AlarmFix",
+                        "SetAlarmOnPicked: ${onPicked(isDatePicked.value, isTimePicked.value)}"
+                    )
+
                 }) {
                 Spacer(
                     modifier = Modifier

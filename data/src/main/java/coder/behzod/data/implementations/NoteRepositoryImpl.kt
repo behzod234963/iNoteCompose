@@ -21,4 +21,6 @@ class NoteRepositoryImpl(private val dao: NotesDao) : NotesRepository {
     override suspend fun deleteAll(notes: ArrayList<NotesModel>) {
         dao.deleteAll(notes)
     }
+
+    override fun getAllNotes(): List<NotesModel> = dao.getAllNotes()
 }

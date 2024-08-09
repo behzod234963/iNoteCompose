@@ -20,6 +20,9 @@ interface NotesDao {
     @Query("SELECT * FROM notes")
     fun getNotes(): Flow<List<NotesModel>>
 
+    @Query("SELECT * FROM notes")
+    fun getAllNotes():List<NotesModel>
+
     @Query("SELECT * FROM notes WHERE id = :id")
     suspend fun getNote(id: Int): NotesModel
 

@@ -1,6 +1,5 @@
 package coder.behzod.presentation.viewModels
 
-import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -14,7 +13,6 @@ import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.useCase.notesUseCases.NotesUseCases
 import coder.behzod.presentation.utils.constants.KEY_ALARM_DATE_AND_TIME
-import coder.behzod.presentation.utils.constants.KEY_TRIGGER
 import coder.behzod.presentation.utils.constants.colorsList
 import coder.behzod.presentation.utils.events.NewNoteEvent
 import coder.behzod.presentation.utils.helpers.NewNotesState
@@ -42,15 +40,6 @@ class NewNoteViewModel @Inject constructor(
     private val _color = mutableIntStateOf(colorsList.random().toArgb())
     val color: State<Int> = _color
 
-    private val _status = mutableStateOf(false)
-    val status:State<Boolean> = _status
-
-    private val _isDatePicked = mutableStateOf(false)
-    val isDatePicked:State<Boolean> = _isDatePicked
-
-    private val _isTimePicked = mutableStateOf(false)
-    val isTimePicked:State<Boolean> = _isDatePicked
-
     private val _dateAndTime = mutableLongStateOf(0L)
     val dateAndTime:State<Long> = _dateAndTime
 
@@ -73,20 +62,6 @@ class NewNoteViewModel @Inject constructor(
             }
         }
         sharedPreferenceInstance.sharedPreferences.edit().putLong(KEY_ALARM_DATE_AND_TIME,dateAndTime.value).apply()
-    }
-    fun isDatePicked(isDatePicked:Boolean){
-        _isDatePicked.value = isDatePicked
-    }
-
-    fun isTimePicked(timeStatus:Boolean){
-        _isTimePicked.value = timeStatus
-    }
-
-    fun saveTriggerAtMillis(trigger:Long) = viewModelScope.launch {
-        _dateAndTime.longValue = trigger
-        dataStore.saveTrigger(KEY_TRIGGER,trigger)
-        sharedPreferenceInstance.sharedPreferences.edit().putLong(KEY_TRIGGER,_dateAndTime.longValue).apply()
-        Log.d("AlarmTrack", "saveTriggerAtMillis: $_dateAndTime")
     }
 
     fun saveNote(note: NotesModel) = viewModelScope.launch(Dispatchers.IO) {

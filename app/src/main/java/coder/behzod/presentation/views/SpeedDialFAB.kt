@@ -6,6 +6,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import de.charlex.compose.SpeedDialData
 import de.charlex.compose.SpeedDialFloatingActionButton
 
@@ -13,6 +14,8 @@ import de.charlex.compose.SpeedDialFloatingActionButton
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SpeedDialFAB(
+    fontColor: Color,
+    themeColor:Color,
     modifier: Modifier,
     labelFirst:String,
     labelSecond:String,
@@ -27,7 +30,12 @@ fun SpeedDialFAB(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SpeedDialFloatingActionButton(
+            fabBackgroundColor = fontColor,
+            speedDialBackgroundColor = fontColor,
+            fabContentColor = themeColor,
+            speedDialContentColor = themeColor,
             showLabels = true,
+
             onClick = {
 
             },

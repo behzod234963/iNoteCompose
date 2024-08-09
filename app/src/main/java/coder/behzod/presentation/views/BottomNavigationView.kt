@@ -1,12 +1,15 @@
 package coder.behzod.presentation.views
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -29,6 +32,7 @@ import androidx.navigation.NavHostController
 import coder.behzod.R
 import coder.behzod.presentation.navigation.ScreensRouter
 
+@SuppressLint("UnrememberedMutableInteractionSource")
 @Composable
 fun BottomNavigationView(
     themeColor: Color,
@@ -42,11 +46,10 @@ fun BottomNavigationView(
 
     BottomNavigation(
         modifier = Modifier
-            .padding(2.dp)
-            .border(width = 1.dp, shape = RoundedCornerShape(10.dp), color = fontColor),
+            .padding(2.dp),
         backgroundColor = themeColor,
         contentColor = fontColor,
-        elevation = 50.dp,
+        elevation = 5.dp,
     ) {
         Row(
             modifier = Modifier

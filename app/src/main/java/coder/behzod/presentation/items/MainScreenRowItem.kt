@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -87,14 +88,13 @@ fun MainScreenRowItem(
         },
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp)
-            .padding(vertical = 5.dp,horizontal = 5.dp),
+            .padding(vertical = 5.dp, horizontal = 5.dp),
         shape = RoundedCornerShape(10.dp),
         border = BorderStroke(
             1.dp,
             if (themeColor == Color.Black) Color.White else Color.Transparent
         ),
-        elevation = CardDefaults.cardElevation(15.dp),
+        elevation = CardDefaults.cardElevation(5.dp),
     ) {
         Box(
             modifier = Modifier
@@ -115,7 +115,7 @@ fun MainScreenRowItem(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 5.dp),
+                                .padding(horizontal = 10.dp, vertical = 10.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             /* This is notes title */
@@ -138,6 +138,7 @@ fun MainScreenRowItem(
                                 fontFamily = FontFamily(fontAmidoneGrotesk)
                             )
                         }
+                        HorizontalDivider()
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth(),
@@ -146,10 +147,9 @@ fun MainScreenRowItem(
                             /* This is notes text */
                             Text(
                                 modifier = Modifier
-                                    .padding(end = 15.dp,start = 5.dp, top = 10.dp),
+                                    .padding(end = 3.dp,start = 10.dp, bottom = 10.dp),
                                 text = notesModel.content,
                                 color = colorFont.value,
-                                maxLines = 1,
                                 fontSize = fontSize.sp,
                                 fontFamily = FontFamily(fontAmidoneGrotesk)
                             )

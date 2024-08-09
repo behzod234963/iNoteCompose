@@ -8,6 +8,7 @@ import coder.behzod.domain.repository.NotesRepository
 import coder.behzod.domain.repository.TrashRepository
 import coder.behzod.domain.useCase.notesUseCases.DeleteAllUseCase
 import coder.behzod.domain.useCase.notesUseCases.DeleteNoteUseCase
+import coder.behzod.domain.useCase.notesUseCases.GetAllNoteUseCase
 import coder.behzod.domain.useCase.notesUseCases.GetNoteUseCase
 import coder.behzod.domain.useCase.notesUseCases.GetNotesUseCase
 import coder.behzod.domain.useCase.notesUseCases.SaveNoteUseCase
@@ -37,7 +38,8 @@ class DomainModule {
             getNotesUseCase = GetNotesUseCase(repository),
             getNoteUseCase = GetNoteUseCase(repository),
             saveNoteUseCase = SaveNoteUseCase(repository),
-            deleteAllUseCase = DeleteAllUseCase(repository)
+            deleteAllUseCase = DeleteAllUseCase(repository),
+            getAllNotesUseCase = GetAllNoteUseCase(repository)
         )
 
     @Provides

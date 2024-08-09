@@ -55,8 +55,7 @@ fun FunctionalTopAppBar(
         TopAppBar(
             modifier = Modifier
                 .background(themeColor)
-                .padding(2.dp)
-                .border(width = 1.dp, color = fontColor, shape = RoundedCornerShape(10.dp)),
+                .padding(2.dp),
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = themeColor
             ),

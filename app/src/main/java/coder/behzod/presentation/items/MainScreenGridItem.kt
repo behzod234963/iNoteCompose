@@ -6,9 +6,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
@@ -16,6 +20,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,11 +45,11 @@ fun MainScreenGridItem(
     fontColor: Color,
     fontSize: Int,
     onClick: () -> Unit,
-    onShare:()->Unit,
+    onShare: () -> Unit,
     onChange: (Int) -> Unit,
-    onDelete:()->Unit,
+    onDelete: () -> Unit,
     isSelected: Boolean,
-    notesModel:NotesModel,
+    notesModel: NotesModel,
     viewModel: MainViewModel = hiltViewModel(),
     title: String,
     note: String,
@@ -92,11 +97,11 @@ fun MainScreenGridItem(
 
     Card(
         modifier = Modifier
-            .size(200.dp)
+            .width(200.dp)
             .padding(5.dp)
             .background(themeColor)
             .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(7.dp),
+        elevation = CardDefaults.cardElevation(5.dp),
         border = BorderStroke(
             1.dp,
             if (themeColor == Color.Black) Color.White else Color.Transparent
@@ -106,52 +111,83 @@ fun MainScreenGridItem(
         ),
         shape = RoundedCornerShape(10.dp)
     ) {
-        Box(
+        Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(10.dp),
+                .background(Color(backgroundColor))
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.Start,
         ) {
-            Column(
-                modifier = Modifier
-                    .background(Color(backgroundColor))
-                    .fillMaxSize(),
-                horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.SpaceAround
-            ) {
 
+            /* Here is header content it's contains title and btnShare */
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .padding(horizontal = 7.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ){
                 /* This is title */
                 Text(
                     modifier = Modifier
-                        .padding(end = 45.dp),
-                    text = title,
+                        .width(140.dp),
+                    text = "$title...",
                     maxLines = 1,
                     fontSize = fontSize.plus(7).sp,
                     color = colorFont.value,
                     fontFamily = FontFamily(fontAmidoneGrotesk)
                 )
+                IconButton(
+                    modifier = Modifier,
+                    onClick = {
+                        onShare()
+                    }) {
+                    Icon(
+                        modifier = Modifier
+                            .size(35.dp),
+                        painter = painterResource(id = R.drawable.ic_share),
+                        contentDescription = "btn share note",
+                        tint = colorFont.value
+                    )
+                }
+            }
+            HorizontalDivider()
 
+            /*Here is content*/
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 7.dp)
+                    .padding(top = 7.dp, bottom = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ){
                 /* This is content */
                 Text(
                     text = note,
                     color = colorFont.value,
                     fontSize = fontSize.sp,
-                    maxLines = 2,
                     fontFamily = FontFamily(fontAmidoneGrotesk)
                 )
+            }
+            HorizontalDivider()
 
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .padding(horizontal = 7.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ){
                 /* This is date */
                 Text(
-                    text = if (fontSize == 25 || fontSize == 32 )date.substring(0 .. date.length-6) else date,
+                    text = if (fontSize == 25 || fontSize == 32) date.substring(0..date.length - 6) else date,
                     color = colorFont.value,
                     fontSize = fontSize.minus(3).sp,
                 )
-            }
-            if (isSelected) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    contentAlignment = Alignment.BottomEnd
-                ) {
+                if (isSelected){
+
                     Checkbox(
                         modifier = Modifier
                             .padding(end = 10.dp, bottom = 10.dp),
@@ -166,40 +202,11 @@ fun MainScreenGridItem(
                             onChange(if (it) 1 else 0)
                         }
                     )
-                }
-            } else {
+                }else{
 
-                /* Button share */
-                Box(
-                    modifier = Modifier
-                    .fillMaxSize(),
-                    contentAlignment = Alignment.TopEnd
-                ){
                     IconButton(
                         modifier = Modifier
-                            .padding(start = 10.dp,top = 8.dp),
-                        onClick = {
-                            onShare()
-                        }) {
-                        Icon(
-                            modifier = Modifier
-                                .size(35.dp),
-                            painter = painterResource(id = R.drawable.ic_share),
-                            contentDescription = "btn share note",
-                            tint = colorFont.value
-                        )
-                    }
-                }
-
-                /* Button delete */
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    contentAlignment = Alignment.BottomEnd
-                ) {
-                    IconButton(
-                        modifier = Modifier
-                            .padding(start = 10.dp, bottom = 10.dp),
+                            .size(35.dp),
                         onClick = {
                             onDelete()
                         }) {

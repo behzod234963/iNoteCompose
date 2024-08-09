@@ -2,7 +2,6 @@ package coder.behzod.domain.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.text.SimpleDateFormat
 
 @Entity("notes")
 data class NotesModel(
@@ -11,7 +10,10 @@ data class NotesModel(
     val title: String,
     val content: String,
     val color: Int,
-    val dataAdded: String
+    val dataAdded: String,
+    val alarmStatus:Boolean = false,
+    val triggerDate:Int = 0,
+    val triggerTime:Long = 0
 )
 
 @Entity("trash")

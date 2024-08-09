@@ -7,7 +7,6 @@ import android.os.Looper
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -187,6 +186,8 @@ fun TrashScreen(
             /* Floating action button close */
             if (isSelected.value) {
                 SpeedDialFAB(
+                    fontColor = fontColor.value,
+                    themeColor = themeColor.value,
                     modifier = Modifier,
                     labelFirst = stringResource(id = R.string.delete),
                     labelSecond = stringResource(id = R.string.restore),
@@ -223,11 +224,6 @@ fun TrashScreen(
             if (isSelected.value) {
                 TopAppBar(
                     modifier = Modifier
-                        .border(
-                            width = 1.dp,
-                            color = if (themeColor.value == Color.Black) Color.White else fontColor.value,
-                            shape = RoundedCornerShape(10.dp)
-                        )
                         .clip(RoundedCornerShape(10.dp))
                         .padding(5.dp),
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -302,11 +298,6 @@ fun TrashScreen(
                 TopAppBar(
                     modifier = Modifier
                         .padding(end = 5.dp, top = 5.dp, start = 5.dp)
-                        .border(
-                            width = 1.dp,
-                            color = if (themeColor.value == Color.Black) Color.White else Color.Black,
-                            shape = RoundedCornerShape(10.dp)
-                        )
                         .clip(RoundedCornerShape(10.dp)),
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = themeColor.value

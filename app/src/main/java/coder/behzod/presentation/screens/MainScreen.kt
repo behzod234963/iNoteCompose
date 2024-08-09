@@ -2,37 +2,33 @@ package coder.behzod.presentation.screens
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.IconButton
+import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarResult
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material.Scaffold
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -43,10 +39,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -85,7 +79,6 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @SuppressLint(
     "CoroutineCreationDuringComposition", "UnusedMaterialScaffoldPaddingParameter",
@@ -189,15 +182,6 @@ fun MainScreen(
         topBar = {
             if (isSelected.value) {
                 TopAppBar(
-                    modifier = Modifier
-                        .border(
-                            width = 1.dp,
-                            color = if (themeColor.value == Color.Black) Color.White else fontColor.value,
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                        .clip(RoundedCornerShape(10.dp))
-                        .padding(5.dp),
-
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = themeColor.value
                     ),
@@ -278,8 +262,8 @@ fun MainScreen(
                 /* Floating action button for functions */
                 FloatingActionButton(
                     modifier = Modifier
-                        .padding(end = 30.dp, bottom = 30.dp),
-                    containerColor = Color.Magenta,
+                        .padding(end = 30.dp),
+                    containerColor = fontColor.value,
                     shape = CircleShape,
                     onClick = {
                         if (selectAllStatus) {
@@ -296,8 +280,10 @@ fun MainScreen(
                     }) {
                     Icon(
                         imageVector = Icons.Default.Delete,
+                        modifier = Modifier
+                            .size(30.dp),
                         contentDescription = "btn delete",
-                        tint = fontColor.value
+                        tint = themeColor.value
                     )
                 }
 
@@ -305,28 +291,19 @@ fun MainScreen(
                 /* Floating Action Button add note */
                 FloatingActionButton(
                     modifier = Modifier
-                        .padding(end = 30.dp, bottom = 30.dp),
-                    containerColor = Color.Magenta,
+                        .padding(end = 30.dp),
+                    containerColor = fontColor.value,
                     shape = CircleShape,
                     onClick = {
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/-1")
-                        }, 900)
-                        isPlaying.value = true
+                        navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/-1")
                     }) {
-                    if (isPlaying.value) {
-                        LottieAnimation(
-                            modifier = Modifier,
-                            composition = btnAddAnimation.value,
-                            iterations = LottieConstants.IterateForever
-                        )
-                    } else {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_add),
-                            contentDescription = "button add",
-                            tint = fontColor.value
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        modifier = Modifier
+                            .size(30.dp),
+                        contentDescription = "btnAdd",
+                        tint = themeColor.value
+                    )
                 }
             }
         },
@@ -525,7 +502,8 @@ fun MainScreen(
                     /*  Lazy Column Grid Item  */
 
                     sharedPrefs.sharedPreferences.edit().putInt(KEY_VIEW_TYPE, 1).apply()
-                    LazyVerticalGrid(columns = GridCells.Fixed(2)) {
+                    LazyVerticalStaggeredGrid(
+                        columns = StaggeredGridCells.Fixed(2)) {
                         items(state.value.notes, key = { notes ->
                             notes.toString()
                         }) { model ->

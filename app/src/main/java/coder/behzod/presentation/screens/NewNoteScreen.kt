@@ -2,9 +2,7 @@ package coder.behzod.presentation.screens
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.os.Build
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -38,6 +36,7 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -58,21 +57,17 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coder.behzod.R
-import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.presentation.items.ColorsItem
 import coder.behzod.presentation.navigation.Arguments
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.theme.blue
+import coder.behzod.presentation.theme.cyan
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.theme.green
-import coder.behzod.presentation.theme.cyan
 import coder.behzod.presentation.theme.red
 import coder.behzod.presentation.theme.yellow
-import coder.behzod.presentation.utils.constants.KEY_ALARM_CONTENT
-import coder.behzod.presentation.utils.constants.KEY_ALARM_STATUS
-import coder.behzod.presentation.utils.constants.KEY_ALARM_TITLE
 import coder.behzod.presentation.utils.constants.KEY_FONT_SIZE
 import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.constants.colorsList
@@ -84,17 +79,14 @@ import coder.behzod.presentation.views.FunctionalTopAppBar
 import coder.behzod.presentation.views.SetAlarmContent
 import coder.behzod.presentation.views.SpeedDialFAB
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 
 @OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NewNoteScreen(
     navController: NavHostController,
     arguments: Arguments,
     sharedPrefs: SharedPreferenceInstance,
-    dataStore:DataStoreInstance,
     viewModel: NewNoteViewModel = hiltViewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -109,7 +101,13 @@ fun NewNoteScreen(
 
     val vmColor = viewModel.color.value
 
-    val date = remember { mutableStateOf(0) }
+    val date = remember { mutableIntStateOf(0) }
+
+    val alarmStatus = remember { mutableStateOf( false ) }
+    val isDatePicked = remember { mutableStateOf( false ) }
+    val isTimePicked = remember { mutableStateOf( false ) }
+    val triggerDate = remember { mutableIntStateOf( 0 ) }
+    val triggerTime = remember { mutableLongStateOf( 0 ) }
 
     val pickedDate = viewModel.dateAndTime
 
@@ -180,11 +178,14 @@ fun NewNoteScreen(
         modifier = Modifier
             .background(if (arguments.id != -1) Color(vmColor) else themeColor.value),
         floatingActionButton = {
-            SpeedDialFAB(modifier = Modifier
-                .padding(bottom = 20.dp, end = 20.dp),
+            SpeedDialFAB(
+                fontColor = fontColor.value,
+                themeColor = themeColor.value,
+                modifier = Modifier
+                    .padding(bottom = 20.dp, end = 20.dp),
                 labelFirst = stringResource(R.string.save),
-                painterFirst = R.drawable.ic_save,
                 labelSecond = stringResource(R.string.share_and_save),
+                painterFirst = R.drawable.ic_save,
                 painterSecond = R.drawable.ic_share,
                 onClickFirst = {
                     if (note.text == "" && note.text.isBlank()) {
@@ -196,58 +197,55 @@ fun NewNoteScreen(
                     } else {
                         /* Save note */
                         if (arguments.id != -1) {
+
+                            if(isDatePicked.value && isTimePicked.value){
+                                alarmStatus.value = true
+                            }else{
+                                Toast.makeText(
+                                    activityContext,
+                                    "invalid date or time date: ${pickedDate.value}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                             viewModel.saveNote(
                                 NotesModel(
                                     id = arguments.id,
-                                    title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
+                                    title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") ""
+                                    else title
                                         .text.capitalize(),
                                     content = note.text,
                                     color = vmColor,
-                                    dataAdded = date.value.toString().dateFormatter()
+                                    dataAdded = date.intValue.toString().dateFormatter(),
+                                    alarmStatus = alarmStatus.value,
+                                    triggerDate = triggerDate.intValue,
+                                    triggerTime = triggerTime.longValue
                                 )
                             )
-
-                            /* alarm */
-                            if (isSwitched.value) {
-                                if (!viewModel.isDatePicked.value || !viewModel.isTimePicked.value) {
-                                    Toast.makeText(
-                                        activityContext,
-                                        "invalid date or time date: ${pickedDate.value}",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                } else {
-                                    sharedPrefs.sharedPreferences.edit()
-                                        .putString(KEY_ALARM_TITLE, title.text).apply()
-                                    sharedPrefs.sharedPreferences.edit()
-                                        .putString(KEY_ALARM_CONTENT, note.text).apply()
-                                    coroutineScope.launch { dataStore.saveStatus(KEY_ALARM_STATUS,true) }
-                                }
-                            }
                         } else {
+
+                            if(isDatePicked.value && isTimePicked.value){
+
+                                alarmStatus.value = true
+                            }else{
+                                Toast.makeText(
+                                    activityContext,
+                                    "invalid date or time date: ${pickedDate.value}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                             viewModel.saveNote(
                                 NotesModel(
-                                    title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
+                                    title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") ""
+                                    else title
                                         .text.capitalize(),
                                     content = note.text,
                                     color = themeColor.value.toArgb(),
-                                    dataAdded = date.value.toString().dateFormatter()
+                                    dataAdded = date.intValue.toString().dateFormatter(),
+                                    alarmStatus = alarmStatus.value,
+                                    triggerDate = triggerDate.intValue,
+                                    triggerTime = triggerTime.longValue
                                 )
                             )
-                            if (isSwitched.value) {
-                                if (!viewModel.isDatePicked.value || !viewModel.isTimePicked.value) {
-                                    Toast.makeText(
-                                        activityContext,
-                                        "invalid date or time date: ${pickedDate.value}",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                } else {
-                                    sharedPrefs.sharedPreferences.edit()
-                                        .putString(KEY_ALARM_TITLE, title.text).apply()
-                                    sharedPrefs.sharedPreferences.edit()
-                                        .putString(KEY_ALARM_CONTENT, note.text).apply()
-                                    coroutineScope.launch { dataStore.saveStatus(KEY_ALARM_STATUS,true) }
-                                }
-                            }
                         }
                         navController.navigate(ScreensRouter.MainScreenRoute.route)
                     }
@@ -270,6 +268,15 @@ fun NewNoteScreen(
                             navController.navigate(ScreensRouter.MainScreenRoute.route)
                         }
 
+                        if (isDatePicked.value && isTimePicked.value){
+                            alarmStatus.value = true
+                        }else{
+                            Toast.makeText(
+                                activityContext,
+                                "invalid date or time date: ${pickedDate.value}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                         viewModel.saveNote(
                             NotesModel(
                                 id = arguments.id,
@@ -278,26 +285,13 @@ fun NewNoteScreen(
                                         it.capitalize()
                                     },
                                 content = note.text,
-
                                 color = vmColor,
-                                dataAdded = date.value.toString().dateFormatter()
+                                dataAdded = date.intValue.toString().dateFormatter(),
+                                alarmStatus = alarmStatus.value,
+                                triggerDate = triggerDate.intValue,
+                                triggerTime = triggerTime.longValue
                             )
                         )
-                        if (isSwitched.value) {
-                            if (!viewModel.isDatePicked.value || !viewModel.isTimePicked.value) {
-                                Toast.makeText(
-                                    activityContext,
-                                    "invalid date or time date: ${pickedDate.value}",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            } else {
-                                sharedPrefs.sharedPreferences.edit()
-                                    .putString(KEY_ALARM_TITLE, title.text).apply()
-                                sharedPrefs.sharedPreferences.edit()
-                                    .putString(KEY_ALARM_CONTENT, note.text).apply()
-                                coroutineScope.launch { dataStore.saveStatus(KEY_ALARM_STATUS,true) }
-                            }
-                        }
                     } else {
 
                         ShareNote().execute(
@@ -308,30 +302,28 @@ fun NewNoteScreen(
                             navController.navigate(ScreensRouter.MainScreenRoute.route)
                         }
 
+                        if (isDatePicked.value && isTimePicked.value){
+
+                            alarmStatus.value = true
+                        }else{
+                            Toast.makeText(
+                                activityContext,
+                                "invalid date or time date: ${pickedDate.value}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                         viewModel.saveNote(
                             NotesModel(
                                 title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
                                     .text.capitalize(),
                                 content = note.text,
                                 color = themeColor.value.toArgb(),
-                                dataAdded = date.value.toString().dateFormatter()
+                                dataAdded = date.intValue.toString().dateFormatter(),
+                                alarmStatus = alarmStatus.value,
+                                triggerDate = triggerDate.intValue,
+                                triggerTime = triggerTime.longValue
                             )
                         )
-                        if (isSwitched.value){
-                            if (!viewModel.isDatePicked.value || !viewModel.isTimePicked.value) {
-                                coroutineScope.launch {
-                                    scaffoldState.snackbarHostState.showSnackbar(
-                                        "Invalid date or time"
-                                    )
-                                }
-                            } else {
-                                sharedPrefs.sharedPreferences.edit()
-                                    .putString(KEY_ALARM_TITLE, title.text).apply()
-                                sharedPrefs.sharedPreferences.edit()
-                                    .putString(KEY_ALARM_CONTENT, note.text).apply()
-                                coroutineScope.launch { dataStore.saveStatus(KEY_ALARM_STATUS,true) }
-                            }
-                        }
                     }
                 }
             }
@@ -605,9 +597,13 @@ fun NewNoteScreen(
                                 themeColor = if (arguments.id != -1) Color(vmColor) else themeColor.value,
                                 fontColor = fontColor.value,
                                 fontSize = fontSize.intValue,
-                                dataStore
+                                onDateSet = { triggerDate.intValue = it },
+                                onTimeSet = { triggerTime.longValue = it },
+                                onPicked = {date,time->
+                                    isDatePicked.value = date
+                                    isTimePicked.value = time
+                                }
                             )
-
                         }
                     }
                 }
