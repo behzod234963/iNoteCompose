@@ -8,7 +8,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.useCase.notesUseCases.NotesUseCases
@@ -25,12 +24,26 @@ import javax.inject.Inject
 class NewNoteViewModel @Inject constructor(
     private val useCases: NotesUseCases,
     savedStateHandle: SavedStateHandle,
-    private val dataStore:DataStoreInstance,
-    private val sharedPreferenceInstance: SharedPreferenceInstance
+    sharedPreferenceInstance: SharedPreferenceInstance
 ) : ViewModel() {
 
     private val _title = mutableStateOf(NewNotesState(""))
     val title: State<NewNotesState> = _title
+
+    private val _localYear = mutableIntStateOf(1)
+    val localYear:State<Int> = _localYear
+
+    private val _alarmId = mutableIntStateOf( -1 )
+    val alarmId:State<Int> = _alarmId
+
+    private val _localMonth = mutableIntStateOf(1)
+    val localMonth:State<Int> = _localMonth
+
+    private val _localDay = mutableIntStateOf(1)
+    val localDay:State<Int> = _localDay
+
+    private val _alarmStatus = mutableStateOf( false )
+    val alarmStatus:State<Boolean> = _alarmStatus
 
     var id = -1
 
@@ -66,6 +79,20 @@ class NewNoteViewModel @Inject constructor(
 
     fun saveNote(note: NotesModel) = viewModelScope.launch(Dispatchers.IO) {
         useCases.saveNoteUseCase(note)
+    }
+
+    fun saveLocalDate(year:Int,month:Int,day:Int) = viewModelScope.launch {
+        _localYear.intValue = year
+        _localMonth.intValue = month
+        _localDay.intValue = day
+    }
+
+    fun saveAlarmStatus(status:Boolean) = viewModelScope.launch {
+        _alarmStatus.value = status
+    }
+
+    fun saveId(id:Int) = viewModelScope.launch {
+        _alarmId.intValue = id
     }
 
     fun newNoteEvent(event: NewNoteEvent) {

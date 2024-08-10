@@ -11,11 +11,9 @@ import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
@@ -28,6 +26,7 @@ import coder.behzod.domain.useCase.notesUseCases.NotesUseCases
 import coder.behzod.presentation.broadcastReceiver.NotificationReceiver
 import coder.behzod.presentation.navigation.NavGraph
 import coder.behzod.presentation.utils.constants.noteModel
+import coder.behzod.presentation.viewModels.NewNoteViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,6 +43,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var workManager: WorkManager
     private lateinit var alarmManager: AlarmManager
 
+    private lateinit var newNoteViewModel: NewNoteViewModel
+
     @Inject
     lateinit var dataStoreInstance: DataStoreInstance
 
@@ -58,18 +59,20 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            initValue()
+            InitValue()
             requestPermission()
-            NavGraph()
             initCheckDateWorker()
             initUpdateDayWorkManager()
+            NavGraph()
             InitAlarmManager()
         }
     }
 
-    private fun initValue() {
+    @Composable
+    private fun InitValue() {
         alarmManager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         workManager = WorkManager.getInstance(applicationContext)
+        newNoteViewModel = hiltViewModel()
     }
 
     private fun requestPermission() {
@@ -86,60 +89,84 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("CoroutineCreationDuringComposition")
     @Composable
     private fun InitAlarmManager() {
+        var modelId = -1
+        modelId = newNoteViewModel.alarmId.value
+        val alarmStatus = newNoteViewModel.alarmStatus.value
+        var scheduledAlarmStatus = sharedPrefs.sharedPreferences.getBoolean("ALARM_STATUS",false)
+        var model = noteModel
+        var localYear = 0
+        var localMonth = 0
+        var localDay = 0
+        var year = 0
+        var month = 0
+        var day = 0
+        var triggerDate = LocalDate.now()
 
-        val alarmStatus = remember { mutableStateOf(sharedPrefs.sharedPreferences.getBoolean("PICKED_ALARM_STATUS",false)) }
-        if (alarmStatus.value){
-
-            var model = noteModel
-            val id = getModelId()
-            var year = 0
-            var month = 0
-            var day = 0
-            val localYear = sharedPrefs.sharedPreferences.getInt("KEY_LOCAL_YEAR", 1)
-            Log.d("AlarmFix", "MainActivityLocalYear: $localYear")
-
-            val localMonth = sharedPrefs.sharedPreferences.getInt("KEY_LOCAL_MONTH", 1)
-            Log.d("AlarmFix", "MainActivityLocalMonth: $localMonth")
-
-            val localDay = sharedPrefs.sharedPreferences.getInt("KEY_LOCAL_DAY", 1)
-            Log.d("AlarmFix", "MainActivityLocalDay: $localDay")
-
-            val status = dataStoreInstance.getStatus("ALARM_STATUS").collectAsState(initial = false)
-            Log.d("AlarmFix", "MainActivityAlarmStatus: ${status.value}")
-
-            CoroutineScope(Dispatchers.IO).launch {
-                model = useCases.getNoteUseCase.invoke(id)
-                Log.d("AlarmFix", "MainActivityModel: $model")
-                if (id != -1) {
-                    year = model.triggerDate.minus(localMonth).minus(localDay)
-                    Log.d("AlarmFix", "MainActivityYear: $year")
-
-                    month = model.triggerDate.minus(localYear).minus(localDay)
-                    Log.d("AlarmFix", "MainActivityMonth: $month")
-
-                    day = model.triggerDate.minus(localYear).minus(localMonth)
-                    Log.d("AlarmFix", "MainActivityDay: $day")
-
-                    val localDate = LocalDate.of(year, month, day)
-                    Log.d("AlarmFix", "MainActivityLocalDate: $localDate")
-
-                    if (localDate == LocalDate.now()) {
-                        scheduleNotification(this@MainActivity, model.triggerTime)
-                        Log.d("AlarmFix", "MainActivityTriggerTimeToday: ${model.triggerTime}")
+        if (alarmStatus){
+            if (modelId == -1){
+                getModelId().let {
+                    modelId = it
+                }
+                CoroutineScope(Dispatchers.IO).launch {
+                    useCases.getNoteUseCase(modelId).let {
+                        model = it
                     }
-                } else if (status.value) {
+                    if(model.alarmStatus){
+                        localYear = newNoteViewModel.localYear.value
+                        localMonth = newNoteViewModel.localMonth.value
+                        localDay = newNoteViewModel.localDay.value
 
-                    scheduleNotification(this@MainActivity, model.triggerTime)
-                    Log.d("AlarmFix", "MainActivityTriggerTimeOnOtherDay: ${model.triggerTime}")
+                        year = model.triggerDate.minus(localMonth).minus(localDay)
+                        month = model.triggerDate.minus(localYear).minus(localDay)
+                        day = model.triggerDate.minus(localYear).minus(localMonth)
+
+                        triggerDate = LocalDate.of(year,month,day)
+
+                        if (triggerDate == LocalDate.now()){
+                            scheduleNotification(this@MainActivity, model.triggerTime,model.id!!)
+                        }
+                    }
+                }
+            }else{
+                CoroutineScope(Dispatchers.IO).launch {
+                    useCases.getNoteUseCase(modelId).let {
+                        model = it
+                    }
+                    if(model.alarmStatus){
+                        localYear = newNoteViewModel.localYear.value
+                        localMonth = newNoteViewModel.localMonth.value
+                        localDay = newNoteViewModel.localDay.value
+
+                        year = model.triggerDate.minus(localMonth).minus(localDay)
+                        month = model.triggerDate.minus(localYear).minus(localDay)
+                        day = model.triggerDate.minus(localYear).minus(localMonth)
+
+                        triggerDate = LocalDate.of(year,month,day)
+
+                        if (triggerDate == LocalDate.now()){
+                            scheduleNotification(this@MainActivity, model.triggerTime,model.id!!)
+                        }
+                    }
                 }
             }
+           if (scheduledAlarmStatus){
+               val id = sharedPrefs.sharedPreferences.getInt("MODEL_ID",-1)
+               if (id != -1){
+                   CoroutineScope(Dispatchers.IO).launch {
+                       useCases.getNoteUseCase(id).let {
+                           model = it
+                       }
+                       scheduleNotification(this@MainActivity,model.triggerTime,model.id!!)
+                   }
+               }
+           }
         }
     }
 
     private fun getModelId(): Int {
         var list: List<NotesModel> = emptyList()
         CoroutineScope(Dispatchers.IO).launch {
-            useCases.getAllNotesUseCase.execute().also {
+            useCases.getAllNotesUseCase.execute().let {
                 list = it
             }
         }
@@ -152,11 +179,14 @@ class MainActivity : AppCompatActivity() {
                     content = note.content,
                     color = note.color,
                     dataAdded = note.dataAdded,
+                    alarmStatus = note.alarmStatus,
+                    triggerDate = note.triggerDate,
+                    triggerTime = note.triggerTime
                 )
-                if (model.alarmStatus) {
-                    id = model.id!!
+                id = if (model.alarmStatus) {
+                    model.id!!
                 } else {
-                    id = -1
+                    -1
                 }
             }
         }
@@ -186,11 +216,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("SuspiciousIndentation", "ScheduleExactAlarm")
-    private fun scheduleNotification(ctx: Context, triggerTime: Long) {
+    private fun scheduleNotification(ctx: Context, triggerTime: Long,requestCode:Int) {
 
         val alarmIntent = Intent(ctx, NotificationReceiver::class.java)
         val flag = PendingIntent.FLAG_IMMUTABLE
-        val pendingIntent = PendingIntent.getBroadcast(ctx, 0, alarmIntent, flag)
+        val pendingIntent = PendingIntent.getBroadcast(ctx, requestCode, alarmIntent, flag)
 
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
     }

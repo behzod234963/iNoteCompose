@@ -21,7 +21,7 @@ class NotificationScheduler @Inject constructor(
 ){
 
     @RequiresApi(Build.VERSION_CODES.P)
-    fun showNotification(ctx:Context, title:String, content:String){
+    fun showNotification(ctx:Context,notificationId:Int, title:String, content:String,contentRequestCode:Int,stopRequestCode:Int){
 
         Log.d("AlarmTrack", "NotificationScheduler: function showNotification is started")
         val contentIntent = Intent(ctx,MainActivity::class.java).apply {
@@ -31,9 +31,9 @@ class NotificationScheduler @Inject constructor(
         val flag =
             PendingIntent.FLAG_IMMUTABLE
 
-        val contentIntentPendingIntent = PendingIntent.getActivity(ctx,2,contentIntent, PendingIntent.FLAG_IMMUTABLE)
+        val contentIntentPendingIntent = PendingIntent.getActivity(ctx,contentRequestCode,contentIntent, PendingIntent.FLAG_IMMUTABLE)
         val stopAlarmIntent = Intent(ctx, StopAlarm::class.java)
-        val stopAlarmPendingIntent = PendingIntent.getBroadcast(ctx,1,stopAlarmIntent,flag)
+        val stopAlarmPendingIntent = PendingIntent.getBroadcast(ctx,stopRequestCode,stopAlarmIntent,flag)
 
         val notification =  NotificationCompat.Builder(ctx,"Main Channel ID")
             .setContentTitle(title)
@@ -50,7 +50,7 @@ class NotificationScheduler @Inject constructor(
                 ctx,
                 Manifest.permission.POST_NOTIFICATIONS
             ) == PackageManager.PERMISSION_GRANTED){
-            notificationManager.notify(0,notification.build())
+            notificationManager.notify(notificationId,notification.build())
         }
     }
 }

@@ -41,11 +41,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coder.behzod.R
 import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.theme.green
+import coder.behzod.presentation.viewModels.NewNoteViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -61,6 +63,7 @@ fun SetAlarmContent(
     onDateSet: (Int) -> Unit,
     onTimeSet: (Long) -> Unit,
     onPicked: (date: Boolean, time: Boolean) -> Unit,
+    viewModel:NewNoteViewModel = hiltViewModel()
 ) {
 
     val isRepeating = remember { mutableStateOf(false) }
@@ -286,34 +289,20 @@ fun SetAlarmContent(
                 ),
                 onClick = {
 
-                    CoroutineScope(Dispatchers.IO).launch {
-                        DataStoreInstance(ctx).saveYear("LOCAL_YEAR", localYear.intValue)
-                        DataStoreInstance(ctx).saveMonth("LOCAL_MONTH", localMonth.intValue)
-                        DataStoreInstance(ctx).saveDay("LOCAL_DAY", localDay.intValue)
-                        Log.d("AlarmFix", "SetAlarmLocalYear: ${localYear.intValue}")
-                        Log.d("AlarmFix", "SetAlarmLocalMonth: ${localMonth.intValue}")
-                        Log.d("AlarmFix", "SetAlarmLocalDay: ${localDay.intValue}")
-                    }
-
                     localDate.intValue =
                         localYear.intValue + localMonth.intValue + localDay.intValue
-                    Log.d("AlarmFix", "SetAlarmLocalDate: ${localDate.intValue}")
 
                     onDateSet(localDate.intValue)
-                    Log.d("AlarmFix", "SetAlarmOnDateSet: ${onDateSet(localDate.intValue)}")
 
                     onTimeSet(selectedTime.longValue)
-                    Log.d("AlarmFix", "SetAlarmOnTimeSte: ${onTimeSet(selectedTime.longValue)}")
 
-                    if (isDatePicked.value && isTimePicked.value) {
-                        SharedPreferenceInstance(ctx).sharedPreferences.edit()
-                            .putBoolean("PICKED_ALARM_STATUS", true).apply()
-                        onPicked(isDatePicked.value, isTimePicked.value)
-                    }
-                    Log.d(
-                        "AlarmFix",
-                        "SetAlarmOnPicked: ${onPicked(isDatePicked.value, isTimePicked.value)}"
-                    )
+                    onPicked(isDatePicked.value, isTimePicked.value)
+
+                    SharedPreferenceInstance(ctx).sharedPreferences.edit().putInt("KEY_LOCAL_YEAR",localYear.intValue).apply()
+                    SharedPreferenceInstance(ctx).sharedPreferences.edit().putInt("KEY_LOCAL_MONTH",localMonth.intValue).apply()
+                    SharedPreferenceInstance(ctx).sharedPreferences.edit().putInt("KEY_LOCAL_DAY",localDay.intValue).apply()
+                    viewModel.saveLocalDate(localYear.intValue,localMonth.intValue,localDay.intValue)
+
 
                 }) {
                 Spacer(

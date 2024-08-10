@@ -6,7 +6,11 @@ import android.os.Looper
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -18,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
@@ -84,27 +89,20 @@ fun EmptyMainScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
+                modifier = Modifier
+                    .padding(end = 30.dp),
+                containerColor = fontColor.value,
                 shape = CircleShape,
-                containerColor = Color.Magenta,
                 onClick = {
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        navController.navigate(route = ScreensRouter.NewNoteScreenRoute.route + "/-1")
-                    },900)
-                    isPlaying.value = true
-                }
-            ) {
-                if (isPlaying.value){
-                    LottieAnimation(
-                        composition = btnAddAnimation.value,
-                        iterations = LottieConstants.IterateForever
-                    )
-                }else {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_add),
-                        contentDescription = "button add",
-                        tint = fontColor.value
-                    )
-                }
+                    navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/-1")
+                }) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    modifier = Modifier
+                        .size(30.dp),
+                    contentDescription = "btnAdd",
+                    tint = themeColor.value
+                )
             }
         }
     ){

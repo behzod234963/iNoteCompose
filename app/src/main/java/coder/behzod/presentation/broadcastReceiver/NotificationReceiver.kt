@@ -25,9 +25,11 @@ class NotificationReceiver : BroadcastReceiver() {
     lateinit var notificationManager: NotificationManagerCompat
 
     @Inject
-    lateinit var sharedPrefs:SharedPreferenceInstance
+    lateinit var sharedPrefs: SharedPreferenceInstance
 
-    @Inject lateinit var useCases: NotesUseCases
+    @Inject
+    lateinit var useCases: NotesUseCases
+
     @SuppressLint("NewApi")
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onReceive(context: Context, intent: Intent?) {
@@ -35,19 +37,28 @@ class NotificationReceiver : BroadcastReceiver() {
         var id = 0
         var title = ""
         var content = ""
-        sharedPrefs.sharedPreferences.getInt("MODEL_ID",-1).also {
+        var modelID = 0
+        sharedPrefs.sharedPreferences.getInt("MODEL_ID", -1).also {
             id = it
         }
         Log.d("AlarmFix", "NotificationReceiverModelID: $id")
         CoroutineScope(Dispatchers.IO).launch {
-            if (id != -1){
-                useCases.getNoteUseCase.invoke(id).also {
+            if (id != -1) {
+                useCases.getNoteUseCase.invoke(id).let {
+                    modelID = it.id!!
                     title = it.title
                     content = it.content
                 }
             }
         }
         val notificationScheduler = NotificationScheduler(notificationManager)
-        notificationScheduler.showNotification(ctx = context, title = title, content)
+        notificationScheduler.showNotification(
+            ctx = context,
+            notificationId = modelID,
+            title = title,
+            content = content,
+            contentRequestCode = modelID,
+            stopRequestCode = modelID
+        )
     }
 }

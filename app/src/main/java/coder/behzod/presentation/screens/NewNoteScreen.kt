@@ -200,6 +200,8 @@ fun NewNoteScreen(
 
                             if(isDatePicked.value && isTimePicked.value){
                                 alarmStatus.value = true
+                                viewModel.saveAlarmStatus(alarmStatus.value)
+                                viewModel.saveId(arguments.id)
                             }else{
                                 Toast.makeText(
                                     activityContext,
@@ -226,6 +228,8 @@ fun NewNoteScreen(
                             if(isDatePicked.value && isTimePicked.value){
 
                                 alarmStatus.value = true
+                                viewModel.saveAlarmStatus(alarmStatus.value)
+                                viewModel.saveId(-1)
                             }else{
                                 Toast.makeText(
                                     activityContext,
@@ -270,6 +274,8 @@ fun NewNoteScreen(
 
                         if (isDatePicked.value && isTimePicked.value){
                             alarmStatus.value = true
+                            viewModel.saveAlarmStatus(alarmStatus.value)
+                            viewModel.saveId(arguments.id)
                         }else{
                             Toast.makeText(
                                 activityContext,
@@ -305,6 +311,8 @@ fun NewNoteScreen(
                         if (isDatePicked.value && isTimePicked.value){
 
                             alarmStatus.value = true
+                            viewModel.saveAlarmStatus(alarmStatus.value)
+                            viewModel.saveId(-1)
                         }else{
                             Toast.makeText(
                                 activityContext,
