@@ -594,7 +594,8 @@ fun NewNoteScreen(
                             SetAlarmContent(
                                 themeColor = if (arguments.id != -1) Color(vmColor) else themeColor.value,
                                 fontColor = fontColor.value,
-                                fontSize = fontSize.intValue,,
+                                fontSize = fontSize.intValue,
+                                sharedPrefs = sharedPrefs,
                                 onDateSet = { triggerDate.intValue = it },
                                 onTimeSet = { triggerTime.longValue = it },
                                 onPicked = { date, time->
