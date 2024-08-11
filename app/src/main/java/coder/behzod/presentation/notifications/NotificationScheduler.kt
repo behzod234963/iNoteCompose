@@ -23,7 +23,7 @@ class NotificationScheduler @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.P)
     fun showNotification(ctx:Context,notificationId:Int, title:String, content:String,contentRequestCode:Int,stopRequestCode:Int){
 
-        Log.d("AlarmTrack", "NotificationScheduler: function showNotification is started")
+        Log.d("AlarmFix", "NotificationScheduler: function showNotification is started")
         val contentIntent = Intent(ctx,MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }

@@ -2,7 +2,6 @@ package coder.behzod.presentation.views
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.util.Log
 import android.widget.DatePicker
 import android.widget.TimePicker
 import androidx.compose.foundation.background
@@ -21,7 +20,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Switch
@@ -41,29 +39,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import coder.behzod.R
-import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.theme.green
-import coder.behzod.presentation.viewModels.NewNoteViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.Calendar
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SetAlarmContent(
     themeColor: Color,
     fontColor: Color,
     fontSize: Int,
+    sharedPrefs:SharedPreferenceInstance,
     onDateSet: (Int) -> Unit,
     onTimeSet: (Long) -> Unit,
     onPicked: (date: Boolean, time: Boolean) -> Unit,
-    viewModel:NewNoteViewModel = hiltViewModel()
 ) {
 
     val isRepeating = remember { mutableStateOf(false) }
@@ -85,8 +76,14 @@ fun SetAlarmContent(
     val localYear = remember { mutableIntStateOf(0) }
     val localMonth = remember { mutableIntStateOf(0) }
     val localDay = remember { mutableIntStateOf(0) }
+
     val localDateOf = remember { mutableStateOf(LocalDate.now()) }
     val localDate = remember { mutableIntStateOf(0) }
+
+    val currentDate = remember { mutableStateOf( LocalDate.now() ) }
+    val currentYear = remember { mutableIntStateOf( 0 ) }
+    val currentMonth = remember { mutableIntStateOf( 0 ) }
+    val currentDay = remember { mutableIntStateOf( 0 ) }
 
     val isDatePicked = remember { mutableStateOf(false) }
     val isTimePicked = remember { mutableStateOf(false) }
@@ -289,8 +286,21 @@ fun SetAlarmContent(
                 ),
                 onClick = {
 
-                    localDate.intValue =
-                        localYear.intValue + localMonth.intValue + localDay.intValue
+                    localDate.intValue = localYear.intValue + localMonth.intValue + localDay.intValue
+
+                    currentYear.intValue = currentDate.value.year
+                    currentMonth.intValue = currentDate.value.month.value
+                    currentDay.intValue = currentDate.value.dayOfMonth
+
+                    if (
+                        localYear.intValue >= currentYear.intValue
+                        && localMonth.intValue >= currentMonth.intValue
+                        && localDay.intValue > currentDay.intValue
+                        ) {
+                        sharedPrefs.sharedPreferences.edit().putBoolean("KEY_WORKER_ALARM_STATUS",true).apply()
+                    }else{
+                        sharedPrefs.sharedPreferences.edit().putBoolean("KEY_CURRENT_DAY_ALARM_STATUS",true).apply()
+                    }
 
                     onDateSet(localDate.intValue)
 
@@ -299,10 +309,10 @@ fun SetAlarmContent(
                     onPicked(isDatePicked.value, isTimePicked.value)
 
                     SharedPreferenceInstance(ctx).sharedPreferences.edit().putInt("KEY_LOCAL_YEAR",localYear.intValue).apply()
-                    SharedPreferenceInstance(ctx).sharedPreferences.edit().putInt("KEY_LOCAL_MONTH",localMonth.intValue).apply()
-                    SharedPreferenceInstance(ctx).sharedPreferences.edit().putInt("KEY_LOCAL_DAY",localDay.intValue).apply()
-                    viewModel.saveLocalDate(localYear.intValue,localMonth.intValue,localDay.intValue)
 
+                    SharedPreferenceInstance(ctx).sharedPreferences.edit().putInt("KEY_LOCAL_MONTH",localMonth.intValue).apply()
+
+                    SharedPreferenceInstance(ctx).sharedPreferences.edit().putInt("KEY_LOCAL_DAY",localDay.intValue).apply()
 
                 }) {
                 Spacer(

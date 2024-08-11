@@ -200,8 +200,6 @@ fun NewNoteScreen(
 
                             if(isDatePicked.value && isTimePicked.value){
                                 alarmStatus.value = true
-                                viewModel.saveAlarmStatus(alarmStatus.value)
-                                viewModel.saveId(arguments.id)
                             }else{
                                 Toast.makeText(
                                     activityContext,
@@ -226,10 +224,7 @@ fun NewNoteScreen(
                         } else {
 
                             if(isDatePicked.value && isTimePicked.value){
-
                                 alarmStatus.value = true
-                                viewModel.saveAlarmStatus(alarmStatus.value)
-                                viewModel.saveId(-1)
                             }else{
                                 Toast.makeText(
                                     activityContext,
@@ -274,8 +269,6 @@ fun NewNoteScreen(
 
                         if (isDatePicked.value && isTimePicked.value){
                             alarmStatus.value = true
-                            viewModel.saveAlarmStatus(alarmStatus.value)
-                            viewModel.saveId(arguments.id)
                         }else{
                             Toast.makeText(
                                 activityContext,
@@ -309,10 +302,7 @@ fun NewNoteScreen(
                         }
 
                         if (isDatePicked.value && isTimePicked.value){
-
                             alarmStatus.value = true
-                            viewModel.saveAlarmStatus(alarmStatus.value)
-                            viewModel.saveId(-1)
                         }else{
                             Toast.makeText(
                                 activityContext,
@@ -604,10 +594,10 @@ fun NewNoteScreen(
                             SetAlarmContent(
                                 themeColor = if (arguments.id != -1) Color(vmColor) else themeColor.value,
                                 fontColor = fontColor.value,
-                                fontSize = fontSize.intValue,
+                                fontSize = fontSize.intValue,,
                                 onDateSet = { triggerDate.intValue = it },
                                 onTimeSet = { triggerTime.longValue = it },
-                                onPicked = {date,time->
+                                onPicked = { date, time->
                                     isDatePicked.value = date
                                     isTimePicked.value = time
                                 }

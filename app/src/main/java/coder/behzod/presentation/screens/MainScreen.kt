@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Handler
 import android.os.Looper
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,7 +15,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
-import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarResult
@@ -48,9 +46,11 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coder.behzod.R
+import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.model.TrashModel
+import coder.behzod.presentation.alarmManager.schedulers.AlarmScheduler
 import coder.behzod.presentation.items.MainScreenGridItem
 import coder.behzod.presentation.items.MainScreenRowItem
 import coder.behzod.presentation.navigation.ScreensRouter
@@ -73,17 +73,15 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
-@SuppressLint(
-    "CoroutineCreationDuringComposition", "UnusedMaterialScaffoldPaddingParameter",
-    "UnusedMaterial3ScaffoldPaddingParameter"
-)
+@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("CoroutineCreationDuringComposition", "UnusedMaterialScaffoldPaddingParameter", "UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen(
     navController: NavHostController,
@@ -91,47 +89,31 @@ fun MainScreen(
     viewModel: MainViewModel = hiltViewModel()
 ) {
 
-    val themeIndex =
-        remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
+    val themeIndex = remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
     val colorTheme = if (themeIndex.intValue == 0) Color.Black else Color.White
     val themeColor = remember { mutableStateOf(colorTheme) }
 
-    if (colorTheme == Color.Black) {
-        themeColor.value = Color.Black
-    } else {
-        themeColor.value = Color.White
-    }
+    if (colorTheme == Color.Black)  themeColor.value = Color.Black else  themeColor.value = Color.White
 
     val colorFont = if (themeColor.value == Color.Black) Color.White else Color.Black
     val fontColor = remember { mutableStateOf(colorFont) }
 
-    if (colorFont == Color.White) {
-        fontColor.value = Color.White
-    } else {
-        fontColor.value = Color.Black
-    }
+    if (colorFont == Color.White) fontColor.value = Color.White else fontColor.value = Color.Black
 
     val state = viewModel.state
     viewModel.getNotes(state.value.noteOrder)
 
-    val btnAddAnimation = rememberLottieComposition(
-        spec = LottieCompositionSpec.RawRes(resId = R.raw.btn_add)
-    )
     val btnCloseAnim = rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(R.raw.btn_close)
     )
 
-    val isPlaying = remember { mutableStateOf(false) }
     val isEmpty = remember { mutableStateOf(false) }
 
-    if (state.value.notes.isEmpty()) {
-        isEmpty.value = true
-    } else {
-        isEmpty.value = false
-    }
+    if (state.value.notes.isEmpty()) isEmpty.value = true else isEmpty.value = false
 
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
+
     sharedPrefs.sharedPreferences.edit().putBoolean(KEY_LIST_STATUS, isEmpty.value).apply()
 
     val isSelected = remember { mutableStateOf(false) }
@@ -141,8 +123,7 @@ fun MainScreen(
     val selectedNotesCount = remember { mutableIntStateOf(0) }
 
     val isClosed = remember { mutableStateOf(false) }
-    val fontSize =
-        remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_FONT_SIZE, 18)) }
+    val fontSize = remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_FONT_SIZE, 18)) }
 
     val isDialogVisible = remember { mutableStateOf(false) }
 
@@ -168,6 +149,8 @@ fun MainScreen(
     }
 
     val activityContext = LocalContext.current as Activity
+
+    val dataStore = DataStoreInstance(activityContext)
 
     Scaffold(
         modifier = Modifier
@@ -423,9 +406,10 @@ fun MainScreen(
                     .background(themeColor.value)
             ) {
                 if (viewType == 0) {
-                    /* Lazy Column List Item */
 
+                    /* Lazy Column List RowItem */
                     sharedPrefs.sharedPreferences.edit().putInt(KEY_VIEW_TYPE, 0).apply()
+
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
@@ -452,9 +436,6 @@ fun MainScreen(
                                             daysLeft = 30,
                                         )
                                     )
-                                    sharedPrefs.sharedPreferences.edit().putBoolean(
-                                        KEY_ALARM_STATUS, false
-                                    ).apply()
                                     coroutineScope.launch(Dispatchers.IO) {
                                         delay(100)
                                         viewModel.onEvent(NotesEvent.DeleteNote(deleteItem))
@@ -469,8 +450,11 @@ fun MainScreen(
                                             viewModel.returnDeletedNote(deleteItem)
                                         }
                                     }
+                                    note.value = deleteItem
                                 },
                             ) { item ->
+
+                                note.value = item
                                 MainScreenRowItem(
                                     notesModel = item,
                                     themeColor = themeColor.value,
@@ -495,18 +479,21 @@ fun MainScreen(
                                         navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/${item.id}")
                                     }
                                 )
+                                AlarmScheduler(activityContext,note.value,sharedPrefs).execute()
                             }
                         }
                     }
                 } else {
-                    /*  Lazy Column Grid Item  */
 
+                    /*  Lazy Column Grid Item  */
                     sharedPrefs.sharedPreferences.edit().putInt(KEY_VIEW_TYPE, 1).apply()
+
                     LazyVerticalStaggeredGrid(
                         columns = StaggeredGridCells.Fixed(2)) {
                         items(state.value.notes, key = { notes ->
                             notes.toString()
                         }) { model ->
+
                             note.value = model
                             MainScreenGridItem(
                                 themeColor = themeColor.value,
@@ -546,11 +533,12 @@ fun MainScreen(
                                             daysLeft = 30
                                         )
                                     )
+                                    CoroutineScope(Dispatchers.Default).launch {
+                                        dataStore.saveStatus(KEY_ALARM_STATUS,false)
+                                    }
                                     viewModel.onEvent(NotesEvent.DeleteNote(model))
                                     coroutineScope.launch {
-                                        sharedPrefs.sharedPreferences.edit().putBoolean(
-                                            KEY_ALARM_STATUS, false
-                                        ).apply()
+
                                         val snackbarResult =
                                             scaffoldState.snackbarHostState.showSnackbar(
                                                 message = activityContext.getString(R.string.note_deleted),
@@ -568,6 +556,7 @@ fun MainScreen(
                                 date = model.dataAdded,
                                 backgroundColor = model.color
                             )
+                            AlarmScheduler(activityContext,note.value,sharedPrefs).execute()
                         }
                     }
                 }

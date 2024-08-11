@@ -33,7 +33,7 @@ import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.TrashModel
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
-import coder.behzod.presentation.utils.constants.KEY_INT
+import coder.behzod.presentation.utils.constants.KEY_TRASH_INT
 import coder.behzod.presentation.viewModels.TrashViewModel
 
 @Composable
@@ -54,7 +54,7 @@ fun TrashScreenItem(
     val isItemSelected = remember { mutableStateOf(false) }
     val isAllItemSelected = remember { mutableStateOf(true) }
     val ctx = LocalContext.current as Activity
-    val daysLeft = sharedPref.sharedPreferences.getInt(KEY_INT,30)
+    val daysLeft = sharedPref.sharedPreferences.getInt(KEY_TRASH_INT,30)
 
     Card (
         modifier = Modifier

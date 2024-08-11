@@ -26,19 +26,19 @@ class CheckDateWorker @AssistedInject constructor(
             notes = it
         }
 
-        val year = SharedPreferenceInstance(ctx).sharedPreferences.getInt("KEY_LOCAL_YEAR",1)
-        Log.d("AlarmFix", "CheckDateYear: $year")
+        var year = 0
+        var month = 0
+        var day = 0
 
-        val month = SharedPreferenceInstance(ctx).sharedPreferences.getInt("KEY_LOCAL_MONTH",1)
-        Log.d("AlarmFix", "CheckDateMonth: $month")
+        val currentDate = LocalDate.now()
 
-        val day = SharedPreferenceInstance(ctx).sharedPreferences.getInt("KEY_LOCAL_DAY",1)
-        Log.d("AlarmFix", "CheckDateDay: $day")
+        val currentYear = currentDate.year
+        val currentMonth = currentDate.month.value
+        val currentDay = currentDate.dayOfMonth
 
-        var localYear = 0
-        var localMonth = 0
-        var localDay = 0
-        var localDate = LocalDate.now()
+        val localYear = SharedPreferenceInstance(ctx).sharedPreferences.getInt("KEY_LOCAL_YEAR", 1)
+        val localMonth = SharedPreferenceInstance(ctx).sharedPreferences.getInt("KEY_LOCAL_MONTH", 1)
+        val localDay = SharedPreferenceInstance(ctx).sharedPreferences.getInt("KEY_LOCAL_DAY", 1)
 
         for (note in notes) {
 
@@ -55,30 +55,15 @@ class CheckDateWorker @AssistedInject constructor(
 
             if (model.alarmStatus) {
 
-                Log.d("AlarmFix", "CheckDateModel: $model")
-                if (year != 0 && month != 0 && day != 0) {
+                year = model.triggerDate.minus(localMonth).minus(localDay)
+                month = model.triggerDate.minus(localYear).minus(localDay)
+                day = model.triggerDate.minus(localYear).minus(localMonth)
 
-                    localYear = model.triggerDate.minus(month).minus(day)
-                    Log.d("AlarmFix", "CheckDateLocalYear: $localYear")
+                if (year == currentYear && month == currentMonth && day == currentDay) {
 
-                    localMonth = model.triggerDate.minus(year).minus(day)
-                    Log.d("AlarmFix", "CheckDateLocalMonth: $localMonth")
-
-                    localDay = model.triggerDate.minus(year).minus(month)
-                    Log.d("AlarmFix", "CheckDateLocalDay: $localDay")
-
-                    localDate = LocalDate.of(localYear,localMonth,localDay)
-                    Log.d("AlarmFix", "CheckDateLocalDate: $localDate")
-
-                    if (localDate == LocalDate.now()){
-
-                        val status = true
-                        SharedPreferenceInstance(ctx).sharedPreferences.edit().putInt("MODEL_ID",model.id?:0).apply()
-                        Log.d("AlarmFix", "CheckDateModelId: ${model.id}")
-
-                        SharedPreferenceInstance(ctx).sharedPreferences.edit().putBoolean("ALARM_STATUS",status).apply()
-                        Log.d("AlarmFix", "CheckDateAlarmStatus: $status")
-                    }
+                    val status = true
+                    SharedPreferenceInstance(ctx).sharedPreferences.edit().putInt("WORKER_MODEL_ID", model.id ?: 0).apply()
+                    SharedPreferenceInstance(ctx).sharedPreferences.edit().putBoolean("ALARM_STATUS", status).apply()
                 }
             }
         }

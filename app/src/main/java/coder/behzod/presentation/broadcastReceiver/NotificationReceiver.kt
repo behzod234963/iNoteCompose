@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -38,10 +39,17 @@ class NotificationReceiver : BroadcastReceiver() {
         var title = ""
         var content = ""
         var modelID = 0
-        sharedPrefs.sharedPreferences.getInt("MODEL_ID", -1).also {
-            id = it
+        val currentDayAlarmStatus = sharedPrefs.sharedPreferences.getBoolean("KEY_CURRENT_DAY_ALARM_STATUS",false)
+        val workerAlarmStatus = sharedPrefs.sharedPreferences.getBoolean("KEY_WORKER_ALARM_STATUS",false)
+        val workerModelId = sharedPrefs.sharedPreferences.getInt("WORKER_MODEL_ID",-1)
+        val modelId = sharedPrefs.sharedPreferences.getInt("MODEL_ID",-1)
+
+        if (currentDayAlarmStatus){
+            id = modelId
+        }else if (workerAlarmStatus){
+            id = workerModelId
         }
-        Log.d("AlarmFix", "NotificationReceiverModelID: $id")
+
         CoroutineScope(Dispatchers.IO).launch {
             if (id != -1) {
                 useCases.getNoteUseCase.invoke(id).let {
@@ -60,5 +68,6 @@ class NotificationReceiver : BroadcastReceiver() {
             contentRequestCode = modelID,
             stopRequestCode = modelID
         )
+
     }
 }
