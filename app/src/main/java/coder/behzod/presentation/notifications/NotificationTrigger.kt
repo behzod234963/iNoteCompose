@@ -7,12 +7,12 @@ import android.content.Context
 import android.content.Intent
 import coder.behzod.presentation.broadcastReceiver.NotificationReceiver
 
-class NotificationTrigger(private val ctx: Context) {
+class NotificationTrigger(ctx: Context) {
 
     private val alarmManager = ctx.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
     @SuppressLint("SuspiciousIndentation", "ScheduleExactAlarm")
-    fun scheduleNotification(ctx: Context, triggerTime: Long, requestCode:Int) {
+    fun scheduleNotification(ctx: Context, triggerTime: Long, requestCode: Int) {
 
         val alarmIntent = Intent(ctx, NotificationReceiver::class.java)
         val flag = PendingIntent.FLAG_IMMUTABLE

@@ -2,7 +2,6 @@ package coder.behzod.data.implementations
 
 import coder.behzod.data.local.room.NotesDao
 import coder.behzod.domain.model.NotesModel
-import coder.behzod.domain.model.TrashModel
 import coder.behzod.domain.repository.NotesRepository
 import kotlinx.coroutines.flow.Flow
 
@@ -23,4 +22,8 @@ class NoteRepositoryImpl(private val dao: NotesDao) : NotesRepository {
     }
 
     override fun getAllNotes(): List<NotesModel> = dao.getAllNotes()
+
+    override suspend fun updateStatus(id: Int,status: Boolean) {
+        dao.updateStatus(id = id, status)
+    }
 }

@@ -13,6 +13,7 @@ import coder.behzod.domain.useCase.notesUseCases.GetNoteUseCase
 import coder.behzod.domain.useCase.notesUseCases.GetNotesUseCase
 import coder.behzod.domain.useCase.notesUseCases.SaveNoteUseCase
 import coder.behzod.domain.useCase.notesUseCases.NotesUseCases
+import coder.behzod.domain.useCase.notesUseCases.UpdateStatusUseCase
 import coder.behzod.domain.useCase.trashUseCases.MultipleDeleteUseCase
 import coder.behzod.domain.useCase.trashUseCases.DeleteUseCase
 import coder.behzod.domain.useCase.trashUseCases.GetListOfNotes
@@ -39,7 +40,8 @@ class DomainModule {
             getNoteUseCase = GetNoteUseCase(repository),
             saveNoteUseCase = SaveNoteUseCase(repository),
             deleteAllUseCase = DeleteAllUseCase(repository),
-            getAllNotesUseCase = GetAllNoteUseCase(repository)
+            getAllNotesUseCase = GetAllNoteUseCase(repository),
+            updateStatusUseCase = UpdateStatusUseCase(repository)
         )
 
     @Provides

@@ -589,7 +589,10 @@ fun TrashScreen(
                                     content = trashedNote.value.content,
                                     color = trashedNote.value.color,
                                     dataAdded = LocalDate.now().toString()
-                                        .dateFormatter()
+                                        .dateFormatter(),
+                                    requestCode = 1,
+                                    notificationCode = 2,
+                                    stopCode = 3
                                 )
                             )
                             isDialogVisible.value = false

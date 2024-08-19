@@ -143,7 +143,10 @@ fun MainScreen(
                 title = "",
                 content = "",
                 color = -1,
-                dataAdded = LocalDate.now().toString().dateFormatter()
+                dataAdded = LocalDate.now().toString().dateFormatter(),
+                requestCode = 1,
+                notificationCode = 2,
+                stopCode = 3,
             )
         )
     }
@@ -479,7 +482,7 @@ fun MainScreen(
                                         navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/${item.id}")
                                     }
                                 )
-                                AlarmScheduler(activityContext,note.value,sharedPrefs).execute()
+                                AlarmScheduler(activityContext,note.value,sharedPrefs,viewModel).execute()
                             }
                         }
                     }
@@ -556,7 +559,7 @@ fun MainScreen(
                                 date = model.dataAdded,
                                 backgroundColor = model.color
                             )
-                            AlarmScheduler(activityContext,note.value,sharedPrefs).execute()
+                            AlarmScheduler(activityContext,note.value,sharedPrefs,viewModel).execute()
                         }
                     }
                 }

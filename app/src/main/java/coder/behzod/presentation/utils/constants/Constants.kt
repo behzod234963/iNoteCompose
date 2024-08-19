@@ -13,8 +13,11 @@ val noteModel = NotesModel(
     id = -1,
     title = "",
     content = "",
+    color = 0,
     dataAdded = "",
-    color = 0
+    requestCode = 1,
+    notificationCode = 2,
+    stopCode = 3
 )
 
 const val KEY_ALARM_STATUS = "KEY_ALARM_STATUS"

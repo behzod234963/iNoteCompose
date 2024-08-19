@@ -12,6 +12,9 @@ data class NotesModel(
     val color: Int,
     val dataAdded: String,
     val alarmStatus:Boolean = false,
+    val requestCode:Int,
+    val notificationCode:Int,
+    val stopCode:Int,
     val triggerDate:Int = 0,
     val triggerTime:Long = 0
 )

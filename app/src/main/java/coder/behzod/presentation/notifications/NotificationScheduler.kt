@@ -1,11 +1,13 @@
 package coder.behzod.presentation.notifications
 
 import android.Manifest
+import android.app.InvalidForegroundServiceTypeException
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.service.autofill.ImageTransformation
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
@@ -21,7 +23,7 @@ class NotificationScheduler @Inject constructor(
 ){
 
     @RequiresApi(Build.VERSION_CODES.P)
-    fun showNotification(ctx:Context,notificationId:Int, title:String, content:String,contentRequestCode:Int,stopRequestCode:Int){
+    fun showNotification(ctx:Context, title:String, content:String,requestCode:Int,notificationCode:Int,stopCode:Int){
 
         Log.d("AlarmFix", "NotificationScheduler: function showNotification is started")
         val contentIntent = Intent(ctx,MainActivity::class.java).apply {
@@ -31,9 +33,9 @@ class NotificationScheduler @Inject constructor(
         val flag =
             PendingIntent.FLAG_IMMUTABLE
 
-        val contentIntentPendingIntent = PendingIntent.getActivity(ctx,contentRequestCode,contentIntent, PendingIntent.FLAG_IMMUTABLE)
+        val contentIntentPendingIntent = PendingIntent.getActivity(ctx,1,contentIntent, PendingIntent.FLAG_IMMUTABLE)
         val stopAlarmIntent = Intent(ctx, StopAlarm::class.java)
-        val stopAlarmPendingIntent = PendingIntent.getBroadcast(ctx,stopRequestCode,stopAlarmIntent,flag)
+        val stopAlarmPendingIntent = PendingIntent.getBroadcast(ctx,stopCode,stopAlarmIntent,flag)
 
         val notification =  NotificationCompat.Builder(ctx,"Main Channel ID")
             .setContentTitle(title)
@@ -43,14 +45,14 @@ class NotificationScheduler @Inject constructor(
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setContentIntent(contentIntentPendingIntent)
             .addAction(0,"Stop",stopAlarmPendingIntent)
-            .setOngoing(true)
+            .setOngoing(false)
             .setAutoCancel(false)
 
         if (ActivityCompat.checkSelfPermission(
                 ctx,
                 Manifest.permission.POST_NOTIFICATIONS
             ) == PackageManager.PERMISSION_GRANTED){
-            notificationManager.notify(notificationId,notification.build())
+            notificationManager.notify(notificationCode,notification.build())
         }
     }
 }

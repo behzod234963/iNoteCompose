@@ -6,13 +6,15 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import coder.behzod.domain.model.NotesModel
-import coder.behzod.domain.model.TrashModel
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NotesDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun saveNote(note: NotesModel)
+
+    @Query("UPDATE notes SET alarmStatus=:status WHERE id=:id")
+    suspend fun updateStatus(id: Int,status:Boolean)
 
     @Delete
     suspend fun deleteNote(note: NotesModel)

@@ -5,12 +5,10 @@ import android.app.AlarmManager
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
 import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
@@ -19,7 +17,6 @@ import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.data.workManager.workers.CheckDateWorker
 import coder.behzod.data.workManager.workers.UpdateDayWorker
-import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.useCase.notesUseCases.NotesUseCases
 import coder.behzod.presentation.navigation.NavGraph
 import coder.behzod.presentation.notifications.NotificationTrigger
@@ -29,7 +26,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -61,13 +57,19 @@ class MainActivity : AppCompatActivity() {
     private fun initAlarmManager() {
         val modelId = sharedPrefs.sharedPreferences.getInt("MODEL_ID",-1)
         var model = noteModel
-        val workerAlarmStatus = sharedPrefs.sharedPreferences.getBoolean("ALARM_STATUS",false)
+        val workerAlarmStatus = sharedPrefs.sharedPreferences.getBoolean("KEY_WORKER_ALARM_STATUS",false)
         CoroutineScope(Dispatchers.IO).launch {
             useCases.getNoteUseCase.invoke(modelId).let {
                 model = it
             }
             if (workerAlarmStatus){
-                notificationTrigger.scheduleNotification(this@MainActivity,model.triggerTime,modelId)
+                if (model.alarmStatus){
+                    notificationTrigger.scheduleNotification(
+                        this@MainActivity,
+                        model.triggerTime,
+                        requestCode = model.requestCode
+                    )
+                }
             }
         }
     }

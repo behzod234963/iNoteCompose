@@ -76,7 +76,10 @@ fun NavGraph() {
                     title = "",
                     content = "",
                     color = -1,
-                    dataAdded = ""
+                    dataAdded = "",
+                    requestCode = 1,
+                    notificationCode = 2,
+                    stopCode = 2
                 )
             )
         }

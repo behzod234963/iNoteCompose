@@ -1,7 +1,6 @@
 package coder.behzod.data.workManager.workers
 
 import android.content.Context
-import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -49,6 +48,9 @@ class CheckDateWorker @AssistedInject constructor(
                 color = note.color,
                 dataAdded = note.dataAdded,
                 alarmStatus = note.alarmStatus,
+                requestCode = note.requestCode,
+                notificationCode = note.notificationCode,
+                stopCode = note.stopCode,
                 triggerDate = note.triggerDate,
                 triggerTime = note.triggerTime
             )
@@ -63,7 +65,7 @@ class CheckDateWorker @AssistedInject constructor(
 
                     val status = true
                     SharedPreferenceInstance(ctx).sharedPreferences.edit().putInt("WORKER_MODEL_ID", model.id ?: 0).apply()
-                    SharedPreferenceInstance(ctx).sharedPreferences.edit().putBoolean("ALARM_STATUS", status).apply()
+                    SharedPreferenceInstance(ctx).sharedPreferences.edit().putBoolean("KEY_WORKER_ALARM_STATUS", status).apply()
                 }
             }
         }
