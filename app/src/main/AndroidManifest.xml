@@ -32,7 +32,8 @@
             </intent-filter>
         </activity>
         <receiver android:name=".presentation.broadcastReceiver.NotificationReceiver"
-            android:enabled="true"/>
+            android:enabled="true"
+            android:singleUser="true"/>
         <receiver android:name=".presentation.broadcastReceiver.StopAlarm"/>
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"

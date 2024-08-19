@@ -1,13 +1,11 @@
 package coder.behzod.presentation.notifications
 
 import android.Manifest
-import android.app.InvalidForegroundServiceTypeException
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import android.service.autofill.ImageTransformation
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
@@ -23,7 +21,7 @@ class NotificationScheduler @Inject constructor(
 ){
 
     @RequiresApi(Build.VERSION_CODES.P)
-    fun showNotification(ctx:Context, title:String, content:String,requestCode:Int,notificationCode:Int,stopCode:Int){
+    fun showNotification(ctx:Context, title:String, content:String,requestCode:Int,stopCode:Int){
 
         Log.d("AlarmFix", "NotificationScheduler: function showNotification is started")
         val contentIntent = Intent(ctx,MainActivity::class.java).apply {
@@ -52,7 +50,7 @@ class NotificationScheduler @Inject constructor(
                 ctx,
                 Manifest.permission.POST_NOTIFICATIONS
             ) == PackageManager.PERMISSION_GRANTED){
-            notificationManager.notify(notificationCode,notification.build())
+            notificationManager.notify(4,notification.build())
         }
     }
 }

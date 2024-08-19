@@ -16,7 +16,6 @@ val noteModel = NotesModel(
     color = 0,
     dataAdded = "",
     requestCode = 1,
-    notificationCode = 2,
     stopCode = 3
 )
 

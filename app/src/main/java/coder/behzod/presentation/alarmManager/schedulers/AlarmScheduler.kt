@@ -35,7 +35,7 @@ class AlarmScheduler(private val ctx:Context,private val model: NotesModel,priva
 
             if (year == currentYear && month == currentMonth && day == currentDay){
 
-                notificationTrigger.scheduleNotification(ctx, model.triggerTime, model.requestCode)
+                notificationTrigger.scheduleNotification(ctx,model.id!!, model.triggerTime, model.requestCode)
             }
             sharedPrefs.sharedPreferences.edit().putBoolean("KEY_CURRENT_DAY_ALARM_STATUS",true).apply()
             sharedPrefs.sharedPreferences.edit().putInt("MODEL_ID",model.id!!).apply()

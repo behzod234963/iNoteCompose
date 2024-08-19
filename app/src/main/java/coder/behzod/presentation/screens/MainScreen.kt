@@ -145,7 +145,6 @@ fun MainScreen(
                 color = -1,
                 dataAdded = LocalDate.now().toString().dateFormatter(),
                 requestCode = 1,
-                notificationCode = 2,
                 stopCode = 3,
             )
         )

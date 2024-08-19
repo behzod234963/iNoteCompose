@@ -591,7 +591,6 @@ fun TrashScreen(
                                     dataAdded = LocalDate.now().toString()
                                         .dateFormatter(),
                                     requestCode = 1,
-                                    notificationCode = 2,
                                     stopCode = 3
                                 )
                             )

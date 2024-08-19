@@ -49,7 +49,6 @@ class CheckDateWorker @AssistedInject constructor(
                 dataAdded = note.dataAdded,
                 alarmStatus = note.alarmStatus,
                 requestCode = note.requestCode,
-                notificationCode = note.notificationCode,
                 stopCode = note.stopCode,
                 triggerDate = note.triggerDate,
                 triggerTime = note.triggerTime

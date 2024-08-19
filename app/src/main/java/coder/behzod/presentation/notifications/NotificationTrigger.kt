@@ -12,12 +12,13 @@ class NotificationTrigger(ctx: Context) {
     private val alarmManager = ctx.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
     @SuppressLint("SuspiciousIndentation", "ScheduleExactAlarm")
-    fun scheduleNotification(ctx: Context, triggerTime: Long, requestCode: Int) {
+    fun scheduleNotification(ctx: Context,id:Int, triggerTime: Long, requestCode: Int) {
 
         val alarmIntent = Intent(ctx, NotificationReceiver::class.java)
-        val flag = PendingIntent.FLAG_IMMUTABLE
-        val pendingIntent = PendingIntent.getBroadcast(ctx, requestCode, alarmIntent, flag)
+        val flag = PendingIntent.FLAG_MUTABLE
+        val pendingIntent = PendingIntent.getBroadcast(ctx, id, alarmIntent, flag)
 
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
+        alarmIntent.putExtra("id",id)
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
     }
 }

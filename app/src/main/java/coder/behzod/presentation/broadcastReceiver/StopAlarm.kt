@@ -47,7 +47,7 @@ class StopAlarm : BroadcastReceiver() {
 
             alarmManager.cancel(pendingIntent)
             pendingIntent.cancel()
-            notificationManager.cancel(model.notificationCode)
+            notificationManager.cancel(4)
             CoroutineScope(Dispatchers.IO).launch {
                 useCases.updateStatusUseCase.execute(model.id!!,model.alarmStatus)
             }

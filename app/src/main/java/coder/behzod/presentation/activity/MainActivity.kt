@@ -66,6 +66,7 @@ class MainActivity : AppCompatActivity() {
                 if (model.alarmStatus){
                     notificationTrigger.scheduleNotification(
                         this@MainActivity,
+                        model.id!!,
                         model.triggerTime,
                         requestCode = model.requestCode
                     )

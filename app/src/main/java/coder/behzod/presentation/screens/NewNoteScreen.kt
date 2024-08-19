@@ -95,7 +95,6 @@ fun NewNoteScreen(
 
     val range = 1..999999
     val requestCode = range.random()
-    val notificationCode = range.random()
     val stopCode = range.random()
 
     val ctx = LocalContext.current.applicationContext
@@ -224,7 +223,6 @@ fun NewNoteScreen(
                                     dataAdded = date.intValue.toString().dateFormatter(),
                                     alarmStatus = alarmStatus.value,
                                     requestCode = requestCode,
-                                    notificationCode = notificationCode,
                                     stopCode = stopCode,
                                     triggerDate = triggerDate.intValue,
                                     triggerTime = triggerTime.longValue,
@@ -251,7 +249,6 @@ fun NewNoteScreen(
                                     dataAdded = date.intValue.toString().dateFormatter(),
                                     alarmStatus = alarmStatus.value,
                                     requestCode = requestCode,
-                                    notificationCode = notificationCode,
                                     stopCode = stopCode,
                                     triggerDate = triggerDate.intValue,
                                     triggerTime = triggerTime.longValue
@@ -300,7 +297,6 @@ fun NewNoteScreen(
                                 dataAdded = date.intValue.toString().dateFormatter(),
                                 alarmStatus = alarmStatus.value,
                                 requestCode = requestCode,
-                                notificationCode = notificationCode,
                                 stopCode = stopCode,
                                 triggerDate = triggerDate.intValue,
                                 triggerTime = triggerTime.longValue
@@ -334,7 +330,6 @@ fun NewNoteScreen(
                                 dataAdded = date.intValue.toString().dateFormatter(),
                                 alarmStatus = alarmStatus.value,
                                 requestCode = requestCode,
-                                notificationCode = notificationCode,
                                 stopCode = stopCode,
                                 triggerDate = triggerDate.intValue,
                                 triggerTime = triggerTime.longValue

@@ -94,7 +94,6 @@ class TrashViewModel @Inject constructor(
                                 newValue = LocalDate.now().toString().dateFormatter()
                             ),
                             requestCode = 1,
-                            notificationCode = 2,
                             stopCode = 3
                         )
                         noteUseCases.saveNoteUseCase(notesModel)
@@ -116,7 +115,6 @@ class TrashViewModel @Inject constructor(
                                 newValue = LocalDate.now().toString().dateFormatter()
                             ),
                             requestCode = 1,
-                            notificationCode = 2,
                             stopCode = 3
                         )
                         restoreNote(note = notesModel, trashModel = i)
