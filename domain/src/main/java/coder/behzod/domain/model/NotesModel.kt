@@ -11,6 +11,7 @@ data class NotesModel(
     val content: String,
     val color: Int,
     val dataAdded: String,
+    val alarmMapper:Int = 0,
     val alarmStatus:Boolean = false,
     val requestCode:Int,
     val stopCode:Int,

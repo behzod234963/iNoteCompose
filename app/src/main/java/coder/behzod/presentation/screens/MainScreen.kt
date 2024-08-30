@@ -45,23 +45,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import coder.behzod.R
 import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
-import coder.behzod.domain.model.NotesModel
+import coder.behzod.data.workManager.workers.CheckDateWorker
 import coder.behzod.domain.model.TrashModel
-import coder.behzod.presentation.alarmManager.schedulers.AlarmScheduler
 import coder.behzod.presentation.items.MainScreenGridItem
 import coder.behzod.presentation.items.MainScreenRowItem
 import coder.behzod.presentation.navigation.ScreensRouter
+import coder.behzod.presentation.notifications.NotificationTrigger
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
-import coder.behzod.presentation.utils.constants.KEY_ALARM_STATUS
 import coder.behzod.presentation.utils.constants.KEY_FONT_SIZE
 import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.constants.KEY_LIST_STATUS
 import coder.behzod.presentation.utils.constants.KEY_VIEW_TYPE
+import coder.behzod.presentation.utils.constants.noteModel
 import coder.behzod.presentation.utils.events.NotesEvent
-import coder.behzod.presentation.utils.extensions.dateFormatter
 import coder.behzod.presentation.utils.helpers.ShareNote
 import coder.behzod.presentation.viewModels.MainViewModel
 import coder.behzod.presentation.views.AlertDialogInstance
@@ -73,27 +75,35 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.time.LocalDate
+import java.util.concurrent.TimeUnit
 
 
 @OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("CoroutineCreationDuringComposition", "UnusedMaterialScaffoldPaddingParameter", "UnusedMaterial3ScaffoldPaddingParameter")
+@SuppressLint(
+    "CoroutineCreationDuringComposition",
+    "UnusedMaterialScaffoldPaddingParameter",
+    "UnusedMaterial3ScaffoldPaddingParameter"
+)
 @Composable
 fun MainScreen(
     navController: NavHostController,
     sharedPrefs: SharedPreferenceInstance,
+    dataStoreInstance: DataStoreInstance,
+    workManager: WorkManager,
+    notificationTrigger: NotificationTrigger,
     viewModel: MainViewModel = hiltViewModel()
 ) {
 
-    val themeIndex = remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
+    val themeIndex =
+        remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
     val colorTheme = if (themeIndex.intValue == 0) Color.Black else Color.White
     val themeColor = remember { mutableStateOf(colorTheme) }
 
-    if (colorTheme == Color.Black)  themeColor.value = Color.Black else  themeColor.value = Color.White
+    if (colorTheme == Color.Black) themeColor.value = Color.Black else themeColor.value =
+        Color.White
 
     val colorFont = if (themeColor.value == Color.Black) Color.White else Color.Black
     val fontColor = remember { mutableStateOf(colorFont) }
@@ -123,7 +133,8 @@ fun MainScreen(
     val selectedNotesCount = remember { mutableIntStateOf(0) }
 
     val isClosed = remember { mutableStateOf(false) }
-    val fontSize = remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_FONT_SIZE, 18)) }
+    val fontSize =
+        remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_FONT_SIZE, 18)) }
 
     val isDialogVisible = remember { mutableStateOf(false) }
 
@@ -137,22 +148,9 @@ fun MainScreen(
 
     val isDialogViewVisible = remember { mutableStateOf(false) }
 
-    val note = remember {
-        mutableStateOf(
-            NotesModel(
-                title = "",
-                content = "",
-                color = -1,
-                dataAdded = LocalDate.now().toString().dateFormatter(),
-                requestCode = 1,
-                stopCode = 3,
-            )
-        )
-    }
-
     val activityContext = LocalContext.current as Activity
 
-    val dataStore = DataStoreInstance(activityContext)
+    val note = remember { mutableStateOf(noteModel) }
 
     Scaffold(
         modifier = Modifier
@@ -411,16 +409,45 @@ fun MainScreen(
 
                     /* Lazy Column List RowItem */
                     sharedPrefs.sharedPreferences.edit().putInt(KEY_VIEW_TYPE, 0).apply()
-
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(bottom = 75.dp)
                     ) {
-                        items(items = state.value.notes, key = { it.toString() }) { notes ->
-                            note.value = notes
+                        items(items = state.value.notes, key = { it.toString() }) { model ->
+
+                            when (model.alarmMapper) {
+                                0 -> {}
+                                1 -> {
+                                    if (model.alarmStatus) {
+                                        notificationTrigger.scheduleNotification(
+                                            activityContext,
+                                            model.triggerTime,
+                                            model.requestCode
+                                        )
+                                        sharedPrefs.sharedPreferences.edit().putString("title",model.title).apply()
+                                        sharedPrefs.sharedPreferences.edit().putString("content",model.content).apply()
+                                        sharedPrefs.sharedPreferences.edit().putInt("requestCode",model.requestCode).apply()
+                                        sharedPrefs.sharedPreferences.edit().putInt("stopCode",model.stopCode).apply()
+                                    }
+                                }
+
+                                2 -> {
+                                    val checkDateRequest =
+                                        PeriodicWorkRequestBuilder<CheckDateWorker>(
+                                            1,
+                                            TimeUnit.DAYS
+                                        ).build()
+                                    workManager.enqueueUniquePeriodicWork(
+                                        "Check date Worker",
+                                        ExistingPeriodicWorkPolicy.UPDATE,
+                                        checkDateRequest
+                                    )
+                                }
+                            }
+
                             RevealSwipeContent(
-                                item = notes,
+                                item = model,
                                 onShare = { shareItem ->
                                     ShareNote().execute(
                                         title = shareItem.title,
@@ -481,7 +508,6 @@ fun MainScreen(
                                         navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/${item.id}")
                                     }
                                 )
-                                AlarmScheduler(activityContext,note.value,sharedPrefs,viewModel).execute()
                             }
                         }
                     }
@@ -491,12 +517,38 @@ fun MainScreen(
                     sharedPrefs.sharedPreferences.edit().putInt(KEY_VIEW_TYPE, 1).apply()
 
                     LazyVerticalStaggeredGrid(
-                        columns = StaggeredGridCells.Fixed(2)) {
+                        columns = StaggeredGridCells.Fixed(2)
+                    ) {
                         items(state.value.notes, key = { notes ->
                             notes.toString()
                         }) { model ->
 
-                            note.value = model
+                            when (model.alarmMapper) {
+                                0 -> {}
+                                1 -> {
+                                    if (model.alarmStatus) {
+                                        notificationTrigger.scheduleNotification(
+                                            activityContext,
+                                            model.triggerTime,
+                                            model.requestCode
+                                        )
+                                    }
+                                }
+
+                                2 -> {
+                                    val checkDateRequest =
+                                        PeriodicWorkRequestBuilder<CheckDateWorker>(
+                                            1,
+                                            TimeUnit.DAYS
+                                        ).build()
+                                    workManager.enqueueUniquePeriodicWork(
+                                        "Check date Worker",
+                                        ExistingPeriodicWorkPolicy.UPDATE,
+                                        checkDateRequest
+                                    )
+                                }
+                            }
+
                             MainScreenGridItem(
                                 themeColor = themeColor.value,
                                 fontColor = fontColor.value,
@@ -535,9 +587,6 @@ fun MainScreen(
                                             daysLeft = 30
                                         )
                                     )
-                                    CoroutineScope(Dispatchers.Default).launch {
-                                        dataStore.saveStatus(KEY_ALARM_STATUS,false)
-                                    }
                                     viewModel.onEvent(NotesEvent.DeleteNote(model))
                                     coroutineScope.launch {
 
@@ -558,7 +607,6 @@ fun MainScreen(
                                 date = model.dataAdded,
                                 backgroundColor = model.color
                             )
-                            AlarmScheduler(activityContext,note.value,sharedPrefs,viewModel).execute()
                         }
                     }
                 }

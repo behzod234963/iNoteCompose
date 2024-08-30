@@ -21,7 +21,6 @@ import javax.inject.Inject
 class StopAlarm : BroadcastReceiver() {
     @Inject lateinit var notificationManager: NotificationManagerCompat
     @Inject lateinit var dataStore:DataStoreInstance
-    @Inject lateinit var useCases: NotesUseCases
     @Inject lateinit var sharedPrefs:SharedPreferenceInstance
 
     @SuppressLint("SuspiciousIndentation")

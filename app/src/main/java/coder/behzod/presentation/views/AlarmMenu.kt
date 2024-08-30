@@ -51,9 +51,9 @@ fun SetAlarmContent(
     themeColor: Color,
     fontColor: Color,
     fontSize: Int,
-    sharedPrefs:SharedPreferenceInstance,
     onDateSet: (Int) -> Unit,
     onTimeSet: (Long) -> Unit,
+    alarmController:(Int)->Unit,
     onPicked: (date: Boolean, time: Boolean) -> Unit,
 ) {
 
@@ -292,14 +292,25 @@ fun SetAlarmContent(
                     currentMonth.intValue = currentDate.value.month.value
                     currentDay.intValue = currentDate.value.dayOfMonth
 
+                    /*when alarm controller's value is
+                    0-> neutral
+                    1-> currentDay
+                    2-> otherDay*/
+
                     if (
                         localYear.intValue >= currentYear.intValue
                         && localMonth.intValue >= currentMonth.intValue
                         && localDay.intValue > currentDay.intValue
-                        ) {
-                        sharedPrefs.sharedPreferences.edit().putBoolean("KEY_WORKER_ALARM_STATUS",true).apply()
+                        )
+                    {
+                        alarmController(2)
+                    }else if (localYear.intValue == currentYear.intValue
+                        && localMonth.intValue == currentMonth.intValue
+                        && localDay.intValue == currentDay.intValue)
+                    {
+                        alarmController(1)
                     }else{
-                        sharedPrefs.sharedPreferences.edit().putBoolean("KEY_CURRENT_DAY_ALARM_STATUS",true).apply()
+                        alarmController(0)
                     }
 
                     onDateSet(localDate.intValue)

@@ -9,8 +9,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.work.WorkManager
+import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
+import coder.behzod.presentation.notifications.NotificationTrigger
 import coder.behzod.presentation.screens.EmptyMainScreen
 import coder.behzod.presentation.screens.MainScreen
 import coder.behzod.presentation.screens.NewNoteScreen
@@ -42,7 +45,13 @@ fun NavGraph() {
         composable(
             route = ScreensRouter.MainScreenRoute.route
         ) {
-            MainScreen(navController = navController, sharedPrefs = SharedPreferenceInstance(ctx))
+            MainScreen(
+                navController = navController,
+                sharedPrefs = SharedPreferenceInstance(ctx),
+                dataStoreInstance = DataStoreInstance(ctx),
+                workManager = WorkManager.getInstance(ctx),
+                notificationTrigger = NotificationTrigger(ctx)
+            )
         }
         composable(ScreensRouter.EmptyMainScreenRoute.route) {
             EmptyMainScreen(navController, sharedPrefs = SharedPreferenceInstance(ctx))
@@ -62,7 +71,8 @@ fun NavGraph() {
             NewNoteScreen(
                 navController = navController,
                 arguments = Arguments(id),
-                sharedPrefs = SharedPreferenceInstance(ctx)
+                sharedPrefs = SharedPreferenceInstance(ctx),
+                dataStore = DataStoreInstance(ctx)
             )
         }
         composable(
@@ -77,6 +87,7 @@ fun NavGraph() {
                     content = "",
                     color = -1,
                     dataAdded = "",
+                    alarmMapper = 0,
                     requestCode = 1,
                     stopCode = 2
                 )

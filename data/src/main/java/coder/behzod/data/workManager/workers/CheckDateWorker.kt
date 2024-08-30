@@ -1,9 +1,11 @@
 package coder.behzod.data.workManager.workers
 
+import android.app.Notification
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.useCase.notesUseCases.NotesUseCases
@@ -20,6 +22,7 @@ class CheckDateWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
 
+        val dataStore = DataStoreInstance(ctx)
         val notes: List<NotesModel>
         useCase.getAllNotesUseCase.execute().also {
             notes = it
@@ -47,6 +50,7 @@ class CheckDateWorker @AssistedInject constructor(
                 content = note.content,
                 color = note.color,
                 dataAdded = note.dataAdded,
+                alarmMapper = note.alarmMapper,
                 alarmStatus = note.alarmStatus,
                 requestCode = note.requestCode,
                 stopCode = note.stopCode,
@@ -61,10 +65,7 @@ class CheckDateWorker @AssistedInject constructor(
                 day = model.triggerDate.minus(localYear).minus(localMonth)
 
                 if (year == currentYear && month == currentMonth && day == currentDay) {
-
-                    val status = true
-                    SharedPreferenceInstance(ctx).sharedPreferences.edit().putInt("WORKER_MODEL_ID", model.id ?: 0).apply()
-                    SharedPreferenceInstance(ctx).sharedPreferences.edit().putBoolean("KEY_WORKER_ALARM_STATUS", status).apply()
+                    dataStore.saveModelId(model.id ?:-1)
                 }
             }
         }

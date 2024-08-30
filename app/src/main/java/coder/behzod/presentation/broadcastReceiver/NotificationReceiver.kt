@@ -8,16 +8,9 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationManagerCompat
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
-import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.useCase.notesUseCases.NotesUseCases
 import coder.behzod.presentation.notifications.NotificationScheduler
-import coder.behzod.presentation.utils.constants.noteModel
-import coder.behzod.presentation.utils.constants.notes
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -37,23 +30,18 @@ class NotificationReceiver : BroadcastReceiver() {
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onReceive(context: Context, intent: Intent?) {
 
-        val id = intent?.getIntExtra("id",0)
-        var model = noteModel
         val notificationScheduler = NotificationScheduler(notificationManager)
-        CoroutineScope(Dispatchers.IO).launch {
-            useCases.getNoteUseCase(id!!).let {
-                model = it
-            }
-        }.cancel()
+        val title = sharedPrefs.sharedPreferences.getString("title", "")
+        val content = sharedPrefs.sharedPreferences.getString("content", "")
+        val requestCode = sharedPrefs.sharedPreferences.getInt("requestCode", 0)
+        val stopCode = sharedPrefs.sharedPreferences.getInt("stopCode", 0)
 
-        if (model.alarmStatus) {
-            notificationScheduler.showNotification(
-                ctx = context,
-                title = model.title,
-                content = model.content,
-                requestCode = model.requestCode,
-                stopCode = model.stopCode
-            )
-        }
+        notificationScheduler.showNotification(
+            ctx = context,
+            title = title?:"",
+            content = content?:"",
+            requestCode = requestCode,
+            stopCode = stopCode
+        )
     }
 }

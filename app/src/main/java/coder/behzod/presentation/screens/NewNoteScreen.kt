@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coder.behzod.R
+import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.presentation.items.ColorsItem
@@ -87,6 +88,7 @@ fun NewNoteScreen(
     navController: NavHostController,
     arguments: Arguments,
     sharedPrefs: SharedPreferenceInstance,
+    dataStore: DataStoreInstance,
     viewModel: NewNoteViewModel = hiltViewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -108,11 +110,12 @@ fun NewNoteScreen(
 
     val date = remember { mutableIntStateOf(0) }
 
-    val alarmStatus = remember { mutableStateOf( false ) }
-    val isDatePicked = remember { mutableStateOf( false ) }
-    val isTimePicked = remember { mutableStateOf( false ) }
-    val triggerDate = remember { mutableIntStateOf( 0 ) }
-    val triggerTime = remember { mutableLongStateOf( 0 ) }
+    val alarmStatus = remember { mutableStateOf(false) }
+    val alarmController = remember { mutableIntStateOf(0) }
+    val isDatePicked = remember { mutableStateOf(false) }
+    val isTimePicked = remember { mutableStateOf(false) }
+    val triggerDate = remember { mutableIntStateOf(0) }
+    val triggerTime = remember { mutableLongStateOf(0) }
 
     val pickedDate = viewModel.dateAndTime
 
@@ -121,24 +124,27 @@ fun NewNoteScreen(
     val themeColor =
         remember { mutableStateOf(if (themeIndex.intValue == 0) Color.Black else Color.White) }
 
-    val fontColor = remember { mutableStateOf(if (themeColor.value == Color.Black) Color.White else Color.Black) }
+    val fontColor =
+        remember { mutableStateOf(if (themeColor.value == Color.Black) Color.White else Color.Black) }
 
     val fontSize =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_FONT_SIZE, 18)) }
 
-    val isSwitched = remember { mutableStateOf(false) }
+    val setAlarm = remember { mutableStateOf(false) }
     val isOptionsExpanded = remember { mutableStateOf(false) }
 
     /* Color identifier */
     when (themeIndex.intValue) {
-        0->{
+        0 -> {
             themeColor.value = Color.Black
             fontColor.value = Color.White
         }
-        1->{
+
+        1 -> {
             themeColor.value = Color.White
             fontColor.value = Color.Black
         }
+
         2 -> {
             themeColor.value = yellow
             fontColor.value = Color.White
@@ -164,7 +170,7 @@ fun NewNoteScreen(
             fontColor.value = Color.White
         }
     }
-    if (arguments.id != -1){
+    if (arguments.id != -1) {
         when (vmColor) {
             Color.Black.toArgb() -> {
                 fontColor.value = Color.White
@@ -199,19 +205,20 @@ fun NewNoteScreen(
                                 message = ctx.getString(R.string.note_is_cannot_be_empty),
                             )
                         }
+                    } else if (setAlarm.value) {
+                        if (isDatePicked.value && isTimePicked.value) {
+                            alarmStatus.value = true
+                        } else {
+                            Toast.makeText(
+                                activityContext,
+                                "invalid date or time date: ${pickedDate.value}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     } else {
                         /* Save note */
                         if (arguments.id != -1) {
 
-                            if(isDatePicked.value && isTimePicked.value){
-                                alarmStatus.value = true
-                            }else{
-                                Toast.makeText(
-                                    activityContext,
-                                    "invalid date or time date: ${pickedDate.value}",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
                             viewModel.saveNote(
                                 NotesModel(
                                     id = arguments.id,
@@ -221,6 +228,7 @@ fun NewNoteScreen(
                                     content = note.text,
                                     color = vmColor,
                                     dataAdded = date.intValue.toString().dateFormatter(),
+                                    alarmMapper = alarmController.intValue,
                                     alarmStatus = alarmStatus.value,
                                     requestCode = requestCode,
                                     stopCode = stopCode,
@@ -228,17 +236,10 @@ fun NewNoteScreen(
                                     triggerTime = triggerTime.longValue,
                                 )
                             )
-                        } else {
-
-                            if(isDatePicked.value && isTimePicked.value){
-                                alarmStatus.value = true
-                            }else{
-                                Toast.makeText(
-                                    activityContext,
-                                    "invalid date or time date: ${pickedDate.value}",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                            coroutineScope.launch {
+                                dataStore.saveControllerCode(alarmController.intValue)
                             }
+                        } else {
                             viewModel.saveNote(
                                 NotesModel(
                                     title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") ""
@@ -247,6 +248,7 @@ fun NewNoteScreen(
                                     content = note.text,
                                     color = themeColor.value.toArgb(),
                                     dataAdded = date.intValue.toString().dateFormatter(),
+                                    alarmMapper = alarmController.intValue,
                                     alarmStatus = alarmStatus.value,
                                     requestCode = requestCode,
                                     stopCode = stopCode,
@@ -254,6 +256,9 @@ fun NewNoteScreen(
                                     triggerTime = triggerTime.longValue
                                 )
                             )
+                            coroutineScope.launch {
+                                dataStore.saveControllerCode(alarmController.intValue)
+                            }
                         }
                         navController.navigate(ScreensRouter.MainScreenRoute.route)
                     }
@@ -263,6 +268,16 @@ fun NewNoteScreen(
                         scaffoldState.snackbarHostState.showSnackbar(
                             message = ctx.getString(R.string.note_is_cannot_be_empty),
                         )
+                    }
+                }else if (setAlarm.value) {
+                    if (isDatePicked.value && isTimePicked.value) {
+                        alarmStatus.value = true
+                    } else {
+                        Toast.makeText(
+                            activityContext,
+                            "invalid date or time date: ${pickedDate.value}",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 } else {
                     /* Share and Save note */
@@ -275,16 +290,6 @@ fun NewNoteScreen(
                         ) {
                             navController.navigate(ScreensRouter.MainScreenRoute.route)
                         }
-
-                        if (isDatePicked.value && isTimePicked.value){
-                            alarmStatus.value = true
-                        }else{
-                            Toast.makeText(
-                                activityContext,
-                                "invalid date or time date: ${pickedDate.value}",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
                         viewModel.saveNote(
                             NotesModel(
                                 id = arguments.id,
@@ -295,6 +300,7 @@ fun NewNoteScreen(
                                 content = note.text,
                                 color = vmColor,
                                 dataAdded = date.intValue.toString().dateFormatter(),
+                                alarmMapper = alarmController.intValue,
                                 alarmStatus = alarmStatus.value,
                                 requestCode = requestCode,
                                 stopCode = stopCode,
@@ -302,6 +308,7 @@ fun NewNoteScreen(
                                 triggerTime = triggerTime.longValue
                             )
                         )
+                        coroutineScope.launch { dataStore.saveControllerCode(alarmController.intValue) }
                     } else {
 
                         ShareNote().execute(
@@ -311,16 +318,6 @@ fun NewNoteScreen(
                         ) {
                             navController.navigate(ScreensRouter.MainScreenRoute.route)
                         }
-
-                        if (isDatePicked.value && isTimePicked.value){
-                            alarmStatus.value = true
-                        }else{
-                            Toast.makeText(
-                                activityContext,
-                                "invalid date or time date: ${pickedDate.value}",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
                         viewModel.saveNote(
                             NotesModel(
                                 title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
@@ -328,6 +325,7 @@ fun NewNoteScreen(
                                 content = note.text,
                                 color = themeColor.value.toArgb(),
                                 dataAdded = date.intValue.toString().dateFormatter(),
+                                alarmMapper = alarmController.intValue,
                                 alarmStatus = alarmStatus.value,
                                 requestCode = requestCode,
                                 stopCode = stopCode,
@@ -335,6 +333,7 @@ fun NewNoteScreen(
                                 triggerTime = triggerTime.longValue
                             )
                         )
+                        coroutineScope.launch { dataStore.saveControllerCode(alarmController.intValue) }
                     }
                 }
             }
@@ -596,22 +595,24 @@ fun NewNoteScreen(
                                     uncheckedThumbColor = if (arguments.id != -1) Color(vmColor) else themeColor.value,
                                     uncheckedTrackColor = fontColor.value
                                 ),
-                                checked = isSwitched.value,
+                                checked = setAlarm.value,
                                 onCheckedChange = {
-                                    isSwitched.value = it
+                                    setAlarm.value = it
                                 }
                             )
                         }
                         Spacer(modifier = Modifier.height(5.dp))
-                        if (isSwitched.value) {
+                        if (setAlarm.value) {
                             SetAlarmContent(
                                 themeColor = if (arguments.id != -1) Color(vmColor) else themeColor.value,
                                 fontColor = fontColor.value,
                                 fontSize = fontSize.intValue,
-                                sharedPrefs = sharedPrefs,
                                 onDateSet = { triggerDate.intValue = it },
                                 onTimeSet = { triggerTime.longValue = it },
-                                onPicked = { date, time->
+                                alarmController = { controller ->
+                                    alarmController.intValue = controller
+                                },
+                                onPicked = { date, time ->
                                     isDatePicked.value = date
                                     isTimePicked.value = time
                                 }

@@ -589,7 +589,7 @@ fun TrashScreen(
                                     content = trashedNote.value.content,
                                     color = trashedNote.value.color,
                                     dataAdded = LocalDate.now().toString()
-                                        .dateFormatter(),
+                                        .dateFormatter(),,
                                     requestCode = 1,
                                     stopCode = 3
                                 )

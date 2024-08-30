@@ -7,10 +7,9 @@ import coder.behzod.presentation.notifications.NotificationTrigger
 import coder.behzod.presentation.utils.constants.KEY_LOCAL_DAY
 import coder.behzod.presentation.utils.constants.KEY_LOCAL_MONTH
 import coder.behzod.presentation.utils.constants.KEY_LOCAL_YEAR
-import coder.behzod.presentation.viewModels.MainViewModel
 import java.time.LocalDate
 
-class AlarmScheduler(private val ctx:Context,private val model: NotesModel,private val sharedPrefs:SharedPreferenceInstance,private val viewModel:MainViewModel) {
+class AlarmScheduler(private val ctx:Context,private val model: NotesModel,private val sharedPrefs:SharedPreferenceInstance) {
 
     private val notificationTrigger = NotificationTrigger(ctx)
 
@@ -35,10 +34,9 @@ class AlarmScheduler(private val ctx:Context,private val model: NotesModel,priva
 
             if (year == currentYear && month == currentMonth && day == currentDay){
 
-                notificationTrigger.scheduleNotification(ctx,model.id!!, model.triggerTime, model.requestCode)
+                notificationTrigger.scheduleNotification(ctx, model.triggerTime,model.requestCode)
+                sharedPrefs.sharedPreferences.edit().putInt("MODEL_ID",model.id!!).apply()
             }
-            sharedPrefs.sharedPreferences.edit().putBoolean("KEY_CURRENT_DAY_ALARM_STATUS",true).apply()
-            sharedPrefs.sharedPreferences.edit().putInt("MODEL_ID",model.id!!).apply()
         }
     }
 }

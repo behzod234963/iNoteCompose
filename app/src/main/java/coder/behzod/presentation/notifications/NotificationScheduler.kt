@@ -23,13 +23,11 @@ class NotificationScheduler @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.P)
     fun showNotification(ctx:Context, title:String, content:String,requestCode:Int,stopCode:Int){
 
-        Log.d("AlarmFix", "NotificationScheduler: function showNotification is started")
         val contentIntent = Intent(ctx,MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
 
-        val flag =
-            PendingIntent.FLAG_IMMUTABLE
+        val flag = PendingIntent.FLAG_IMMUTABLE
 
         val contentIntentPendingIntent = PendingIntent.getActivity(ctx,1,contentIntent, PendingIntent.FLAG_IMMUTABLE)
         val stopAlarmIntent = Intent(ctx, StopAlarm::class.java)
@@ -50,7 +48,7 @@ class NotificationScheduler @Inject constructor(
                 ctx,
                 Manifest.permission.POST_NOTIFICATIONS
             ) == PackageManager.PERMISSION_GRANTED){
-            notificationManager.notify(4,notification.build())
+            notificationManager.notify(requestCode,notification.build())
         }
     }
 }
