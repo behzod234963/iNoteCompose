@@ -50,7 +50,7 @@ fun NavGraph() {
                 sharedPrefs = SharedPreferenceInstance(ctx),
                 dataStoreInstance = DataStoreInstance(ctx),
                 workManager = WorkManager.getInstance(ctx),
-                notificationTrigger = NotificationTrigger(ctx)
+                notificationTrigger = NotificationTrigger()
             )
         }
         composable(ScreensRouter.EmptyMainScreenRoute.route) {

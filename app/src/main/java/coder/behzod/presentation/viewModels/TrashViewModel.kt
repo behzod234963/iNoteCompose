@@ -92,7 +92,8 @@ class TrashViewModel @Inject constructor(
                             dataAdded = i.daysLeft.toString().replace(
                                 oldValue = i.daysLeft.toString(),
                                 newValue = LocalDate.now().toString().dateFormatter()
-                            ),,
+                            ),
+                            alarmMapper = 0,
                             requestCode = 1,
                             stopCode = 3
                         )
@@ -113,7 +114,8 @@ class TrashViewModel @Inject constructor(
                             dataAdded = i.daysLeft.toString().replace(
                                 oldValue = i.daysLeft.toString(),
                                 newValue = LocalDate.now().toString().dateFormatter()
-                            ),,
+                            ),
+                            alarmMapper = 0,
                             requestCode = 1,
                             stopCode = 3
                         )

@@ -56,4 +56,5 @@
     <string name="time">Time</string>
     <string name="repeating">Repeating</string>
     <string name="please_pick_the_date">Please pick the date</string>
+    <string name="invalid_date_or_time_date">invalid date or time date</string>
 </resources>

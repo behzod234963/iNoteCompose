@@ -1,21 +1,13 @@
 package coder.behzod.data.workManager.workers
 
-import android.app.Notification
-import android.app.NotificationManager
 import android.content.Context
-import android.util.Log
-import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
-import androidx.work.ForegroundInfo
-import androidx.work.ListenableWorker.Result
 import androidx.work.WorkerParameters
-import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.TrashModel
 import coder.behzod.domain.useCase.trashUseCases.TrashUseCases
 import com.google.firebase.functions.dagger.assisted.Assisted
 import com.google.firebase.functions.dagger.assisted.AssistedInject
-import java.security.Permissions
 
 
 @HiltWorker

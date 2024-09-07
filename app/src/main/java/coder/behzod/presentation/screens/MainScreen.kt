@@ -52,6 +52,7 @@ import coder.behzod.R
 import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.data.workManager.workers.CheckDateWorker
+import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.model.TrashModel
 import coder.behzod.presentation.items.MainScreenGridItem
 import coder.behzod.presentation.items.MainScreenRowItem
@@ -62,7 +63,7 @@ import coder.behzod.presentation.utils.constants.KEY_FONT_SIZE
 import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.constants.KEY_LIST_STATUS
 import coder.behzod.presentation.utils.constants.KEY_VIEW_TYPE
-import coder.behzod.presentation.utils.constants.noteModel
+import coder.behzod.presentation.utils.constants.notesModel
 import coder.behzod.presentation.utils.events.NotesEvent
 import coder.behzod.presentation.utils.helpers.ShareNote
 import coder.behzod.presentation.viewModels.MainViewModel
@@ -97,6 +98,7 @@ fun MainScreen(
     viewModel: MainViewModel = hiltViewModel()
 ) {
 
+    val count = remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt("count", -1)) }
     val themeIndex =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
     val colorTheme = if (themeIndex.intValue == 0) Color.Black else Color.White
@@ -150,7 +152,9 @@ fun MainScreen(
 
     val activityContext = LocalContext.current as Activity
 
-    val note = remember { mutableStateOf(noteModel) }
+    val note = remember { mutableStateOf(notesModel) }
+
+    val notes: ArrayList<NotesModel> = ArrayList()
 
     Scaffold(
         modifier = Modifier
@@ -419,25 +423,23 @@ fun MainScreen(
                             when (model.alarmMapper) {
                                 0 -> {}
                                 1 -> {
-                                    if (model.alarmStatus) {
+                                    if(model.alarmStatus){
+                                        notes.add(model)
                                         notificationTrigger.scheduleNotification(
                                             activityContext,
-                                            model.triggerTime,
-                                            model.requestCode
+                                            notes
                                         )
-                                        sharedPrefs.sharedPreferences.edit().putString("title",model.title).apply()
-                                        sharedPrefs.sharedPreferences.edit().putString("content",model.content).apply()
-                                        sharedPrefs.sharedPreferences.edit().putInt("requestCode",model.requestCode).apply()
-                                        sharedPrefs.sharedPreferences.edit().putInt("stopCode",model.stopCode).apply()
                                     }
                                 }
 
                                 2 -> {
+
                                     val checkDateRequest =
                                         PeriodicWorkRequestBuilder<CheckDateWorker>(
                                             1,
                                             TimeUnit.DAYS
                                         ).build()
+
                                     workManager.enqueueUniquePeriodicWork(
                                         "Check date Worker",
                                         ExistingPeriodicWorkPolicy.UPDATE,
@@ -445,7 +447,6 @@ fun MainScreen(
                                     )
                                 }
                             }
-
                             RevealSwipeContent(
                                 item = model,
                                 onShare = { shareItem ->
@@ -526,11 +527,11 @@ fun MainScreen(
                             when (model.alarmMapper) {
                                 0 -> {}
                                 1 -> {
-                                    if (model.alarmStatus) {
+                                    if (model.alarmStatus){
+                                        notes.add(model)
                                         notificationTrigger.scheduleNotification(
                                             activityContext,
-                                            model.triggerTime,
-                                            model.requestCode
+                                            notes
                                         )
                                     }
                                 }

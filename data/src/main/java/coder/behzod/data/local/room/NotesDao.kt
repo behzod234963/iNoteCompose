@@ -13,8 +13,8 @@ interface NotesDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun saveNote(note: NotesModel)
 
-    @Query("UPDATE notes SET alarmStatus=:status WHERE id=:id")
-    suspend fun updateStatus(id: Int,status:Boolean)
+    @Query("UPDATE notes SET alarmStatus=:status WHERE requestCode=:requestCode")
+    suspend fun updateStatus(requestCode: Int,status:Boolean)
 
     @Delete
     suspend fun deleteNote(note: NotesModel)

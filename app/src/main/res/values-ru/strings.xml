@@ -57,4 +57,5 @@
     <string name="time">Время</string>
     <string name="repeating">Повторение</string>
     <string name="please_pick_the_date">Please pick the date</string>
+    <string name="invalid_date_or_time_date">Неправильное дата или время!</string>
 </resources>

@@ -23,7 +23,7 @@ class NoteRepositoryImpl(private val dao: NotesDao) : NotesRepository {
 
     override fun getAllNotes(): List<NotesModel> = dao.getAllNotes()
 
-    override suspend fun updateStatus(id: Int,status: Boolean) {
-        dao.updateStatus(id = id, status)
+    override suspend fun updateStatus(requestCode: Int,status: Boolean) {
+        dao.updateStatus(requestCode = requestCode, status)
     }
 }

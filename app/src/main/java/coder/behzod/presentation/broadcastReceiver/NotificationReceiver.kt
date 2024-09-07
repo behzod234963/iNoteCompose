@@ -10,7 +10,11 @@ import androidx.core.app.NotificationManagerCompat
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.useCase.notesUseCases.NotesUseCases
 import coder.behzod.presentation.notifications.NotificationScheduler
+import coder.behzod.presentation.utils.constants.notesModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -28,20 +32,20 @@ class NotificationReceiver : BroadcastReceiver() {
 
     @SuppressLint("NewApi", "SuspiciousIndentation")
     @RequiresApi(Build.VERSION_CODES.P)
-    override fun onReceive(context: Context, intent: Intent?) {
+    override fun onReceive(context: Context, intent: Intent) {
 
         val notificationScheduler = NotificationScheduler(notificationManager)
-        val title = sharedPrefs.sharedPreferences.getString("title", "")
-        val content = sharedPrefs.sharedPreferences.getString("content", "")
-        val requestCode = sharedPrefs.sharedPreferences.getInt("requestCode", 0)
-        val stopCode = sharedPrefs.sharedPreferences.getInt("stopCode", 0)
+        val requestCode = intent.getIntExtra("requestCode",-1)
+        val title = intent.getStringExtra("title")
+        val content = intent.getStringExtra("content")
 
         notificationScheduler.showNotification(
             ctx = context,
-            title = title?:"",
-            content = content?:"",
             requestCode = requestCode,
-            stopCode = stopCode
-        )
+            title = title?:"",
+            content = content?:""
+        ).run {
+            sharedPrefs.sharedPreferences.edit().putInt("stopRequestCode",requestCode).apply()
+        }
     }
 }

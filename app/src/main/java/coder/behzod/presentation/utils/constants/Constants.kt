@@ -9,12 +9,13 @@ import coder.behzod.presentation.theme.red
 import coder.behzod.presentation.theme.yellow
 
 
-val noteModel = NotesModel(
+val notesModel = NotesModel(
     id = -1,
     title = "",
     content = "",
     color = 0,
-    dataAdded = "",,
+    dataAdded = "",
+    alarmMapper = 0,
     requestCode = 1,
     stopCode = 3
 )

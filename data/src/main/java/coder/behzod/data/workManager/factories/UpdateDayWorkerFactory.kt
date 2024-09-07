@@ -13,5 +13,9 @@ class UpdateDayWorkerFactory @Inject constructor(private val useCases: TrashUseC
         appContext: Context,
         workerClassName: String,
         workerParameters: WorkerParameters
-    ): ListenableWorker = UpdateDayWorker(ctx = appContext, workerParameters,useCases)
+    ): ListenableWorker = UpdateDayWorker(
+        ctx = appContext,
+        workerParameters,
+        useCases
+    )
 }

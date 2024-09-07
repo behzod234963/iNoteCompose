@@ -2,7 +2,6 @@ package coder.behzod.presentation.screens
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -82,7 +81,7 @@ import coder.behzod.presentation.views.SpeedDialFAB
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter", "ScheduleExactAlarm")
 @Composable
 fun NewNoteScreen(
     navController: NavHostController,
@@ -205,17 +204,16 @@ fun NewNoteScreen(
                                 message = ctx.getString(R.string.note_is_cannot_be_empty),
                             )
                         }
-                    } else if (setAlarm.value) {
-                        if (isDatePicked.value && isTimePicked.value) {
-                            alarmStatus.value = true
-                        } else {
-                            Toast.makeText(
-                                activityContext,
-                                "invalid date or time date: ${pickedDate.value}",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                    }else if (setAlarm.value && !isDatePicked.value || !isTimePicked.value){
+                        coroutineScope.launch {
+                            scaffoldState.snackbarHostState.showSnackbar(
+                                message = ctx.getString(R.string.invalid_date_or_time_date),
+                            )
                         }
                     } else {
+
+                        alarmStatus.value = true
+
                         /* Save note */
                         if (arguments.id != -1) {
 
@@ -236,9 +234,6 @@ fun NewNoteScreen(
                                     triggerTime = triggerTime.longValue,
                                 )
                             )
-                            coroutineScope.launch {
-                                dataStore.saveControllerCode(alarmController.intValue)
-                            }
                         } else {
                             viewModel.saveNote(
                                 NotesModel(
@@ -256,9 +251,6 @@ fun NewNoteScreen(
                                     triggerTime = triggerTime.longValue
                                 )
                             )
-                            coroutineScope.launch {
-                                dataStore.saveControllerCode(alarmController.intValue)
-                            }
                         }
                         navController.navigate(ScreensRouter.MainScreenRoute.route)
                     }
@@ -269,17 +261,16 @@ fun NewNoteScreen(
                             message = ctx.getString(R.string.note_is_cannot_be_empty),
                         )
                     }
-                }else if (setAlarm.value) {
-                    if (isDatePicked.value && isTimePicked.value) {
-                        alarmStatus.value = true
-                    } else {
-                        Toast.makeText(
-                            activityContext,
-                            "invalid date or time date: ${pickedDate.value}",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                } else if (setAlarm.value && !isDatePicked.value || !isTimePicked.value){
+                    coroutineScope.launch {
+                        scaffoldState.snackbarHostState.showSnackbar(
+                            message = ctx.getString(R.string.invalid_date_or_time_date),
+                        )
                     }
                 } else {
+
+                    alarmStatus.value = true
+
                     /* Share and Save note */
                     if (arguments.id != -1) {
 
@@ -308,7 +299,6 @@ fun NewNoteScreen(
                                 triggerTime = triggerTime.longValue
                             )
                         )
-                        coroutineScope.launch { dataStore.saveControllerCode(alarmController.intValue) }
                     } else {
 
                         ShareNote().execute(
@@ -333,7 +323,6 @@ fun NewNoteScreen(
                                 triggerTime = triggerTime.longValue
                             )
                         )
-                        coroutineScope.launch { dataStore.saveControllerCode(alarmController.intValue) }
                     }
                 }
             }
@@ -591,8 +580,12 @@ fun NewNoteScreen(
                             Switch(
                                 colors = SwitchDefaults.colors(
                                     checkedTrackColor = green,
-                                    checkedThumbColor = if (arguments.id != -1) Color(vmColor) else themeColor.value,
-                                    uncheckedThumbColor = if (arguments.id != -1) Color(vmColor) else themeColor.value,
+                                    checkedThumbColor = if (arguments.id != -1) Color(
+                                        vmColor
+                                    ) else themeColor.value,
+                                    uncheckedThumbColor = if (arguments.id != -1) Color(
+                                        vmColor
+                                    ) else themeColor.value,
                                     uncheckedTrackColor = fontColor.value
                                 ),
                                 checked = setAlarm.value,
@@ -615,7 +608,7 @@ fun NewNoteScreen(
                                 onPicked = { date, time ->
                                     isDatePicked.value = date
                                     isTimePicked.value = time
-                                }
+                                },
                             )
                         }
                     }

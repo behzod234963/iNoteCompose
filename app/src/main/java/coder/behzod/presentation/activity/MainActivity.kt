@@ -8,7 +8,6 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,13 +18,12 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
-import coder.behzod.data.workManager.workers.CheckDateWorker
 import coder.behzod.data.workManager.workers.UpdateDayWorker
+import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.useCase.notesUseCases.NotesUseCases
-import coder.behzod.presentation.alarmManager.schedulers.AlarmScheduler
 import coder.behzod.presentation.navigation.NavGraph
 import coder.behzod.presentation.notifications.NotificationTrigger
-import coder.behzod.presentation.utils.constants.noteModel
+import coder.behzod.presentation.utils.constants.notesModel
 import coder.behzod.presentation.viewModels.NewNoteViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -69,7 +67,8 @@ class MainActivity : AppCompatActivity() {
     private fun InitAlarmManager() {
 
         val id = dataStoreInstance.getModelId().collectAsState(initial = -1)
-        val model = remember { mutableStateOf( noteModel ) }
+        val model = remember { mutableStateOf( notesModel ) }
+        val notes = ArrayList<NotesModel>()
 
         if (id.value != -1){
             CoroutineScope(Dispatchers.IO).launch {
@@ -78,16 +77,13 @@ class MainActivity : AppCompatActivity() {
             }
         }
         if (model.value.alarmStatus){
-            notificationTrigger.scheduleNotification(this@MainActivity,model.value.triggerTime,model.value.requestCode)
-            sharedPrefs.sharedPreferences.edit().putString("title",model.value.title).apply()
-            sharedPrefs.sharedPreferences.edit().putString("content",model.value.content).apply()
-            sharedPrefs.sharedPreferences.edit().putInt("requestCode",model.value.requestCode).apply()
-            sharedPrefs.sharedPreferences.edit().putInt("stopCode",model.value.stopCode).apply()
+            notes.add(model.value)
+            notificationTrigger.scheduleNotification(this@MainActivity,notes)
         }
     }
     @Composable
     private fun InitValue() {
-        notificationTrigger = NotificationTrigger(this@MainActivity)
+        notificationTrigger = NotificationTrigger()
         alarmManager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         workManager = WorkManager.getInstance(applicationContext)
         newNoteViewModel = hiltViewModel()

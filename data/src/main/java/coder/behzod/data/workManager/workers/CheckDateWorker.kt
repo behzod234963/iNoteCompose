@@ -1,6 +1,6 @@
 package coder.behzod.data.workManager.workers
 
-import android.app.Notification
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
@@ -20,6 +20,7 @@ class CheckDateWorker @AssistedInject constructor(
     @Assisted val useCase: NotesUseCases
 ) : CoroutineWorker(ctx, workerParameters) {
 
+    @SuppressLint("ScheduleExactAlarm")
     override suspend fun doWork(): Result {
 
         val dataStore = DataStoreInstance(ctx)
