@@ -95,7 +95,10 @@ class TrashViewModel @Inject constructor(
                             ),
                             alarmMapper = 0,
                             requestCode = 1,
-                            stopCode = 3
+                            stopCode = 3,
+                            alarmDate = "",
+                            alarmTime = "",
+                            isRepeat = false
                         )
                         noteUseCases.saveNoteUseCase(notesModel)
                     }
@@ -117,7 +120,10 @@ class TrashViewModel @Inject constructor(
                             ),
                             alarmMapper = 0,
                             requestCode = 1,
-                            stopCode = 3
+                            stopCode = 3,
+                            alarmTime = "",
+                            alarmDate = "",
+                            isRepeat = false
                         )
                         restoreNote(note = notesModel, trashModel = i)
                     }

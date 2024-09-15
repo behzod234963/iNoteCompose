@@ -55,8 +55,11 @@ class CheckDateWorker @AssistedInject constructor(
                 alarmStatus = note.alarmStatus,
                 requestCode = note.requestCode,
                 stopCode = note.stopCode,
+                alarmDate = note.alarmDate,
+                alarmTime = note.alarmTime,
                 triggerDate = note.triggerDate,
-                triggerTime = note.triggerTime
+                triggerTime = note.triggerTime,
+                isRepeat = note.isRepeat
             )
 
             if (model.alarmStatus) {

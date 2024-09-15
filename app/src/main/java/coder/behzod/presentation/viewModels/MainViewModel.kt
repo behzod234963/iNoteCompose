@@ -53,6 +53,12 @@ class MainViewModel @Inject constructor(
         getNotes(NoteOrder.Date(OrderType.Descending))
     }
 
+    fun updateAlarmStatus(requestCode:Int,status:Boolean) = viewModelScope.launch {
+        useCases.updateStatusUseCase.execute(requestCode,status)
+    }
+    fun updateIsRepeat(requestCode: Int,isRepeat:Boolean) = viewModelScope.launch {
+        useCases.updateIsRepeatUseCase.execute(requestCode,isRepeat)
+    }
     fun onEvent(event: NotesEvent) {
         when (event) {
             is NotesEvent.Order -> {
@@ -105,7 +111,6 @@ class MainViewModel @Inject constructor(
     }
 
     fun saveAllToTrash(notesModel: List<NotesModel>) {
-
         viewModelScope.launch(Dispatchers.IO) {
             for (notes in notesModel) {
                 val trashModel = TrashModel(
@@ -126,9 +131,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun saveToTrash(note: TrashModel) = viewModelScope.launch {
-
         trashUseCase.saveToTrashUseCase(note)
-
     }
 
     fun returnDeletedNote(note: NotesModel) {

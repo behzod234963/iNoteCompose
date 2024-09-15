@@ -26,4 +26,12 @@ class NoteRepositoryImpl(private val dao: NotesDao) : NotesRepository {
     override suspend fun updateStatus(requestCode: Int,status: Boolean) {
         dao.updateStatus(requestCode = requestCode, status)
     }
+
+    override suspend fun updateIsRepeat(requestCode: Int, isRepeat: Boolean) {
+        dao.updateIsRepeat(requestCode,isRepeat)
+    }
+
+    override suspend fun updateIsFired(requestCode: Int, isFired: Boolean) {
+        dao.updateIsFired(requestCode,isFired)
+    }
 }

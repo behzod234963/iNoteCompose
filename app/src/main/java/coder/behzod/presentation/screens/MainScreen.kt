@@ -7,15 +7,19 @@ import android.os.Looper
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarResult
 import androidx.compose.material.icons.Icons
@@ -23,6 +27,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -39,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -59,6 +66,8 @@ import coder.behzod.presentation.items.MainScreenRowItem
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.notifications.NotificationTrigger
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
+import coder.behzod.presentation.theme.green
+import coder.behzod.presentation.theme.red
 import coder.behzod.presentation.utils.constants.KEY_FONT_SIZE
 import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.constants.KEY_LIST_STATUS
@@ -67,9 +76,8 @@ import coder.behzod.presentation.utils.constants.notesModel
 import coder.behzod.presentation.utils.events.NotesEvent
 import coder.behzod.presentation.utils.helpers.ShareNote
 import coder.behzod.presentation.viewModels.MainViewModel
-import coder.behzod.presentation.views.AlertDialogInstance
+import coder.behzod.presentation.views.AlertDialogs
 import coder.behzod.presentation.views.BottomNavigationView
-import coder.behzod.presentation.views.DialogViewInstance
 import coder.behzod.presentation.views.MainTopAppBar
 import coder.behzod.presentation.views.RevealSwipeContent
 import com.airbnb.lottie.compose.LottieAnimation
@@ -98,7 +106,6 @@ fun MainScreen(
     viewModel: MainViewModel = hiltViewModel()
 ) {
 
-    val count = remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt("count", -1)) }
     val themeIndex =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
     val colorTheme = if (themeIndex.intValue == 0) Color.Black else Color.White
@@ -166,6 +173,8 @@ fun MainScreen(
                 navController = navController
             )
         },
+        backgroundColor = themeColor.value,
+        contentColor = themeColor.value,
         topBar = {
             if (isSelected.value) {
                 TopAppBar(
@@ -305,67 +314,110 @@ fun MainScreen(
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        AlertDialogInstance(
-                            fontSize = fontSize.intValue,
-                            icon = Icons.Default.Delete,
-                            title = null,
-                            text = when (functionsCase.intValue) {
-                                2 -> {
-                                    stringResource(R.string.delete_selected_notes)
-                                }
-
-                                3 -> {
-                                    stringResource(id = R.string.delete_all_notes)
-                                }
-
-                                4 -> {
-                                    stringResource(id = R.string.delete_all_notes)
-                                }
-
-                                else -> {
-                                    ""
+                        AlertDialogs(
+                            dismissButton = {
+                                Button(
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = red
+                                    ),
+                                    onClick = {
+                                        isDialogVisible.value = false
+                                        isSelected.value = false
+                                    }) {
+                                    Text(
+                                        text = stringResource(id = R.string.cancel),
+                                        color = Color.White,
+                                        fontSize = fontSize.intValue.sp,
+                                        fontFamily = FontFamily(fontAmidoneGrotesk)
+                                    )
                                 }
                             },
-                            confirmButtonText = "Ok",
                             confirmButton = {
+                                Button(
+                                    modifier = Modifier
+                                        .width(110.dp),
+                                    shape = RoundedCornerShape(10.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = green
+                                    ),
+                                    onClick = {
+                                        when (functionsCase.intValue) {
+                                            /*This is delete selected */
+                                            2 -> {
+                                                isDialogVisible.value = false
+                                                isSelected.value = false
+                                                viewModel.saveAllToTrash(selectedNotes)
+                                                viewModel.multipleDelete(selectedNotes)
+                                            }
 
-                                when (functionsCase.intValue) {
-                                    /*This is delete selected */
-                                    2 -> {
+                                            3 -> {
+                                                isDialogVisible.value = false
+                                                isSelected.value = false
+                                                viewModel.saveAllToTrash(selectedNotes)
+                                                viewModel.multipleDelete(selectedNotes)
+                                            }
+
+                                            4 -> {
+                                                isDialogVisible.value = false
+                                                isSelected.value = false
+                                                viewModel.saveAllToTrash(state.value.notes)
+                                            }
+                                        }
+                                        selectedNotesCount.intValue = selectedNotes.size
                                         isDialogVisible.value = false
                                         isSelected.value = false
-                                        viewModel.saveAllToTrash(selectedNotes)
-                                        viewModel.multipleDelete(selectedNotes)
-                                    }
-
-                                    3 -> {
-                                        isDialogVisible.value = false
-                                        isSelected.value = false
-                                        viewModel.saveAllToTrash(selectedNotes)
-                                        viewModel.multipleDelete(selectedNotes)
-                                    }
-
-                                    4 -> {
-                                        isDialogVisible.value = false
-                                        isSelected.value = false
-                                        viewModel.saveAllToTrash(state.value.notes)
-                                    }
+                                    }) {
+                                    Text(
+                                        text = "Ok",
+                                        color = Color.White,
+                                        fontSize = fontSize.intValue.sp,
+                                        fontFamily = FontFamily(fontAmidoneGrotesk)
+                                    )
                                 }
-                                selectedNotesCount.intValue = selectedNotes.size
-                                isDialogVisible.value = false
-                                isSelected.value = false
                             },
-                            dismissButtonText = stringResource(id = R.string.cancel),
-                            showDialog = isDialogVisible.value,
                             onDismissRequest = {
                                 isDialogVisible.value = false
                                 isSelected.value = false
                             },
-                            dismissButton = {
-                                isDialogVisible.value = false
-                                isSelected.value = false
-                            }
-                        )
+                            title = {
+                                Text(
+                                    text = notesModel.title,
+                                    color = Color.White,
+                                    fontSize = fontSize.intValue.plus(5).sp,
+                                    fontFamily = FontFamily(fontAmidoneGrotesk)
+                                )
+                            },
+                            content = {
+                                Text(
+                                    text = when (functionsCase.intValue) {
+                                        2 -> {
+                                            stringResource(R.string.delete_selected_notes)
+                                        }
+
+                                        3 -> {
+                                            stringResource(id = R.string.delete_all_notes)
+                                        }
+
+                                        4 -> {
+                                            stringResource(id = R.string.delete_all_notes)
+                                        }
+
+                                        else -> {
+                                            ""
+                                        }
+                                    },
+                                    color = Color.White,
+                                    fontSize = fontSize.intValue.sp,
+                                    fontFamily = FontFamily(fontAmidoneGrotesk)
+                                )
+
+                            }) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "example Icon",
+                                tint = Color.White
+                            )
+                        }
                     }
                 }
 
@@ -376,30 +428,80 @@ fun MainScreen(
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        DialogViewInstance(
-                            fontSize = fontSize.intValue,
-                            dismissRequest = {
+                        AlertDialogs(
+                            dismissButton = {
+                                Button(
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = red
+                                    ),
+                                    onClick = {
+                                        isDialogVisible.value = false
+                                    }) {
+                                    Text(
+                                        text = stringResource(id = R.string.cancel),
+                                        color = Color.White,
+                                        fontSize = fontSize.intValue.sp,
+                                        fontFamily = FontFamily(fontAmidoneGrotesk)
+                                    )
+                                }
+                            },
+                            confirmButton = { },
+                            onDismissRequest = {
                                 isDialogViewVisible.value = false
                                 isSelected.value = false
                                 isDialogVisible.value = false
                             },
-                            isDialogVisible = isDialogViewVisible.value,
-                            viewIndex = {
-                                when (it) {
-                                    0 -> {
-                                        viewModel.onEvent(NotesEvent.ViewType(0))
-                                        isDialogViewVisible.value = false
-                                        isDialogVisible.value = false
-                                    }
-
-                                    1 -> {
+                            title = {
+                                Text(
+                                    text = stringResource(id = R.string.select_view),
+                                    color = Color.White,
+                                    fontSize = fontSize.intValue.plus(5).sp,
+                                    fontFamily = FontFamily(fontAmidoneGrotesk)
+                                )
+                            },
+                            content = { }) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceAround,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                IconButton(
+                                    onClick = {
                                         viewModel.onEvent(NotesEvent.ViewType(1))
                                         isDialogViewVisible.value = false
                                         isDialogVisible.value = false
                                     }
+                                ) {
+                                    Icon(
+                                        painterResource(
+                                            id = R.drawable.ic_grid
+                                        ),
+                                        modifier = Modifier
+                                            .size(35.dp),
+                                        contentDescription = "gridView",
+                                        tint = Color.White
+                                    )
+                                }
+                                IconButton(
+                                    onClick = {
+                                        viewModel.onEvent(NotesEvent.ViewType(0))
+                                        isDialogViewVisible.value = false
+                                        isDialogVisible.value = false
+                                    }
+                                ) {
+                                    Icon(
+                                        painterResource(
+                                            id = R.drawable.ic_list
+                                        ),
+                                        modifier = Modifier
+                                            .size(35.dp),
+                                        contentDescription = "listView",
+                                        tint = Color.White
+                                    )
                                 }
                             }
-                        )
+                        }
                     }
                 }
             }
@@ -421,9 +523,11 @@ fun MainScreen(
                         items(items = state.value.notes, key = { it.toString() }) { model ->
 
                             when (model.alarmMapper) {
+                                /* 0->Neutral */
                                 0 -> {}
+                                /* 0->Current day */
                                 1 -> {
-                                    if(model.alarmStatus){
+                                    if (model.alarmStatus) {
                                         notes.add(model)
                                         notificationTrigger.scheduleNotification(
                                             activityContext,
@@ -431,12 +535,12 @@ fun MainScreen(
                                         )
                                     }
                                 }
-
+                                /* 0->Other day */
                                 2 -> {
 
                                     val checkDateRequest =
                                         PeriodicWorkRequestBuilder<CheckDateWorker>(
-                                            1,
+                                            2,
                                             TimeUnit.DAYS
                                         ).build()
 
@@ -445,6 +549,16 @@ fun MainScreen(
                                         ExistingPeriodicWorkPolicy.UPDATE,
                                         checkDateRequest
                                     )
+                                }
+
+                                3 -> {
+                                    if (model.alarmStatus && model.isRepeat) {
+                                        notes.add(model)
+                                        notificationTrigger.scheduleRepeatingNotification(
+                                            activityContext,
+                                            notes
+                                        )
+                                    }
                                 }
                             }
                             RevealSwipeContent(
@@ -490,6 +604,12 @@ fun MainScreen(
                                     themeColor = themeColor.value,
                                     fontColor = fontColor.value,
                                     fontSize = fontSize.intValue,
+                                    isAllItemsChecked = {
+
+                                    },
+                                    isItemChecked = {
+                                        isSelected.value = it
+                                    },
                                     isSelected = isSelected.value,
                                     onCheckedChange = {
                                         if (it == 1) {
@@ -524,10 +644,12 @@ fun MainScreen(
                             notes.toString()
                         }) { model ->
 
+                            /* 0-> Neutral */
                             when (model.alarmMapper) {
                                 0 -> {}
+                                /* 1->Current day */
                                 1 -> {
-                                    if (model.alarmStatus){
+                                    if (model.alarmStatus) {
                                         notes.add(model)
                                         notificationTrigger.scheduleNotification(
                                             activityContext,
@@ -535,11 +657,11 @@ fun MainScreen(
                                         )
                                     }
                                 }
-
+                                /* 0-> Other day */
                                 2 -> {
                                     val checkDateRequest =
                                         PeriodicWorkRequestBuilder<CheckDateWorker>(
-                                            1,
+                                            2,
                                             TimeUnit.DAYS
                                         ).build()
                                     workManager.enqueueUniquePeriodicWork(

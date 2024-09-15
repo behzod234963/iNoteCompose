@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,6 +24,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -54,13 +57,15 @@ import coder.behzod.domain.model.TrashModel
 import coder.behzod.presentation.items.TrashScreenItem
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
+import coder.behzod.presentation.theme.green
+import coder.behzod.presentation.theme.red
 import coder.behzod.presentation.utils.constants.KEY_FONT_SIZE
 import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.constants.notes
 import coder.behzod.presentation.utils.events.TrashEvent
 import coder.behzod.presentation.utils.extensions.dateFormatter
 import coder.behzod.presentation.viewModels.TrashViewModel
-import coder.behzod.presentation.views.AlertDialogInstance
+import coder.behzod.presentation.views.AlertDialogs
 import coder.behzod.presentation.views.BottomNavigationView
 import coder.behzod.presentation.views.SpeedDialFAB
 import com.airbnb.lottie.compose.LottieAnimation
@@ -83,15 +88,8 @@ fun TrashScreen(
     viewModel: TrashViewModel = hiltViewModel(),
 ) {
 
-    val btnRestore = rememberLottieComposition(
-        spec = LottieCompositionSpec.RawRes(R.raw.btn_refresh_black)
-    )
-
     val btnCloseAnim = rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(R.raw.btn_close)
-    )
-    val btnTrashAnimation = rememberLottieComposition(
-        spec = LottieCompositionSpec.RawRes(R.raw.btn_trash)
     )
 
     val themeIndex =
@@ -103,7 +101,6 @@ fun TrashScreen(
         Color.White
 
     val isDialogVisible = remember { mutableStateOf(false) }
-    val isPlaying = remember { mutableStateOf(false) }
 
     val selectedItems = viewModel.selectedItems.value
     val selectedItemsCount = remember { mutableIntStateOf(0) }
@@ -129,10 +126,6 @@ fun TrashScreen(
 
     val fontSize =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_FONT_SIZE, 18)) }
-
-    val isRestoreBtnClicked = remember { mutableStateOf(false) }
-
-    val notesList = ArrayList<NotesModel>()
 
     val fontColor = remember {
         mutableStateOf(
@@ -478,132 +471,168 @@ fun TrashScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                AlertDialogInstance(
-                    showDialog = isDialogVisible.value,
-                    fontSize = fontSize.intValue,
-                    icon = null,
-                    title = null,
-                    text = when (functionsCase.intValue) {
-                        1 -> {
-                            stringResource(id = R.string.delete_selected_notes)
-                        }
+                AlertDialogs(
+                    dismissButton = {
+                        Button(
+                            modifier = Modifier
 
-                        2 -> {
-                            stringResource(R.string.action_with_a_note)
-                        }
-
-                        3 -> {
-                            stringResource(id = R.string.delete_all_notes)
-                        }
-
-                        4 -> {
-                            stringResource(id = R.string.restore_all)
-                        }
-
-                        5 -> {
-                            stringResource(id = R.string.restore_selected)
-                        }
-
-                        else -> {
-                            ""
-                        }
-                    },
-                    confirmButtonText = when (functionsCase.intValue) {
-                        1 -> {
-                            stringResource(id = R.string.delete)
-                        }
-
-                        2 -> {
-                            stringResource(id = R.string.delete)
-                        }
-
-                        3 -> {
-                            stringResource(id = R.string.delete)
-                        }
-
-                        4 -> {
-                            stringResource(id = R.string.restore)
-                        }
-
-                        5 -> {
-                            stringResource(id = R.string.restore)
-                        }
-
-                        else -> {
-                            ""
+                                .width(150.dp),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = red
+                            ),
+                            onClick = {
+                                if (functionsCase.intValue == 2) {
+                                    viewModel.restoreNote(
+                                        trashModel = trashedNote.value,
+                                        note = NotesModel(
+                                            id = trashedNote.value.id,
+                                            title = trashedNote.value.title,
+                                            content = trashedNote.value.content,
+                                            color = trashedNote.value.color,
+                                            dataAdded = LocalDate.now().toString()
+                                                .dateFormatter(),
+                                            alarmMapper = 0,
+                                            requestCode = 1,
+                                            stopCode = 3,
+                                            alarmDate = "",
+                                            alarmTime = "",
+                                            isRepeat = false
+                                        )
+                                    )
+                                    isDialogVisible.value = false
+                                    isSelected.value = false
+                                } else {
+                                    isDialogVisible.value = false
+                                    isSelected.value = false
+                                }
+                            }) {
+                            Text(
+                                text = if (functionsCase.intValue != 2) stringResource(
+                                    R.string.cancel
+                                )
+                                else stringResource(R.string.restore),
+                                color = Color.White,
+                                fontSize = fontSize.intValue.sp,
+                                fontFamily = FontFamily(fontAmidoneGrotesk)
+                            )
                         }
                     },
                     confirmButton = {
+                        Button(
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = green
+                            ),
+                            onClick = {
+                                when (functionsCase.intValue) {
 
-                        when (functionsCase.intValue) {
+                                    /*This is delete selected */
+                                    1 -> {
+                                        viewModel.multipleDelete(selectedItems)
+                                    }
 
-                            /*This is delete selected */
-                            1 -> {
-                                viewModel.multipleDelete(selectedItems)
-                            }
+                                    /*This is delete*/
+                                    2 -> {
+                                        viewModel.delete(trashedNote.value)
+                                    }
 
-                            /*This is delete*/
-                            2 -> {
-                                viewModel.delete(trashedNote.value)
-                            }
+                                    /*This is clear*/
+                                    3 -> {
+                                        viewModel.multipleDelete(trashedNotes)
+                                    }
 
-                            /*This is clear*/
-                            3 -> {
-                                viewModel.multipleDelete(trashedNotes)
-                            }
+                                    4 -> {
+                                        viewModel.onEvent(
+                                            event = TrashEvent.RestoreAllNotes(
+                                                notesModelList = notes,
+                                                trashedNotesList = trashedNotes,
+                                            ),
+                                            trashedNotes = trashedNotes
+                                        )
 
-                            4 -> {
-                                viewModel.onEvent(
-                                    event = TrashEvent.RestoreAllNotes(
-                                        notesModelList = notes,
-                                        trashedNotesList = trashedNotes,
-                                    ),
-                                    trashedNotes = trashedNotes
-                                )
+                                    }
 
-                            }
+                                    5 -> {
+                                        /* This will be restore selected function */
+                                        viewModel.onEvent(
+                                            event = TrashEvent.RestoreSelected(),
+                                            trashedNotes = trashedNotes
+                                        )
+                                    }
+                                }
+                                selectedItemsCount.intValue = selectedItems.size
+                                isDialogVisible.value = false
+                            }) {
+                            Text(
+                                text = when (functionsCase.intValue) {
+                                    1 -> {
+                                        stringResource(id = R.string.delete)
+                                    }
 
-                            5 -> {
-                                /* This will be restore selected function */
-                                viewModel.onEvent(
-                                    event = TrashEvent.RestoreSelected(),
-                                    trashedNotes = trashedNotes
-                                )
-                            }
-                        }
-                        selectedItemsCount.intValue = selectedItems.size
-                        isDialogVisible.value = false
-                    },
-                    dismissButtonText = if (functionsCase.intValue != 2) stringResource(
-                        R.string.cancel
-                    )
-                    else stringResource(R.string.restore),
-                    dismissButton = {
+                                    2 -> {
+                                        stringResource(id = R.string.delete)
+                                    }
 
-                        if (functionsCase.intValue == 2) {
-                            viewModel.restoreNote(
-                                trashModel = trashedNote.value,
-                                note = NotesModel(
-                                    id = trashedNote.value.id,
-                                    title = trashedNote.value.title,
-                                    content = trashedNote.value.content,
-                                    color = trashedNote.value.color,
-                                    dataAdded = LocalDate.now().toString()
-                                        .dateFormatter(),
-                                    alarmMapper = 0,
-                                    requestCode = 1,
-                                    stopCode = 3
-                                )
+                                    3 -> {
+                                        stringResource(id = R.string.delete)
+                                    }
+
+                                    4 -> {
+                                        stringResource(id = R.string.restore)
+                                    }
+
+                                    5 -> {
+                                        stringResource(id = R.string.restore)
+                                    }
+
+                                    else -> {
+                                        ""
+                                    }
+                                },
+                                color = Color.White,
+                                fontSize = fontSize.intValue.sp,
+                                fontFamily = FontFamily(fontAmidoneGrotesk)
                             )
-                            isDialogVisible.value = false
-                            isSelected.value = false
-                        } else {
-                            isDialogVisible.value = false
-                            isSelected.value = false
                         }
+                    },
+                    onDismissRequest = {
+                        isDialogVisible.value = false
+                        isSelected.value = false
+                    },
+                    title = { },
+                    content = {
+                        Text(
+                            text = when (functionsCase.intValue) {
+                                1 -> {
+                                    stringResource(id = R.string.delete_selected_notes)
+                                }
+
+                                2 -> {
+                                    stringResource(R.string.action_with_a_note)
+                                }
+
+                                3 -> {
+                                    stringResource(id = R.string.delete_all_notes)
+                                }
+
+                                4 -> {
+                                    stringResource(id = R.string.restore_all)
+                                }
+
+                                5 -> {
+                                    stringResource(id = R.string.restore_selected)
+                                }
+
+                                else -> {
+                                    ""
+                                }
+                            },
+                            color = Color.White,
+                            fontSize = fontSize.intValue.sp,
+                            fontFamily = FontFamily(fontAmidoneGrotesk)
+                        )
                     }) {
-                    isDialogVisible.value = false
-                    isSelected.value = false
+
                 }
             }
         } else {

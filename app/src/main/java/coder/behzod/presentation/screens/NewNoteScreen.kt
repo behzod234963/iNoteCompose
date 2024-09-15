@@ -115,6 +115,9 @@ fun NewNoteScreen(
     val isTimePicked = remember { mutableStateOf(false) }
     val triggerDate = remember { mutableIntStateOf(0) }
     val triggerTime = remember { mutableLongStateOf(0) }
+    val alarmDate = remember { mutableStateOf( "" ) }
+    val alarmTime = remember { mutableStateOf( "" ) }
+    val isRepeating = remember { mutableStateOf( false ) }
 
     val pickedDate = viewModel.dateAndTime
 
@@ -230,8 +233,11 @@ fun NewNoteScreen(
                                     alarmStatus = alarmStatus.value,
                                     requestCode = requestCode,
                                     stopCode = stopCode,
+                                    alarmDate = alarmDate.value,
+                                    alarmTime = alarmTime.value,
                                     triggerDate = triggerDate.intValue,
                                     triggerTime = triggerTime.longValue,
+                                    isRepeat = isRepeating.value,
                                 )
                             )
                         } else {
@@ -247,8 +253,11 @@ fun NewNoteScreen(
                                     alarmStatus = alarmStatus.value,
                                     requestCode = requestCode,
                                     stopCode = stopCode,
+                                    alarmDate = alarmDate.value,
+                                    alarmTime = alarmTime.value,
                                     triggerDate = triggerDate.intValue,
-                                    triggerTime = triggerTime.longValue
+                                    triggerTime = triggerTime.longValue,
+                                    isRepeat = isRepeating.value
                                 )
                             )
                         }
@@ -295,8 +304,11 @@ fun NewNoteScreen(
                                 alarmStatus = alarmStatus.value,
                                 requestCode = requestCode,
                                 stopCode = stopCode,
+                                alarmDate = alarmDate.value,
+                                alarmTime = alarmTime.value,
                                 triggerDate = triggerDate.intValue,
-                                triggerTime = triggerTime.longValue
+                                triggerTime = triggerTime.longValue,
+                                isRepeat = isRepeating.value
                             )
                         )
                     } else {
@@ -319,8 +331,11 @@ fun NewNoteScreen(
                                 alarmStatus = alarmStatus.value,
                                 requestCode = requestCode,
                                 stopCode = stopCode,
+                                alarmDate = alarmDate.value,
+                                alarmTime = alarmTime.value,
                                 triggerDate = triggerDate.intValue,
-                                triggerTime = triggerTime.longValue
+                                triggerTime = triggerTime.longValue,
+                                isRepeat = isRepeating.value
                             )
                         )
                     }
@@ -602,6 +617,11 @@ fun NewNoteScreen(
                                 fontSize = fontSize.intValue,
                                 onDateSet = { triggerDate.intValue = it },
                                 onTimeSet = { triggerTime.longValue = it },
+                                alarmParameters = { date, time,repeat->
+                                    alarmDate.value = date
+                                    alarmTime.value = time
+                                    isRepeating.value = repeat
+                                },
                                 alarmController = { controller ->
                                     alarmController.intValue = controller
                                 },

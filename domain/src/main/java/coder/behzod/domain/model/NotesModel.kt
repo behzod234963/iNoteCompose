@@ -2,6 +2,7 @@ package coder.behzod.domain.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.sql.Timestamp
 
 @Entity("notes")
 data class NotesModel(
@@ -15,8 +16,12 @@ data class NotesModel(
     val alarmStatus:Boolean = false,
     val requestCode:Int,
     val stopCode:Int,
+    val alarmDate:String,
+    val alarmTime : String,
     val triggerDate:Int = 0,
-    val triggerTime:Long = 0
+    val triggerTime:Long = 0,
+    val isRepeat:Boolean,
+    val isFired:Boolean = false
 )
 
 @Entity("trash")

@@ -26,7 +26,7 @@ class DataModule {
             app,
             RoomInstance::class.java,
             RoomInstance.ROOM_DB_NAME
-        ).build()
+        ).allowMainThreadQueries().build()
 
     @Provides
     @Singleton

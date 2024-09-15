@@ -10,7 +10,6 @@ import androidx.core.app.NotificationManagerCompat
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.useCase.notesUseCases.NotesUseCases
 import coder.behzod.presentation.notifications.NotificationScheduler
-import coder.behzod.presentation.utils.constants.notesModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,17 +34,25 @@ class NotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
 
         val notificationScheduler = NotificationScheduler(notificationManager)
-        val requestCode = intent.getIntExtra("requestCode",-1)
+        val requestCode = intent.getIntExtra("requestCode", -1)
         val title = intent.getStringExtra("title")
         val content = intent.getStringExtra("content")
+        val isRepeat = intent.getBooleanExtra("repeat",false)
+        val isFired = intent.getBooleanExtra("fired",false)
 
         notificationScheduler.showNotification(
             ctx = context,
             requestCode = requestCode,
-            title = title?:"",
-            content = content?:""
+            title = title ?: "",
+            content = content ?: ""
         ).run {
-            sharedPrefs.sharedPreferences.edit().putInt("stopRequestCode",requestCode).apply()
+            Intent(context, StopAlarm::class.java).let {
+                sharedPrefs.sharedPreferences.edit().putInt("stopRequestCode", requestCode).apply()
+            }
+        }
+        CoroutineScope(Dispatchers.IO).launch {
+            useCases.updateIsFiredUseCase.execute(requestCode,true)
+            useCases.updateStatusUseCase.execute(requestCode,false)
         }
     }
 }

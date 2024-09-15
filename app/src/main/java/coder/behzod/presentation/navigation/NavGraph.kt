@@ -89,7 +89,10 @@ fun NavGraph() {
                     dataAdded = "",
                     alarmMapper = 0,
                     requestCode = 1,
-                    stopCode = 2
+                    stopCode = 2,
+                    alarmDate = "",
+                    alarmTime = "",
+                    isRepeat = false
                 )
             )
         }

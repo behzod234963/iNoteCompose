@@ -55,6 +55,7 @@ fun SetAlarmContent(
     onTimeSet: (Long) -> Unit,
     alarmController:(Int)->Unit,
     onPicked: (date: Boolean, time: Boolean) -> Unit,
+    alarmParameters:(date:String,time:String,isRepeat:Boolean)->Unit
 ) {
 
     val isRepeating = remember { mutableStateOf(false) }
@@ -301,7 +302,7 @@ fun SetAlarmContent(
                         localYear.intValue >= currentYear.intValue
                         && localMonth.intValue >= currentMonth.intValue
                         && localDay.intValue > currentDay.intValue
-                        )
+                    )
                     {
                         alarmController(2)
                     }else if (localYear.intValue == currentYear.intValue
@@ -318,6 +319,8 @@ fun SetAlarmContent(
                     onTimeSet(selectedTime.longValue)
 
                     onPicked(isDatePicked.value, isTimePicked.value)
+
+                    alarmParameters(date.value,time.value,isRepeating.value)
 
                     SharedPreferenceInstance(ctx).sharedPreferences.edit().putInt("KEY_LOCAL_YEAR",localYear.intValue).apply()
 

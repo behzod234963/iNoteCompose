@@ -58,4 +58,8 @@
     <string name="repeating">Повторение</string>
     <string name="please_pick_the_date">Please pick the date</string>
     <string name="invalid_date_or_time_date">Неправильное дата или время!</string>
+    <string name="close">Закрыть</string>
+    <string name="alarm_info">Информация о напоминании</string>
+    <string name="everyday">Каждый день</string>
+    <string name="no">Нет</string>
 </resources>

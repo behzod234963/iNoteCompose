@@ -8,4 +8,6 @@ data class NotesUseCases(
     val deleteAllUseCase:DeleteAllUseCase,
     val getAllNotesUseCase: GetAllNoteUseCase,
     val updateStatusUseCase: UpdateStatusUseCase,
+    val updateIsRepeatUseCase: UpdateIsRepeatUseCase,
+    val updateIsFiredUseCase: UpdateIsFiredUseCase
 )

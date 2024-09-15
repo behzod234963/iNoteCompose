@@ -17,7 +17,10 @@ val notesModel = NotesModel(
     dataAdded = "",
     alarmMapper = 0,
     requestCode = 1,
-    stopCode = 3
+    stopCode = 3,
+    alarmDate = "",
+    alarmTime = "",
+    isRepeat = false
 )
 
 const val KEY_ALARM_STATUS = "KEY_ALARM_STATUS"

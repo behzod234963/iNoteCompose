@@ -12,7 +12,6 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import coder.behzod.R
 import coder.behzod.presentation.activity.MainActivity
-import coder.behzod.presentation.broadcastReceiver.StopAlarm
 import javax.inject.Inject
 
 class NotificationScheduler @Inject constructor(
@@ -27,12 +26,6 @@ class NotificationScheduler @Inject constructor(
         val contentIntentPendingIntent =
             PendingIntent.getActivity(ctx, 1, contentIntent, PendingIntent.FLAG_IMMUTABLE)
 
-        val flag = PendingIntent.FLAG_IMMUTABLE
-
-        val stopAlarmIntent = Intent(ctx, StopAlarm::class.java)
-        val stopAlarmPendingIntent =
-            PendingIntent.getBroadcast(ctx, requestCode, stopAlarmIntent, flag)
-
         if (ActivityCompat.checkSelfPermission(
                 ctx,
                 Manifest.permission.POST_NOTIFICATIONS
@@ -44,8 +37,7 @@ class NotificationScheduler @Inject constructor(
                     ctx,
                     title,
                     content,
-                    contentIntentPendingIntent,
-                    stopAlarmPendingIntent
+                    contentIntentPendingIntent
                 ).build()
             )
         }
@@ -56,18 +48,17 @@ class NotificationScheduler @Inject constructor(
         title: String,
         content: String,
         contentPendingIntent: PendingIntent,
-        stopPendingIntent: PendingIntent
     ): NotificationCompat.Builder {
-        val notification = NotificationCompat.Builder(ctx, "Main Channel ID")
+
+        val notificationWithoutAction = NotificationCompat.Builder(ctx, "Main Channel ID")
             .setContentTitle(title)
             .setContentText(content)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setContentIntent(contentPendingIntent)
-            .addAction(0, "Stop", stopPendingIntent)
             .setOngoing(false)
             .setAutoCancel(true)
-        return notification
+        return notificationWithoutAction
     }
 }

@@ -58,4 +58,8 @@
     <string name="repeating">Takrorlash</string>
     <string name="please_pick_the_date">Please pick the date</string>
     <string name="invalid_date_or_time_date">Sana yoki vaqt xato!</string>
+    <string name="close">Yopish</string>
+    <string name="alarm_info">Eslatma haqida</string>
+    <string name="everyday">Har kuni</string>
+    <string name="no">Yo\'q</string>
 </resources>
