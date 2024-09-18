@@ -71,8 +71,7 @@ fun NavGraph() {
             NewNoteScreen(
                 navController = navController,
                 arguments = Arguments(id),
-                sharedPrefs = SharedPreferenceInstance(ctx),
-                dataStore = DataStoreInstance(ctx)
+                sharedPrefs = SharedPreferenceInstance(ctx)
             )
         }
         composable(

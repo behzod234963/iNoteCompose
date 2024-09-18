@@ -56,7 +56,7 @@ class NotificationTrigger {
                 PendingIntent.getBroadcast(ctx, model.requestCode, alarmIntent, flag)
 
             val alarmManager = ctx.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,model.triggerTime,model.triggerTime+86400000,pendingIntent)
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,model.triggerTime,86400000,pendingIntent)
 
         }
     }

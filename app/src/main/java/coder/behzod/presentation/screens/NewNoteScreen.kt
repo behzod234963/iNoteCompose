@@ -4,7 +4,9 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,7 +19,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
@@ -56,7 +60,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coder.behzod.R
-import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.presentation.items.ColorsItem
@@ -87,12 +90,10 @@ fun NewNoteScreen(
     navController: NavHostController,
     arguments: Arguments,
     sharedPrefs: SharedPreferenceInstance,
-    dataStore: DataStoreInstance,
     viewModel: NewNoteViewModel = hiltViewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
-
 
     val range = 1..999999
     val requestCode = range.random()
@@ -118,8 +119,6 @@ fun NewNoteScreen(
     val alarmDate = remember { mutableStateOf( "" ) }
     val alarmTime = remember { mutableStateOf( "" ) }
     val isRepeating = remember { mutableStateOf( false ) }
-
-    val pickedDate = viewModel.dateAndTime
 
     val themeIndex =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
@@ -207,19 +206,16 @@ fun NewNoteScreen(
                                 message = ctx.getString(R.string.note_is_cannot_be_empty),
                             )
                         }
-                    }else if (setAlarm.value && !isDatePicked.value || !isTimePicked.value){
+                    }else if (setAlarm.value && !isDatePicked.value || setAlarm.value && !isTimePicked.value){
                         coroutineScope.launch {
                             scaffoldState.snackbarHostState.showSnackbar(
                                 message = ctx.getString(R.string.invalid_date_or_time_date),
                             )
                         }
                     } else {
-
-                        alarmStatus.value = true
-
+                        if(isDatePicked.value && isTimePicked.value) alarmStatus.value = true
                         /* Save note */
                         if (arguments.id != -1) {
-
                             viewModel.saveNote(
                                 NotesModel(
                                     id = arguments.id,
@@ -270,16 +266,14 @@ fun NewNoteScreen(
                             message = ctx.getString(R.string.note_is_cannot_be_empty),
                         )
                     }
-                } else if (setAlarm.value && !isDatePicked.value || !isTimePicked.value){
+                } else if (setAlarm.value && !isDatePicked.value || setAlarm.value && !isTimePicked.value){
                     coroutineScope.launch {
                         scaffoldState.snackbarHostState.showSnackbar(
                             message = ctx.getString(R.string.invalid_date_or_time_date),
                         )
                     }
                 } else {
-
-                    alarmStatus.value = true
-
+                    if(isDatePicked.value && isTimePicked.value) alarmStatus.value = true
                     /* Share and Save note */
                     if (arguments.id != -1) {
 
@@ -312,7 +306,6 @@ fun NewNoteScreen(
                             )
                         )
                     } else {
-
                         ShareNote().execute(
                             title = title.text,
                             content = note.text,
@@ -356,6 +349,7 @@ fun NewNoteScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState(),enabled = true)
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = {

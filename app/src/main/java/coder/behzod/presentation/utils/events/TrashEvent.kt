@@ -9,7 +9,7 @@ sealed class TrashEvent {
         val notesModelList: ArrayList<NotesModel>,
         val trashedNotesList: ArrayList<TrashModel>
     ) : TrashEvent()
-    class RestoreSelected( ):TrashEvent()
+
+    data object RestoreSelected : TrashEvent()
     data class ClearList(val list: ArrayList<TrashModel>) : TrashEvent()
-    data class PassObject(private val note:(TrashModel)->Unit):NotesEvent()
 }

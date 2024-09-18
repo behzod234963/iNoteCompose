@@ -162,9 +162,6 @@ fun TrashScreen(
             }
         )
     }
-
-    val isFontSizeIsBig = remember { mutableStateOf(false) }
-
     Scaffold(
         containerColor = themeColor.value,
         bottomBar = {
@@ -555,7 +552,7 @@ fun TrashScreen(
                                     5 -> {
                                         /* This will be restore selected function */
                                         viewModel.onEvent(
-                                            event = TrashEvent.RestoreSelected(),
+                                            event = TrashEvent.RestoreSelected,
                                             trashedNotes = trashedNotes
                                         )
                                     }

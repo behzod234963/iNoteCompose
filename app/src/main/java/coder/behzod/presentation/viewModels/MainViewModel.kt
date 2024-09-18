@@ -31,16 +31,16 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val useCases: NotesUseCases,
     private val trashUseCase: TrashUseCases,
-    private val sharedPrefs:SharedPreferenceInstance
+    sharedPrefs:SharedPreferenceInstance
 ) : ViewModel() {
 
     private val _state = mutableStateOf(NotesState())
     val state: State<NotesState> = _state
 
-    private var getNotesJob: Job? = null
+    private val _selectAll = mutableStateOf(false)
+    val selectAll:State<Boolean> = _selectAll
 
-    private val _selectAllStatus = mutableStateOf(false)
-    val selectAllStatus: State<Boolean> = _selectAllStatus
+    private var getNotesJob: Job? = null
 
     @SuppressLint("MutableCollectionMutableState")
     private val _selectedNotes = mutableStateOf(ArrayList<NotesModel>())
@@ -76,15 +76,12 @@ class MainViewModel @Inject constructor(
                 }
             }
 
-            is NotesEvent.SelectAllStatus -> {
-                _selectAllStatus.value = event.status
-            }
-
             is NotesEvent.ViewType->{
                 _viewType.intValue = event.viewType
             }
-
-            is TrashEvent.PassObject -> TODO()
+            is NotesEvent.SelectAll->{
+                _selectAll.value = event.status
+            }
         }
     }
 
@@ -95,7 +92,9 @@ class MainViewModel @Inject constructor(
     }
 
     fun addAllToList() = viewModelScope.launch {
-        _selectedNotes.value.addAll(state.value.notes)
+        for(i in state.value.notes){
+            _selectedNotes.value.add(i)
+        }
     }
 
     fun addNoteToList(note: NotesModel) = viewModelScope.launch {

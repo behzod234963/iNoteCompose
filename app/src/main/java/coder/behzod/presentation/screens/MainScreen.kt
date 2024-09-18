@@ -37,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -74,6 +75,7 @@ import coder.behzod.presentation.utils.constants.KEY_LIST_STATUS
 import coder.behzod.presentation.utils.constants.KEY_VIEW_TYPE
 import coder.behzod.presentation.utils.constants.notesModel
 import coder.behzod.presentation.utils.events.NotesEvent
+import coder.behzod.presentation.utils.events.TrashEvent
 import coder.behzod.presentation.utils.helpers.ShareNote
 import coder.behzod.presentation.viewModels.MainViewModel
 import coder.behzod.presentation.views.AlertDialogs
@@ -111,6 +113,8 @@ fun MainScreen(
     val colorTheme = if (themeIndex.intValue == 0) Color.Black else Color.White
     val themeColor = remember { mutableStateOf(colorTheme) }
 
+    val selectAllStatus = dataStoreInstance.getStatus().collectAsState(initial = true)
+
     if (colorTheme == Color.Black) themeColor.value = Color.Black else themeColor.value =
         Color.White
 
@@ -138,7 +142,6 @@ fun MainScreen(
     val isSelected = remember { mutableStateOf(false) }
 
     val selectedNotes = viewModel.selectedNotes.value
-    val selectAllStatus = viewModel.selectAllStatus.value
     val selectedNotesCount = remember { mutableIntStateOf(0) }
 
     val isClosed = remember { mutableStateOf(false) }
@@ -199,6 +202,7 @@ fun MainScreen(
                             Handler(Looper.getMainLooper()).postDelayed({
                                 isClosed.value = false
                                 isSelected.value = false
+                                coroutineScope.launch { dataStoreInstance.selectAllStatus(false) }
                                 viewModel.removeAllFromList()
                                 selectedNotesCount.intValue = selectedNotes.size
                             }, 1000)
@@ -233,10 +237,11 @@ fun MainScreen(
                     },
                     contentSelect = {
                         isSelected.value = true
+                        coroutineScope.launch { dataStoreInstance.selectAllStatus(false) }
                     },
                     contentSelectAll = {
                         isSelected.value = true
-                        viewModel.onEvent(NotesEvent.SelectAllStatus(true))
+                        viewModel.onEvent(NotesEvent.SelectAll(true))
                         viewModel.addAllToList()
                         selectedNotesCount.intValue = selectedNotes.size
                     },
@@ -262,7 +267,7 @@ fun MainScreen(
                     containerColor = fontColor.value,
                     shape = CircleShape,
                     onClick = {
-                        if (selectAllStatus) {
+                        if (selectAllStatus.value) {
                             dialogType.intValue = 0
                             isDialogVisible.value = true
                             functionsCase.intValue = 3
@@ -599,22 +604,20 @@ fun MainScreen(
                             ) { item ->
 
                                 note.value = item
+                                if (selectAllStatus.value) {
+                                   viewModel.removeAllFromList()
+                                    viewModel.addAllToList()
+                                    selectedNotesCount.intValue = notes.size
+                                }
                                 MainScreenRowItem(
                                     notesModel = item,
                                     themeColor = themeColor.value,
                                     fontColor = fontColor.value,
                                     fontSize = fontSize.intValue,
-                                    isAllItemsChecked = {
-
-                                    },
-                                    isItemChecked = {
-                                        isSelected.value = it
-                                    },
                                     isSelected = isSelected.value,
                                     onCheckedChange = {
                                         if (it == 1) {
-                                            if (selectAllStatus) {
-                                                viewModel.addAllToList()
+                                            if (selectAllStatus.value) {
                                                 selectedNotesCount.intValue = selectedNotes.size
                                             } else {
                                                 viewModel.addNoteToList(item)
@@ -636,7 +639,6 @@ fun MainScreen(
 
                     /*  Lazy Column Grid Item  */
                     sharedPrefs.sharedPreferences.edit().putInt(KEY_VIEW_TYPE, 1).apply()
-
                     LazyVerticalStaggeredGrid(
                         columns = StaggeredGridCells.Fixed(2)
                     ) {
@@ -659,19 +661,25 @@ fun MainScreen(
                                 }
                                 /* 0-> Other day */
                                 2 -> {
-                                    val checkDateRequest =
-                                        PeriodicWorkRequestBuilder<CheckDateWorker>(
-                                            2,
-                                            TimeUnit.DAYS
-                                        ).build()
-                                    workManager.enqueueUniquePeriodicWork(
-                                        "Check date Worker",
-                                        ExistingPeriodicWorkPolicy.UPDATE,
-                                        checkDateRequest
-                                    )
+                                    if(!model.isFired){
+                                        val checkDateRequest =
+                                            PeriodicWorkRequestBuilder<CheckDateWorker>(
+                                                2,
+                                                TimeUnit.DAYS
+                                            ).build()
+                                        workManager.enqueueUniquePeriodicWork(
+                                            "Check date Worker",
+                                            ExistingPeriodicWorkPolicy.UPDATE,
+                                            checkDateRequest
+                                        )
+                                    }
                                 }
                             }
-
+                            if (selectAllStatus.value) {
+                                viewModel.removeAllFromList()
+                                viewModel.addAllToList()
+                                selectedNotesCount.intValue = notes.size
+                            }
                             MainScreenGridItem(
                                 themeColor = themeColor.value,
                                 fontColor = fontColor.value,
@@ -688,7 +696,7 @@ fun MainScreen(
                                 },
                                 onChange = {
                                     if (it == 1) {
-                                        if (selectAllStatus) {
+                                        if (selectAllStatus.value) {
                                             viewModel.addAllToList()
                                             selectedNotesCount.intValue = selectedNotes.size
                                         } else {

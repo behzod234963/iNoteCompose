@@ -50,7 +50,8 @@ fun FunctionalTopAppBar(
             .fillMaxWidth()
             .background(themeColor),
         shape = RoundedCornerShape(10.dp),
-        elevation = 10.dp
+        elevation = 10.dp,
+        backgroundColor = themeColor
     ){
         TopAppBar(
             modifier = Modifier

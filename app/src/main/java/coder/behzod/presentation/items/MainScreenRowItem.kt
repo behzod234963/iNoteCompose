@@ -29,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -41,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coder.behzod.R
+import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.presentation.broadcastReceiver.NotificationReceiver
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
@@ -54,21 +56,22 @@ fun MainScreenRowItem(
     themeColor: Color,
     fontColor: Color,
     fontSize: Int,
-    isAllItemsChecked:(Boolean)->Unit,
-    isItemChecked:(Boolean)->Unit,
     isSelected: Boolean,
     onCheckedChange: (Int) -> Unit,
     onClick: () -> Unit,
     viewModel: MainViewModel = hiltViewModel()
 ) {
-
     val ctx = LocalContext.current
     val activityContext = LocalContext.current as Activity
+
     val alarmManager = ctx.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-    val selectAllStatus = viewModel.selectAllStatus.value
+
+    val selectAllStatus = viewModel.selectAll.value
     val isItemSelected = remember { mutableStateOf(false) }
     val isAllItemsSelected = remember { mutableStateOf(true) }
+
     val showAlarmContent = remember { mutableStateOf(false) }
+
     val colorFont = remember {
         mutableStateOf(
             when (notesModel.color) {
@@ -394,7 +397,7 @@ fun MainScreenRowItem(
                 Checkbox(
                     modifier = Modifier
                         .padding(end = 5.dp, bottom = 10.dp),
-                    checked = if (selectAllStatus) true
+                    checked = if(selectAllStatus) isAllItemsSelected.value
                     else isItemSelected.value,
                     onCheckedChange = {
                         if (selectAllStatus) {
@@ -402,18 +405,10 @@ fun MainScreenRowItem(
                         } else {
                             isItemSelected.value = it
                         }
-                        if (selectAllStatus){
-                            isAllItemsChecked(isAllItemsSelected.value)
-                        }else{
-                            isItemChecked(isItemSelected.value)
-                        }
                         onCheckedChange(if (it) 1 else 0)
                     }
                 )
             }
-        } else {
-            isItemSelected.value = false
-            isAllItemsSelected.value = false
         }
     }
 }

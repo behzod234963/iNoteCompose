@@ -71,7 +71,6 @@ class TrashViewModel @Inject constructor(
         useCases.delete(trashModel)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun onEvent(
         event: TrashEvent,
         trashedNotes: ArrayList<TrashModel>
