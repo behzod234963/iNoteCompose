@@ -15,9 +15,7 @@ import coder.behzod.domain.utils.NoteOrder
 import coder.behzod.domain.utils.OrderType
 import coder.behzod.presentation.utils.constants.KEY_VIEW_TYPE
 import coder.behzod.presentation.utils.events.NotesEvent
-import coder.behzod.presentation.utils.events.TrashEvent
 import coder.behzod.presentation.utils.helpers.NotesState
-import coder.behzod.presentation.utils.helpers.ShareNote
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -91,9 +89,9 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun addAllToList() = viewModelScope.launch {
-        for(i in state.value.notes){
-            _selectedNotes.value.add(i)
+    fun addAllToList(notes:List<NotesModel>) = viewModelScope.launch {
+        for (note in notes){
+            _selectedNotes.value.add(note)
         }
     }
 
@@ -105,7 +103,7 @@ class MainViewModel @Inject constructor(
         _selectedNotes.value.remove(note)
     }
 
-    fun removeAllFromList() {
+    fun clearList() {
         _selectedNotes.value.clear()
     }
 

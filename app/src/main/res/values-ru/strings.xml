@@ -62,4 +62,7 @@
     <string name="alarm_info">Информация о напоминании</string>
     <string name="everyday">Каждый день</string>
     <string name="no">Нет</string>
+    <string name="nothing_is_selected">Ничего не выбрано!!!</string>
+    <string name="empty_list">Список пуст</string>
+    <string name="tap_twice_to_exit">Дважды нажмите чтобы выйти</string>
 </resources>

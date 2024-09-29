@@ -2,6 +2,9 @@ package coder.behzod.presentation.screens
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.addCallback
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
@@ -60,6 +63,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coder.behzod.R
+import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.presentation.items.ColorsItem
@@ -74,6 +78,7 @@ import coder.behzod.presentation.theme.yellow
 import coder.behzod.presentation.utils.constants.KEY_FONT_SIZE
 import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.constants.colorsList
+import coder.behzod.presentation.utils.constants.notesModel
 import coder.behzod.presentation.utils.events.NewNoteEvent
 import coder.behzod.presentation.utils.extensions.dateFormatter
 import coder.behzod.presentation.utils.helpers.ShareNote
@@ -82,6 +87,7 @@ import coder.behzod.presentation.views.FunctionalTopAppBar
 import coder.behzod.presentation.views.SetAlarmContent
 import coder.behzod.presentation.views.SpeedDialFAB
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 @OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter", "ScheduleExactAlarm")
@@ -92,6 +98,9 @@ fun NewNoteScreen(
     sharedPrefs: SharedPreferenceInstance,
     viewModel: NewNoteViewModel = hiltViewModel()
 ) {
+
+    val model = viewModel.model.value
+
     val coroutineScope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
 
@@ -186,6 +195,9 @@ fun NewNoteScreen(
     val isKeyboardShown = remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
 
+    val dataStoreInctance = DataStoreInstance(ctx)
+
+    coroutineScope.launch { dataStoreInctance.mainScreenState(false) }
     Scaffold(
         modifier = Modifier
             .background(if (arguments.id != -1) Color(vmColor) else themeColor.value),
@@ -221,19 +233,19 @@ fun NewNoteScreen(
                                     id = arguments.id,
                                     title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") ""
                                     else title
-                                        .text.capitalize(),
+                                        .text.capitalize(Locale.ROOT),
                                     content = note.text,
                                     color = vmColor,
                                     dataAdded = date.intValue.toString().dateFormatter(),
-                                    alarmMapper = alarmController.intValue,
-                                    alarmStatus = alarmStatus.value,
-                                    requestCode = requestCode,
-                                    stopCode = stopCode,
-                                    alarmDate = alarmDate.value,
-                                    alarmTime = alarmTime.value,
-                                    triggerDate = triggerDate.intValue,
-                                    triggerTime = triggerTime.longValue,
-                                    isRepeat = isRepeating.value,
+                                    alarmMapper = model.model?.alarmMapper?:alarmController.intValue,
+                                    alarmStatus = model.model?.alarmStatus?:alarmStatus.value,
+                                    requestCode = model.model?.requestCode?:requestCode,
+                                    stopCode = model.model?.stopCode?:stopCode,
+                                    alarmDate = model.model?.alarmDate?:alarmDate.value,
+                                    alarmTime = model.model?.alarmTime?:alarmTime.value,
+                                    triggerDate = model.model?.triggerDate?:triggerDate.intValue,
+                                    triggerTime = model.model?.triggerTime?:triggerTime.longValue,
+                                    isRepeat = model.model?.isRepeat?:isRepeating.value,
                                 )
                             )
                         } else {
@@ -257,7 +269,7 @@ fun NewNoteScreen(
                                 )
                             )
                         }
-                        navController.navigate(ScreensRouter.MainScreenRoute.route)
+                        navController.popBackStack()
                     }
                 }) {
                 if (note.text == "" && note.text.isBlank()) {
@@ -276,13 +288,12 @@ fun NewNoteScreen(
                     if(isDatePicked.value && isTimePicked.value) alarmStatus.value = true
                     /* Share and Save note */
                     if (arguments.id != -1) {
-
                         ShareNote().execute(
                             title = title.text,
                             content = note.text,
                             ctx = activityContext
                         ) {
-                            navController.navigate(ScreensRouter.MainScreenRoute.route)
+                            navController.popBackStack()
                         }
                         viewModel.saveNote(
                             NotesModel(
@@ -294,15 +305,15 @@ fun NewNoteScreen(
                                 content = note.text,
                                 color = vmColor,
                                 dataAdded = date.intValue.toString().dateFormatter(),
-                                alarmMapper = alarmController.intValue,
-                                alarmStatus = alarmStatus.value,
-                                requestCode = requestCode,
-                                stopCode = stopCode,
-                                alarmDate = alarmDate.value,
-                                alarmTime = alarmTime.value,
-                                triggerDate = triggerDate.intValue,
-                                triggerTime = triggerTime.longValue,
-                                isRepeat = isRepeating.value
+                                alarmMapper = model.model?.alarmMapper?:alarmController.intValue,
+                                alarmStatus = model.model?.alarmStatus?:alarmStatus.value,
+                                requestCode = model.model?.requestCode?:requestCode,
+                                stopCode = model.model?.stopCode?:stopCode,
+                                alarmDate = model.model?.alarmDate?:alarmDate.value,
+                                alarmTime = model.model?.alarmTime?:alarmTime.value,
+                                triggerDate = model.model?.triggerDate?:triggerDate.intValue,
+                                triggerTime = model.model?.triggerTime?:triggerTime.longValue,
+                                isRepeat = model.model?.isRepeat?:isRepeating.value,
                             )
                         )
                     } else {
@@ -311,7 +322,7 @@ fun NewNoteScreen(
                             content = note.text,
                             ctx = activityContext,
                         ) {
-                            navController.navigate(ScreensRouter.MainScreenRoute.route)
+                            navController.popBackStack()
                         }
                         viewModel.saveNote(
                             NotesModel(
@@ -588,13 +599,9 @@ fun NewNoteScreen(
                             )
                             Switch(
                                 colors = SwitchDefaults.colors(
-                                    checkedTrackColor = green,
-                                    checkedThumbColor = if (arguments.id != -1) Color(
-                                        vmColor
-                                    ) else themeColor.value,
-                                    uncheckedThumbColor = if (arguments.id != -1) Color(
-                                        vmColor
-                                    ) else themeColor.value,
+                                    checkedTrackColor = fontColor.value,
+                                    checkedThumbColor = green,
+                                    uncheckedThumbColor = red,
                                     uncheckedTrackColor = fontColor.value
                                 ),
                                 checked = setAlarm.value,

@@ -25,8 +25,9 @@ class UpdateDayWorker @AssistedInject constructor(
             notes = it
         }
 
-        var incrementDay = 0
-        var modelValue = 0
+        var resultStatus = false
+
+        val incrementDay = 30
         for (note in notes) {
             val model = TrashModel(
                 id = note.id,
@@ -35,19 +36,17 @@ class UpdateDayWorker @AssistedInject constructor(
                 color = note.color,
                 daysLeft = note.daysLeft
             )
-            val increment = model.daysLeft.minus(1)
-            incrementDay = increment
-            modelValue = model.daysLeft
-            if (incrementDay >= modelValue) {
+            if (model.daysLeft <= incrementDay ){
+                useCases.updateDayUseCase(model.id!!,model.daysLeft.minus(1))
+            }
+            return if (model.daysLeft <= 0){
+                resultStatus = true
+                Result.success()
+            }else{
+                resultStatus = false
                 Result.retry()
-            } else {
-                model.id?.let { useCases.updateDayUseCase(it, incrementDay) }
             }
         }
-        return if (incrementDay >= modelValue) {
-            Result.retry()
-        } else {
-            Result.success()
-        }
+        return if (resultStatus) Result.success() else Result.retry()
     }
 }

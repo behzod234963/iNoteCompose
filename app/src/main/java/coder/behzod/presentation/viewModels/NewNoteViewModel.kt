@@ -1,5 +1,6 @@
 package coder.behzod.presentation.viewModels
 
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -24,6 +25,9 @@ class NewNoteViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
+    private val _model = mutableStateOf(NewNoteEvent.Model())
+    val model: MutableState<NewNoteEvent.Model> = _model
+
     private val _title = mutableStateOf(NewNotesState(""))
     val title: State<NewNotesState> = _title
 
@@ -34,9 +38,6 @@ class NewNoteViewModel @Inject constructor(
 
     private val _color = mutableIntStateOf(colorsList.random().toArgb())
     val color: State<Int> = _color
-
-    private val _dateAndTime = mutableLongStateOf(0L)
-    val dateAndTime:State<Long> = _dateAndTime
 
     init {
 
@@ -55,6 +56,7 @@ class NewNoteViewModel @Inject constructor(
                     }
                 }
             }
+            newNoteEvent(NewNoteEvent.Model())
         }
     }
 
@@ -64,6 +66,15 @@ class NewNoteViewModel @Inject constructor(
 
     fun newNoteEvent(event: NewNoteEvent) {
         when (event) {
+
+            is NewNoteEvent.Model->{
+                viewModelScope.launch {
+                    useCases.getNoteUseCase(id).let {
+                        model.value = NewNoteEvent.Model(it)
+                    }
+                }
+            }
+
             is NewNoteEvent.ChangedTitle -> {
                 _title.value = note.value.copy(
                     text = event.title

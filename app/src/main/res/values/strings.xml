@@ -61,4 +61,7 @@
     <string name="alarm_info">Alarm info</string>
     <string name="everyday">Everyday</string>
     <string name="no">No</string>
+    <string name="nothing_is_selected">Nothing is selected!!!</string>
+    <string name="empty_list">Empty list</string>
+    <string name="tap_twice_to_exit">Tap twice to exit</string>
 </resources>

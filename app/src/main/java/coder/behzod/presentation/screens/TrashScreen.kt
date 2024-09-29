@@ -1,10 +1,9 @@
 package coder.behzod.presentation.screens
 
 import android.annotation.SuppressLint
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import androidx.annotation.RequiresApi
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -24,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
@@ -36,13 +36,16 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -51,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coder.behzod.R
+import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.model.TrashModel
@@ -72,14 +76,16 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(
     ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
     ExperimentalMaterialApi::class
 )
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "MutableCollectionMutableState")
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "MutableCollectionMutableState",
+    "CoroutineCreationDuringComposition"
+)
 @Composable
 fun TrashScreen(
     notesModel: NotesModel,
@@ -87,6 +93,10 @@ fun TrashScreen(
     navController: NavHostController,
     viewModel: TrashViewModel = hiltViewModel(),
 ) {
+
+    val ctx = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val scaffoldState = rememberScaffoldState()
 
     val btnCloseAnim = rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(R.raw.btn_close)
@@ -106,9 +116,9 @@ fun TrashScreen(
     val selectedItemsCount = remember { mutableIntStateOf(0) }
     val trashedNotes = viewModel.trashedNotes.value
 
-    val selectedItemsStatus = remember { mutableStateOf(false) }
+    val closeSelectorMenu = remember { mutableStateOf(false) }
     val isSelected = remember { mutableStateOf(false) }
-
+    val selectAllStatus = viewModel.isItemSelected.value
     val functionsCase = remember { mutableIntStateOf(1) }
 
     val trashedNote = remember {
@@ -122,7 +132,6 @@ fun TrashScreen(
         )
     }
     val isExpanded = remember { mutableStateOf(false) }
-    val selectAllStatus = viewModel.isItemSelected.value
 
     val fontSize =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_FONT_SIZE, 18)) }
@@ -162,6 +171,8 @@ fun TrashScreen(
             }
         )
     }
+    val dataStoreInstance = DataStoreInstance(ctx)
+    coroutineScope.launch { dataStoreInstance.mainScreenState(false) }
     Scaffold(
         containerColor = themeColor.value,
         bottomBar = {
@@ -172,12 +183,11 @@ fun TrashScreen(
             )
         },
         floatingActionButton = {
-
             /* Floating action button close */
             if (isSelected.value) {
                 SpeedDialFAB(
-                    fontColor = fontColor.value,
-                    themeColor = themeColor.value,
+                    fontColor = Color.Magenta,
+                    themeColor = Color.Cyan,
                     modifier = Modifier,
                     labelFirst = stringResource(id = R.string.delete),
                     labelSecond = stringResource(id = R.string.restore),
@@ -186,26 +196,72 @@ fun TrashScreen(
                     onClickFirst = {
                         /* Content for delete function */
                         if (selectAllStatus) {
-                            functionsCase.intValue = 3
-                            isDialogVisible.value = true
-                            isSelected.value = false
+                            if (selectedItems.isEmpty() || selectedItems.size == 0){
+                                coroutineScope.launch {
+                                    scaffoldState.snackbarHostState.showSnackbar(
+                                        ctx.getString(R.string.nothing_is_selected)
+                                    )
+                                }
+                                functionsCase.intValue = 0
+                                isDialogVisible.value = false
+                                isSelected.value = true
+                            }else{
+                                functionsCase.intValue = 3
+                                isDialogVisible.value = true
+                                isSelected.value = false
+                            }
                         } else {
-                            functionsCase.intValue = 1
-                            isDialogVisible.value = true
-                            isSelected.value = false
+                            if (selectedItems.isEmpty() || selectedItems.size == 0){
+                                coroutineScope.launch {
+                                    scaffoldState.snackbarHostState.showSnackbar(
+                                        ctx.getString(R.string.nothing_is_selected)
+                                    )
+                                }
+                                functionsCase.intValue = 0
+                                isDialogVisible.value = false
+                                isSelected.value = true
+                            }else{
+                                functionsCase.intValue = 1
+                                isDialogVisible.value = true
+                                isSelected.value = false
+                            }
                         }
                     }) {
                     /* Content for restore function */
                     if (selectAllStatus) {
-                        functionsCase.intValue = 4
-                        isDialogVisible.value = true
-                        isSelected.value = false
+                        if (selectedItems.isEmpty() || selectedItems.size == 0){
+                            coroutineScope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar(
+                                    ctx.getString(R.string.nothing_is_selected)
+                                )
+                            }
+                            functionsCase.intValue = 0
+                            isDialogVisible.value = false
+                            isSelected.value = true
+                        }else{
+                            functionsCase.intValue = 4
+                            isDialogVisible.value = true
+                            isSelected.value = false
+                        }
                     } else {
-                        isDialogVisible.value = true
-                        isSelected.value = false
-                        functionsCase.intValue = 5
+                        if (selectedItems.isEmpty() || selectedItems.size == 0){
+                            coroutineScope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar(
+                                    ctx.getString(R.string.nothing_is_selected)
+                                )
+                            }
+                            functionsCase.intValue = 0
+                            isDialogVisible.value = false
+                            isSelected.value = true
+                        }else{
+                            functionsCase.intValue = 5
+                            isDialogVisible.value = true
+                            isSelected.value = false
+                        }
                     }
                 }
+            }else{
+                viewModel.clearList()
             }
         },
         modifier = Modifier
@@ -244,30 +300,26 @@ fun TrashScreen(
                         }
                     },
                     actions = {
-
                         /* Button close */
                         IconButton(onClick = {
-                            selectedItemsStatus.value = true
-                            if (selectedItemsStatus.value) {
+                            closeSelectorMenu.value = true
+                            if (closeSelectorMenu.value) {
                                 Handler(Looper.getMainLooper()).postDelayed({
-
-                                    selectedItemsStatus.value = false
                                     viewModel.onEvent(
                                         event = TrashEvent.SelectAll(false),
                                         trashedNotes = trashedNotes
                                     )
                                     isSelected.value = false
-
                                     viewModel.onEvent(
                                         event = TrashEvent.ClearList(selectedItems),
                                         trashedNotes = trashedNotes
                                     )
-                                    selectedItemsCount.intValue = 0
+                                    selectedItemsCount.intValue = selectedItems.size
+                                    closeSelectorMenu.value = false
                                 }, 1000)
                             }
-
                         }) {
-                            if (selectedItemsStatus.value) {
+                            if (closeSelectorMenu.value) {
                                 LottieAnimation(
                                     composition = btnCloseAnim.value,
                                     modifier = Modifier
@@ -303,7 +355,7 @@ fun TrashScreen(
                     navigationIcon = {
                         IconButton(
                             onClick = {
-                                navController.navigate(ScreensRouter.MainScreenRoute.route)
+                                navController.popBackStack()
                             }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_back),
@@ -313,7 +365,6 @@ fun TrashScreen(
                         }
                     },
                     actions = {
-
                         /* Button more */
                         IconButton(
                             onClick = {
@@ -332,7 +383,6 @@ fun TrashScreen(
                             onDismissRequest = {
                                 isExpanded.value = false
                             }) {
-
                             /* DropDownMenu Item for content "Select without case" */
                             DropdownMenuItem(
                                 leadingIcon = {
@@ -353,21 +403,28 @@ fun TrashScreen(
                                     )
                                 },
                                 onClick = {
-                                    viewModel.onEvent(
-                                        TrashEvent.SelectAll(false),
-                                        trashedNotes
-                                    )
-                                    viewModel.onEvent(
-                                        event = TrashEvent.ClearList(selectedItems),
-                                        trashedNotes = trashedNotes
-                                    )
-                                    selectedItemsCount.intValue = selectedItems.size
-                                    isSelected.value = true
-                                    isExpanded.value = false
+                                    if (trashedNotes.isNotEmpty()){
+                                        viewModel.onEvent(
+                                            TrashEvent.SelectAll(false),
+                                            trashedNotes
+                                        )
+                                        viewModel.onEvent(
+                                            event = TrashEvent.ClearList(selectedItems),
+                                            trashedNotes = trashedNotes
+                                        )
+                                        selectedItemsCount.intValue = selectedItems.size
+                                        isSelected.value = true
+                                        isExpanded.value = false
+                                    }else{
+                                        coroutineScope.launch {
+                                            scaffoldState.snackbarHostState.showSnackbar(
+                                                ctx.getString(R.string.empty_list)
+                                            )
+                                        }
+                                    }
                                 }
                             )
                             HorizontalDivider()
-
                             /* DropDownMenu Item for content "Select all without case" */
                             DropdownMenuItem(
                                 leadingIcon = {
@@ -388,12 +445,20 @@ fun TrashScreen(
                                     )
                                 },
                                 onClick = {
-                                    isExpanded.value = false
-                                    isSelected.value = true
-                                    viewModel.onEvent(
-                                        TrashEvent.SelectAll(true),
-                                        trashedNotes
-                                    )
+                                    if (trashedNotes.isNotEmpty()){
+                                        isExpanded.value = false
+                                        isSelected.value = true
+                                        viewModel.onEvent(
+                                            TrashEvent.SelectAll(true),
+                                            trashedNotes
+                                        )
+                                    }else{
+                                        coroutineScope.launch {
+                                            scaffoldState.snackbarHostState.showSnackbar(
+                                                ctx.getString(R.string.empty_list)
+                                            )
+                                        }
+                                    }
                                 }
                             )
                             HorizontalDivider()
@@ -418,9 +483,15 @@ fun TrashScreen(
                                     )
                                 },
                                 onClick = {
-                                    isExpanded.value = false
-                                    isDialogVisible.value = true
-                                    functionsCase.intValue = 4
+                                    if(trashedNotes.isNotEmpty()){
+                                        isExpanded.value = false
+                                        isDialogVisible.value = true
+                                        functionsCase.intValue = 4
+                                    }else{
+                                        coroutineScope.launch { scaffoldState.snackbarHostState.showSnackbar(
+                                            ctx.getString(R.string.empty_list)
+                                        ) }
+                                    }
                                 }
                             )
                             HorizontalDivider()
@@ -445,13 +516,17 @@ fun TrashScreen(
                                     )
                                 },
                                 onClick = {
-                                    isExpanded.value = false
-                                    isDialogVisible.value = true
-                                    viewModel.onEvent(
-                                        event = TrashEvent.SelectAll(true),
-                                        trashedNotes = trashedNotes
-                                    )
-                                    functionsCase.intValue = 3
+                                    if (trashedNotes.isNotEmpty()){
+                                        isExpanded.value = false
+                                        isDialogVisible.value = true
+                                        viewModel.onEvent(
+                                            event = TrashEvent.SelectAll(true),
+                                            trashedNotes = trashedNotes
+                                        )
+                                        functionsCase.intValue = 3
+                                    }else {
+                                        coroutineScope.launch { scaffoldState.snackbarHostState.showSnackbar(ctx.getString(R.string.empty_list)) }
+                                    }
                                 }
                             )
                         }
@@ -467,13 +542,16 @@ fun TrashScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
                 AlertDialogs(
+                    onDismissRequest = {
+                        isSelected.value = false
+                        viewModel.clearList()
+                        viewModel.onEvent(TrashEvent.SelectAll(false),selectedItems)
+                        selectedItemsCount.intValue = selectedItems.size
+                    },
                     dismissButton = {
                         Button(
-                            modifier = Modifier
-
-                                .width(150.dp),
+                            modifier = Modifier,
                             shape = RoundedCornerShape(10.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = red
@@ -503,6 +581,8 @@ fun TrashScreen(
                                     isDialogVisible.value = false
                                     isSelected.value = false
                                 }
+                                viewModel.clearList()
+                                viewModel.onEvent(TrashEvent.SelectAll(false),selectedItems)
                             }) {
                             Text(
                                 text = if (functionsCase.intValue != 2) stringResource(
@@ -526,6 +606,8 @@ fun TrashScreen(
                                     /*This is delete selected */
                                     1 -> {
                                         viewModel.multipleDelete(selectedItems)
+                                        viewModel.onEvent(TrashEvent.SelectAll(false),selectedItems)
+                                        isSelected.value = false
                                     }
 
                                     /*This is delete*/
@@ -557,8 +639,10 @@ fun TrashScreen(
                                         )
                                     }
                                 }
-                                selectedItemsCount.intValue = selectedItems.size
                                 isDialogVisible.value = false
+                                isSelected.value = false
+                                viewModel.clearList()
+                                selectedItemsCount.intValue = selectedItems.size
                             }) {
                             Text(
                                 text = when (functionsCase.intValue) {
@@ -591,10 +675,6 @@ fun TrashScreen(
                                 fontFamily = FontFamily(fontAmidoneGrotesk)
                             )
                         }
-                    },
-                    onDismissRequest = {
-                        isDialogVisible.value = false
-                        isSelected.value = false
                     },
                     title = { },
                     content = {
@@ -629,7 +709,6 @@ fun TrashScreen(
                             fontFamily = FontFamily(fontAmidoneGrotesk)
                         )
                     }) {
-
                 }
             }
         } else {
@@ -679,8 +758,7 @@ fun TrashScreen(
                             },
                             isDialogVisible = { isDialogVisible.value = it },
                             selectedContent = { functionsCase.intValue = it },
-                            isSelected = isSelected.value,
-                            sharedPref = sharedPrefs
+                            isSelected = isSelected.value
                         )
                     }
                 }

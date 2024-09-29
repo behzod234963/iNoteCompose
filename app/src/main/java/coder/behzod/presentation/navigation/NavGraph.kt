@@ -1,8 +1,8 @@
 package coder.behzod.presentation.navigation
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -14,31 +14,25 @@ import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.presentation.notifications.NotificationTrigger
-import coder.behzod.presentation.screens.EmptyMainScreen
 import coder.behzod.presentation.screens.MainScreen
 import coder.behzod.presentation.screens.NewNoteScreen
 import coder.behzod.presentation.screens.SettingsScreen
-import coder.behzod.presentation.screens.SplashScreens
 import coder.behzod.presentation.screens.TrashScreen
+import coder.behzod.presentation.utils.constants.KEY_LIST_STATUS
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavGraph() {
     val navController = rememberNavController()
     val ctx = LocalContext.current
+    val sharedPrefs = SharedPreferenceInstance(ctx)
+    val isEmpty = remember {
+        mutableStateOf(sharedPrefs.sharedPreferences.getBoolean(KEY_LIST_STATUS, true))
+    }
 
     NavHost(
         navController = navController,
-        startDestination = ScreensRouter.SplashScreenRoute.route
+        startDestination = ScreensRouter.MainScreenRoute.route
     ) {
-        composable(
-            ScreensRouter.SplashScreenRoute.route
-        ) {
-            SplashScreens(
-                navController = navController,
-                sharedPrefs = SharedPreferenceInstance(ctx)
-            )
-        }
         composable(ScreensRouter.SettingsScreenRoute.route) {
             SettingsScreen(navController, sharedPrefs = SharedPreferenceInstance(ctx))
         }
@@ -52,9 +46,6 @@ fun NavGraph() {
                 workManager = WorkManager.getInstance(ctx),
                 notificationTrigger = NotificationTrigger()
             )
-        }
-        composable(ScreensRouter.EmptyMainScreenRoute.route) {
-            EmptyMainScreen(navController, sharedPrefs = SharedPreferenceInstance(ctx))
         }
         composable(
             ScreensRouter.NewNoteScreenRoute.route + "/{id}",

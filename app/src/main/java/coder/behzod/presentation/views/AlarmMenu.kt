@@ -43,6 +43,7 @@ import coder.behzod.R
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
 import coder.behzod.presentation.theme.green
+import coder.behzod.presentation.theme.red
 import java.time.LocalDate
 import java.util.Calendar
 
@@ -66,6 +67,7 @@ fun SetAlarmContent(
     val date = remember { mutableStateOf("") }
     val time = remember { mutableStateOf("") }
 
+    val selectedDate = remember { mutableLongStateOf( System.currentTimeMillis() ) }
     val selectedTime = remember { mutableLongStateOf(System.currentTimeMillis()) }
 
     val pickedYear = calendarInstance.get(Calendar.YEAR)
@@ -103,8 +105,8 @@ fun SetAlarmContent(
             localMonth.intValue = localDateOf.value.month.value
             localDay.intValue = localDateOf.value.dayOfMonth
 
+            selectedDate.longValue = calendarInstance.timeInMillis
             date.value = "${localDay.intValue}.${localMonth.intValue}.${localYear.intValue}"
-
         },
         pickedYear, pickedMonth, pickedDayOfMonth,
     )
@@ -185,7 +187,6 @@ fun SetAlarmContent(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -255,16 +256,16 @@ fun SetAlarmContent(
                 )
             }
 
-            /* Coming soon */
+            /* Repeating alarms */
             Switch(
                 checked = isRepeating.value,
                 onCheckedChange = {
                     isRepeating.value = it
                 },
                 colors = SwitchDefaults.colors(
-                    checkedTrackColor = green,
-                    checkedThumbColor = themeColor,
-                    uncheckedThumbColor = themeColor,
+                    checkedThumbColor = green,
+                    uncheckedThumbColor = red,
+                    checkedTrackColor = fontColor,
                     uncheckedTrackColor = fontColor
                 ),
             )
@@ -273,7 +274,6 @@ fun SetAlarmContent(
             modifier = Modifier
                 .height(10.dp)
         )
-
         /* Set alarm */
         Row(
             modifier = Modifier
@@ -283,7 +283,7 @@ fun SetAlarmContent(
             Button(
                 elevation = ButtonDefaults.buttonElevation(10.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = themeColor
+                    containerColor = fontColor
                 ),
                 onClick = {
 
@@ -336,7 +336,7 @@ fun SetAlarmContent(
                 Text(
                     text = stringResource(id = R.string.set_alarm),
                     fontSize = fontSize.sp,
-                    color = fontColor,
+                    color = themeColor,
                     fontFamily = FontFamily(fontAmidoneGrotesk)
                 )
             }

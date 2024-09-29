@@ -302,7 +302,7 @@ fun MainScreenGridItem(
                         Icon(
                             imageVector = Icons.Default.Notifications,
                             contentDescription = "alarm",
-                            tint = fontColor
+                            tint = Color.Blue
                         )
                     }
                 } else if (notesModel.isRepeat) {
@@ -408,7 +408,7 @@ fun MainScreenGridItem(
                         Icon(
                             imageVector = Icons.Default.Notifications,
                             contentDescription = "alarm",
-                            tint = fontColor
+                            tint = Color.Blue
                         )
                     }
                 }

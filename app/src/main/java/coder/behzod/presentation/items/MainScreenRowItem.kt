@@ -105,10 +105,11 @@ fun MainScreenRowItem(
             }
         )
     }
+    val isClicked = remember { mutableStateOf( true ) }
 
     Card(
         onClick = {
-            onClick.invoke()
+            if(isClicked.value) onClick.invoke()
         },
         modifier = Modifier
             .fillMaxWidth()
@@ -249,7 +250,7 @@ fun MainScreenRowItem(
                                     Icon(
                                         imageVector = Icons.Default.Notifications,
                                         contentDescription = "alarm",
-                                        tint = fontColor
+                                        tint = Color.Blue
                                     )
                                 }
                             } else if (notesModel.isRepeat) {
@@ -353,7 +354,7 @@ fun MainScreenRowItem(
                                     Icon(
                                         imageVector = Icons.Default.Notifications,
                                         contentDescription = "alarm",
-                                        tint = fontColor
+                                        tint = Color.Blue
                                     )
                                 }
                             }
@@ -388,6 +389,7 @@ fun MainScreenRowItem(
             }
         }
         if (isSelected) {
+            isClicked.value = false
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -409,6 +411,8 @@ fun MainScreenRowItem(
                     }
                 )
             }
+        }else{
+            isClicked.value = true
         }
     }
 }

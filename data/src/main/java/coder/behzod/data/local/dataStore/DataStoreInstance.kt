@@ -43,4 +43,17 @@ class DataStoreInstance(private val ctx: Context) {
         }
         return status
     }
+    suspend fun mainScreenState(status:Boolean){
+        val statusKey = booleanPreferencesKey("statusKey")
+        ctx.dataStore.edit {
+            it[statusKey] = status
+        }
+    }
+    fun getMainScreenState():Flow<Boolean>{
+        val statusKey = booleanPreferencesKey("statusKey")
+        val status = ctx.dataStore.data.map {
+            it[statusKey]?:false
+        }
+        return status
+    }
 }

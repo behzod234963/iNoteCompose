@@ -65,6 +65,9 @@ class TrashViewModel @Inject constructor(
     fun removeFromList(note: TrashModel) = viewModelScope.launch {
         _selectedItems.value.remove(note)
     }
+    fun clearList() = viewModelScope.launch {
+        _selectedItems.value.clear()
+    }
 
     fun restoreNote(note: NotesModel, trashModel: TrashModel) = viewModelScope.launch {
         noteUseCases.saveNoteUseCase(note)
@@ -128,7 +131,6 @@ class TrashViewModel @Inject constructor(
                     }
                 }
             }
-
             is TrashEvent.ClearList -> {
                 event.list.clear()
             }

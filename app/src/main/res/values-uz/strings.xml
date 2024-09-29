@@ -62,4 +62,7 @@
     <string name="alarm_info">Eslatma haqida</string>
     <string name="everyday">Har kuni</string>
     <string name="no">Yo\'q</string>
+    <string name="nothing_is_selected">Hech narsa belgilanmadi!!!</string>
+    <string name="empty_list">Ro\'yhat bo\'sh</string>
+    <string name="tap_twice_to_exit">Chiqish uchun ikki marta bosing</string>
 </resources>

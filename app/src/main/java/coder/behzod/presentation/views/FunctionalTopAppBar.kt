@@ -72,10 +72,8 @@ fun FunctionalTopAppBar(
                 IconButton(onClick = {
                     if (isEmpty.value) {
                         navController.popBackStack()
-                        navController.navigate(ScreensRouter.EmptyMainScreenRoute.route)
                     } else {
                         navController.popBackStack()
-                        navController.navigate(ScreensRouter.MainScreenRoute.route)
                     }
                 }) {
                     Icon(

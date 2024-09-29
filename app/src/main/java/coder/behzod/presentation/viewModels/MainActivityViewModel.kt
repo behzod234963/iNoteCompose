@@ -23,8 +23,8 @@ class MainActivityViewModel @Inject constructor(
 ) :ViewModel(){
     private val _notes = mutableStateOf(NotesState().notes)
     val notes : State<List<NotesModel>> = _notes
-    private val _model = MutableLiveData<NotesModel>()
-    val model:LiveData<NotesModel> = _model
+    private val _model = MutableLiveData<NotesModel?>()
+    val model: MutableLiveData<NotesModel?> = _model
 
     init {
         getALlNotes()

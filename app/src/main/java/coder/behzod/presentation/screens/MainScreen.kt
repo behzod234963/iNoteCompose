@@ -2,6 +2,7 @@ package coder.behzod.presentation.screens
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import androidx.compose.foundation.background
@@ -62,6 +63,7 @@ import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.data.workManager.workers.CheckDateWorker
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.model.TrashModel
+import coder.behzod.presentation.activity.MainActivity
 import coder.behzod.presentation.items.MainScreenGridItem
 import coder.behzod.presentation.items.MainScreenRowItem
 import coder.behzod.presentation.navigation.ScreensRouter
@@ -75,7 +77,6 @@ import coder.behzod.presentation.utils.constants.KEY_LIST_STATUS
 import coder.behzod.presentation.utils.constants.KEY_VIEW_TYPE
 import coder.behzod.presentation.utils.constants.notesModel
 import coder.behzod.presentation.utils.events.NotesEvent
-import coder.behzod.presentation.utils.events.TrashEvent
 import coder.behzod.presentation.utils.helpers.ShareNote
 import coder.behzod.presentation.viewModels.MainViewModel
 import coder.behzod.presentation.views.AlertDialogs
@@ -107,7 +108,6 @@ fun MainScreen(
     notificationTrigger: NotificationTrigger,
     viewModel: MainViewModel = hiltViewModel()
 ) {
-
     val themeIndex =
         remember { mutableIntStateOf(sharedPrefs.sharedPreferences.getInt(KEY_INDEX, 0)) }
     val colorTheme = if (themeIndex.intValue == 0) Color.Black else Color.White
@@ -129,11 +129,15 @@ fun MainScreen(
     val btnCloseAnim = rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(R.raw.btn_close)
     )
+    val emptyListAnimation = rememberLottieComposition(
+        spec = LottieCompositionSpec.RawRes(resId = R.raw.empty_list)
+    )
 
     val isEmpty = remember { mutableStateOf(false) }
 
     if (state.value.notes.isEmpty()) isEmpty.value = true else isEmpty.value = false
 
+    val ctx = LocalContext.current
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -166,6 +170,7 @@ fun MainScreen(
 
     val notes: ArrayList<NotesModel> = ArrayList()
 
+    coroutineScope.launch { dataStoreInstance.mainScreenState(true) }
     Scaffold(
         modifier = Modifier
             .background(themeColor.value),
@@ -179,7 +184,7 @@ fun MainScreen(
         backgroundColor = themeColor.value,
         contentColor = themeColor.value,
         topBar = {
-            if (isSelected.value) {
+            if (isSelected.value && state.value.notes.isNotEmpty()) {
                 TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = themeColor.value
@@ -194,19 +199,16 @@ fun MainScreen(
                         )
                     },
                     actions = {
-
                         /* Button close */
                         IconButton(onClick = {
-
                             isClosed.value = true
                             Handler(Looper.getMainLooper()).postDelayed({
                                 isClosed.value = false
                                 isSelected.value = false
                                 coroutineScope.launch { dataStoreInstance.selectAllStatus(false) }
-                                viewModel.removeAllFromList()
+                                selectedNotes.clear()
                                 selectedNotesCount.intValue = selectedNotes.size
                             }, 1000)
-
                         }) {
                             if (isClosed.value) {
                                 LottieAnimation(
@@ -236,19 +238,46 @@ fun MainScreen(
                         isDialogViewVisible.value = true
                     },
                     contentSelect = {
-                        isSelected.value = true
-                        coroutineScope.launch { dataStoreInstance.selectAllStatus(false) }
+                        if (state.value.notes.isNotEmpty()){
+                            isSelected.value = true
+                            coroutineScope.launch { dataStoreInstance.selectAllStatus(false) }
+                            viewModel.onEvent(NotesEvent.SelectAll(false))
+                            selectedNotes.clear()
+                        }else{
+                            coroutineScope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar(
+                                    ctx.getString(R.string.empty_list)
+                                )
+                            }
+                        }
                     },
                     contentSelectAll = {
-                        isSelected.value = true
-                        viewModel.onEvent(NotesEvent.SelectAll(true))
-                        viewModel.addAllToList()
-                        selectedNotesCount.intValue = selectedNotes.size
+                        if (state.value.notes.isNotEmpty()){
+                            isSelected.value = true
+                            viewModel.onEvent(NotesEvent.SelectAll(true))
+                            viewModel.addAllToList(state.value.notes)
+                            selectedNotesCount.intValue = selectedNotes.size
+                        }else{
+                            coroutineScope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar(
+                                    ctx.getString(R.string.empty_list)
+                                )
+                            }
+                        }
                     },
                     contentDeleteAll = {
-                        dialogType.intValue = 0
-                        isDialogVisible.value = true
-                        functionsCase.intValue = 4
+                        if (state.value.notes.isNotEmpty()){
+                            dialogType.intValue = 0
+                            isDialogVisible.value = true
+                            functionsCase.intValue = 4
+                        }else{
+                            coroutineScope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar(
+                                    ctx.getString(R.string.empty_list)
+                                )
+                            }
+                            isDialogViewVisible.value = false
+                        }
                     },
                     noteOrder = state.value.noteOrder,
                     onOrderChange = {
@@ -259,7 +288,6 @@ fun MainScreen(
         },
         floatingActionButton = {
             if (isSelected.value) {
-
                 /* Floating action button for functions */
                 FloatingActionButton(
                     modifier = Modifier
@@ -268,15 +296,39 @@ fun MainScreen(
                     shape = CircleShape,
                     onClick = {
                         if (selectAllStatus.value) {
-                            dialogType.intValue = 0
-                            isDialogVisible.value = true
-                            functionsCase.intValue = 3
-                            isSelected.value = false
+                            if (selectedNotes.isEmpty()) {
+                                coroutineScope.launch {
+                                    scaffoldState.snackbarHostState.showSnackbar(
+                                        ctx.getString(R.string.nothing_is_selected)
+                                    )
+                                }
+                                dialogType.intValue = 0
+                                isDialogVisible.value = false
+                                isSelected.value = true
+                                functionsCase.intValue = 0
+                            } else {
+                                dialogType.intValue = 0
+                                isDialogVisible.value = true
+                                isSelected.value = false
+                                functionsCase.intValue = 3
+                            }
                         } else {
-                            dialogType.intValue = 0
-                            isDialogVisible.value = true
-                            isSelected.value = false
-                            functionsCase.intValue = 2
+                            if (selectedNotes.isEmpty()) {
+                                coroutineScope.launch {
+                                    scaffoldState.snackbarHostState.showSnackbar(
+                                        ctx.getString(R.string.nothing_is_selected)
+                                    )
+                                }
+                                dialogType.intValue = 0
+                                isDialogVisible.value = false
+                                isSelected.value = true
+                                functionsCase.intValue = 0
+                            } else {
+                                dialogType.intValue = 0
+                                isDialogVisible.value = true
+                                isSelected.value = false
+                                functionsCase.intValue = 2
+                            }
                         }
                     }) {
                     Icon(
@@ -310,438 +362,442 @@ fun MainScreen(
         },
         scaffoldState = scaffoldState
     ) {
-        if (isDialogVisible.value) {
-            when (dialogType.intValue) {
-                0 -> {
-                    Column(
-                        modifier = Modifier
-                            .background(themeColor.value),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        AlertDialogs(
-                            dismissButton = {
-                                Button(
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = red
-                                    ),
-                                    onClick = {
-                                        isDialogVisible.value = false
-                                        isSelected.value = false
-                                    }) {
-                                    Text(
-                                        text = stringResource(id = R.string.cancel),
-                                        color = Color.White,
-                                        fontSize = fontSize.intValue.sp,
-                                        fontFamily = FontFamily(fontAmidoneGrotesk)
-                                    )
-                                }
-                            },
-                            confirmButton = {
-                                Button(
-                                    modifier = Modifier
-                                        .width(110.dp),
-                                    shape = RoundedCornerShape(10.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = green
-                                    ),
-                                    onClick = {
-                                        when (functionsCase.intValue) {
-                                            /*This is delete selected */
-                                            2 -> {
-                                                isDialogVisible.value = false
-                                                isSelected.value = false
-                                                viewModel.saveAllToTrash(selectedNotes)
-                                                viewModel.multipleDelete(selectedNotes)
-                                            }
-
-                                            3 -> {
-                                                isDialogVisible.value = false
-                                                isSelected.value = false
-                                                viewModel.saveAllToTrash(selectedNotes)
-                                                viewModel.multipleDelete(selectedNotes)
-                                            }
-
-                                            4 -> {
-                                                isDialogVisible.value = false
-                                                isSelected.value = false
-                                                viewModel.saveAllToTrash(state.value.notes)
-                                            }
-                                        }
-                                        selectedNotesCount.intValue = selectedNotes.size
-                                        isDialogVisible.value = false
-                                        isSelected.value = false
-                                    }) {
-                                    Text(
-                                        text = "Ok",
-                                        color = Color.White,
-                                        fontSize = fontSize.intValue.sp,
-                                        fontFamily = FontFamily(fontAmidoneGrotesk)
-                                    )
-                                }
-                            },
-                            onDismissRequest = {
-                                isDialogVisible.value = false
-                                isSelected.value = false
-                            },
-                            title = {
-                                Text(
-                                    text = notesModel.title,
-                                    color = Color.White,
-                                    fontSize = fontSize.intValue.plus(5).sp,
-                                    fontFamily = FontFamily(fontAmidoneGrotesk)
-                                )
-                            },
-                            content = {
-                                Text(
-                                    text = when (functionsCase.intValue) {
-                                        2 -> {
-                                            stringResource(R.string.delete_selected_notes)
-                                        }
-
-                                        3 -> {
-                                            stringResource(id = R.string.delete_all_notes)
-                                        }
-
-                                        4 -> {
-                                            stringResource(id = R.string.delete_all_notes)
-                                        }
-
-                                        else -> {
-                                            ""
-                                        }
-                                    },
-                                    color = Color.White,
-                                    fontSize = fontSize.intValue.sp,
-                                    fontFamily = FontFamily(fontAmidoneGrotesk)
-                                )
-
-                            }) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "example Icon",
-                                tint = Color.White
-                            )
-                        }
-                    }
-                }
-
-                else -> {
-                    Column(
-                        modifier = Modifier
-                            .background(themeColor.value),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        AlertDialogs(
-                            dismissButton = {
-                                Button(
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = red
-                                    ),
-                                    onClick = {
-                                        isDialogVisible.value = false
-                                    }) {
-                                    Text(
-                                        text = stringResource(id = R.string.cancel),
-                                        color = Color.White,
-                                        fontSize = fontSize.intValue.sp,
-                                        fontFamily = FontFamily(fontAmidoneGrotesk)
-                                    )
-                                }
-                            },
-                            confirmButton = { },
-                            onDismissRequest = {
-                                isDialogViewVisible.value = false
-                                isSelected.value = false
-                                isDialogVisible.value = false
-                            },
-                            title = {
-                                Text(
-                                    text = stringResource(id = R.string.select_view),
-                                    color = Color.White,
-                                    fontSize = fontSize.intValue.plus(5).sp,
-                                    fontFamily = FontFamily(fontAmidoneGrotesk)
-                                )
-                            },
-                            content = { }) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceAround,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                IconButton(
-                                    onClick = {
-                                        viewModel.onEvent(NotesEvent.ViewType(1))
-                                        isDialogViewVisible.value = false
-                                        isDialogVisible.value = false
-                                    }
-                                ) {
-                                    Icon(
-                                        painterResource(
-                                            id = R.drawable.ic_grid
-                                        ),
-                                        modifier = Modifier
-                                            .size(35.dp),
-                                        contentDescription = "gridView",
-                                        tint = Color.White
-                                    )
-                                }
-                                IconButton(
-                                    onClick = {
-                                        viewModel.onEvent(NotesEvent.ViewType(0))
-                                        isDialogViewVisible.value = false
-                                        isDialogVisible.value = false
-                                    }
-                                ) {
-                                    Icon(
-                                        painterResource(
-                                            id = R.drawable.ic_list
-                                        ),
-                                        modifier = Modifier
-                                            .size(35.dp),
-                                        contentDescription = "listView",
-                                        tint = Color.White
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
+        if (state.value.notes.isEmpty()){
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(themeColor.value)
             ) {
-                if (viewType == 0) {
-
-                    /* Lazy Column List RowItem */
-                    sharedPrefs.sharedPreferences.edit().putInt(KEY_VIEW_TYPE, 0).apply()
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(bottom = 75.dp)
-                    ) {
-                        items(items = state.value.notes, key = { it.toString() }) { model ->
-
-                            when (model.alarmMapper) {
-                                /* 0->Neutral */
-                                0 -> {}
-                                /* 0->Current day */
-                                1 -> {
-                                    if (model.alarmStatus) {
-                                        notes.add(model)
-                                        notificationTrigger.scheduleNotification(
-                                            activityContext,
-                                            notes
-                                        )
-                                    }
-                                }
-                                /* 0->Other day */
-                                2 -> {
-
-                                    val checkDateRequest =
-                                        PeriodicWorkRequestBuilder<CheckDateWorker>(
-                                            2,
-                                            TimeUnit.DAYS
-                                        ).build()
-
-                                    workManager.enqueueUniquePeriodicWork(
-                                        "Check date Worker",
-                                        ExistingPeriodicWorkPolicy.UPDATE,
-                                        checkDateRequest
-                                    )
-                                }
-
-                                3 -> {
-                                    if (model.alarmStatus && model.isRepeat) {
-                                        notes.add(model)
-                                        notificationTrigger.scheduleRepeatingNotification(
-                                            activityContext,
-                                            notes
-                                        )
-                                    }
-                                }
-                            }
-                            RevealSwipeContent(
-                                item = model,
-                                onShare = { shareItem ->
-                                    ShareNote().execute(
-                                        title = shareItem.title,
-                                        content = shareItem.content,
-                                        ctx = activityContext
-                                    ) {}
-                                },
-                                onDelete = { deleteItem ->
-
-                                    viewModel.saveToTrash(
-                                        TrashModel(
-                                            title = deleteItem.title,
-                                            content = deleteItem.content,
-                                            color = deleteItem.color,
-                                            daysLeft = 30,
-                                        )
-                                    )
-                                    coroutineScope.launch(Dispatchers.IO) {
-                                        delay(100)
-                                        viewModel.onEvent(NotesEvent.DeleteNote(deleteItem))
-                                    }
-                                    coroutineScope.launch {
-                                        val snackbarResult =
-                                            scaffoldState.snackbarHostState.showSnackbar(
-                                                message = activityContext.getString(R.string.note_deleted),
-                                                actionLabel = activityContext.getString(R.string.undo)
-                                            )
-                                        if (snackbarResult == SnackbarResult.ActionPerformed) {
-                                            viewModel.returnDeletedNote(deleteItem)
-                                        }
-                                    }
-                                    note.value = deleteItem
-                                },
-                            ) { item ->
-
-                                note.value = item
-                                if (selectAllStatus.value) {
-                                   viewModel.removeAllFromList()
-                                    viewModel.addAllToList()
-                                    selectedNotesCount.intValue = notes.size
-                                }
-                                MainScreenRowItem(
-                                    notesModel = item,
-                                    themeColor = themeColor.value,
-                                    fontColor = fontColor.value,
-                                    fontSize = fontSize.intValue,
-                                    isSelected = isSelected.value,
-                                    onCheckedChange = {
-                                        if (it == 1) {
-                                            if (selectAllStatus.value) {
-                                                selectedNotesCount.intValue = selectedNotes.size
-                                            } else {
-                                                viewModel.addNoteToList(item)
-                                                selectedNotesCount.intValue = selectedNotes.size
-                                            }
-                                        } else {
-                                            viewModel.removeFromList(item)
+                LottieAnimation(
+                    composition = emptyListAnimation.value,
+                    alignment = Alignment.Center,
+                    restartOnPlay = true,
+                    iterations = LottieConstants.IterateForever
+                )
+            }
+        }else{
+            if (isDialogVisible.value) {
+                when (dialogType.intValue) {
+                    0 -> {
+                        Column(
+                            modifier = Modifier
+                                .background(themeColor.value),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            AlertDialogs(
+                                dismissButton = {
+                                    Button(
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = red
+                                        ),
+                                        onClick = {
+                                            isDialogVisible.value = false
+                                            isSelected.value = false
+                                            viewModel.onEvent(NotesEvent.SelectAll(false))
+                                            selectedNotes.clear()
                                             selectedNotesCount.intValue = selectedNotes.size
-                                        }
-                                    },
-                                    onClick = {
-                                        navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/${item.id}")
+                                        }) {
+                                        Text(
+                                            text = stringResource(id = R.string.cancel),
+                                            color = Color.White,
+                                            fontSize = fontSize.intValue.sp,
+                                            fontFamily = FontFamily(fontAmidoneGrotesk)
+                                        )
                                     }
+                                },
+                                confirmButton = {
+                                    Button(
+                                        modifier = Modifier
+                                            .width(110.dp),
+                                        shape = RoundedCornerShape(10.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = green
+                                        ),
+                                        onClick = {
+                                            when (functionsCase.intValue) {
+                                                /*This is delete selected */
+                                                2 -> {
+                                                    viewModel.saveAllToTrash(selectedNotes)
+                                                    isDialogVisible.value = false
+                                                    isSelected.value = false
+                                                    viewModel.onEvent(NotesEvent.SelectAll(false))
+                                                }
+
+                                                3 -> {
+                                                    viewModel.saveAllToTrash(selectedNotes)
+                                                    isDialogVisible.value = false
+                                                    isSelected.value = false
+                                                    viewModel.clearList()
+                                                    selectedNotesCount.intValue = selectedNotes.size
+                                                }
+
+                                                4 -> {
+                                                    isDialogVisible.value = false
+                                                    isSelected.value = false
+                                                    viewModel.saveAllToTrash(state.value.notes)
+                                                    viewModel.clearList()
+                                                    selectedNotesCount.intValue = selectedNotes.size
+                                                }
+                                            }
+                                            selectedNotesCount.intValue = selectedNotes.size
+                                            isDialogVisible.value = false
+                                            isSelected.value = false
+                                        }) {
+                                        Text(
+                                            text = "Ok",
+                                            color = Color.White,
+                                            fontSize = fontSize.intValue.sp,
+                                            fontFamily = FontFamily(fontAmidoneGrotesk)
+                                        )
+                                    }
+                                },
+                                onDismissRequest = {
+                                    isDialogVisible.value = false
+                                    isSelected.value = false
+                                    selectedNotes.clear()
+                                    selectedNotesCount.intValue = selectedNotes.size
+                                },
+                                title = {
+                                    Text(
+                                        text = notesModel.title,
+                                        color = Color.White,
+                                        fontSize = fontSize.intValue.plus(5).sp,
+                                        fontFamily = FontFamily(fontAmidoneGrotesk)
+                                    )
+                                },
+                                content = {
+                                    Text(
+                                        text = when (functionsCase.intValue) {
+                                            2 -> {
+                                                stringResource(R.string.delete_selected_notes)
+                                            }
+
+                                            3 -> {
+                                                stringResource(id = R.string.delete_all_notes)
+                                            }
+
+                                            4 -> {
+                                                stringResource(id = R.string.delete_all_notes)
+                                            }
+
+                                            else -> {
+                                                ""
+                                            }
+                                        },
+                                        color = Color.White,
+                                        fontSize = fontSize.intValue.sp,
+                                        fontFamily = FontFamily(fontAmidoneGrotesk)
+                                    )
+
+                                }) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "example Icon",
+                                    tint = Color.White
                                 )
                             }
                         }
                     }
-                } else {
 
-                    /*  Lazy Column Grid Item  */
-                    sharedPrefs.sharedPreferences.edit().putInt(KEY_VIEW_TYPE, 1).apply()
-                    LazyVerticalStaggeredGrid(
-                        columns = StaggeredGridCells.Fixed(2)
-                    ) {
-                        items(state.value.notes, key = { notes ->
-                            notes.toString()
-                        }) { model ->
-
-                            /* 0-> Neutral */
-                            when (model.alarmMapper) {
-                                0 -> {}
-                                /* 1->Current day */
-                                1 -> {
-                                    if (model.alarmStatus) {
-                                        notes.add(model)
-                                        notificationTrigger.scheduleNotification(
-                                            activityContext,
-                                            notes
+                    else -> {
+                        Column(
+                            modifier = Modifier
+                                .background(themeColor.value),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            AlertDialogs(
+                                dismissButton = {
+                                    Button(
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = red
+                                        ),
+                                        onClick = {
+                                            isDialogVisible.value = false
+                                        }) {
+                                        Text(
+                                            text = stringResource(id = R.string.cancel),
+                                            color = Color.White,
+                                            fontSize = fontSize.intValue.sp,
+                                            fontFamily = FontFamily(fontAmidoneGrotesk)
+                                        )
+                                    }
+                                },
+                                confirmButton = { },
+                                onDismissRequest = {
+                                    isDialogViewVisible.value = false
+                                    isSelected.value = false
+                                    isDialogVisible.value = false
+                                },
+                                title = {
+                                    Text(
+                                        text = stringResource(id = R.string.select_view),
+                                        color = Color.White,
+                                        fontSize = fontSize.intValue.plus(5).sp,
+                                        fontFamily = FontFamily(fontAmidoneGrotesk)
+                                    )
+                                },
+                                content = { }) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceAround,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    IconButton(
+                                        onClick = {
+                                            viewModel.onEvent(NotesEvent.ViewType(1))
+                                            isDialogViewVisible.value = false
+                                            isDialogVisible.value = false
+                                        }
+                                    ) {
+                                        Icon(
+                                            painterResource(
+                                                id = R.drawable.ic_grid
+                                            ),
+                                            modifier = Modifier
+                                                .size(35.dp),
+                                            contentDescription = "gridView",
+                                            tint = Color.White
+                                        )
+                                    }
+                                    IconButton(
+                                        onClick = {
+                                            viewModel.onEvent(NotesEvent.ViewType(0))
+                                            isDialogViewVisible.value = false
+                                            isDialogVisible.value = false
+                                        }
+                                    ) {
+                                        Icon(
+                                            painterResource(
+                                                id = R.drawable.ic_list
+                                            ),
+                                            modifier = Modifier
+                                                .size(35.dp),
+                                            contentDescription = "listView",
+                                            tint = Color.White
                                         )
                                     }
                                 }
-                                /* 0-> Other day */
-                                2 -> {
-                                    if(!model.isFired){
+                            }
+                        }
+                    }
+                }
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(themeColor.value)
+                ) {
+                    if (viewType == 0) {
+
+                        /* Lazy Column List RowItem */
+                        sharedPrefs.sharedPreferences.edit().putInt(KEY_VIEW_TYPE, 0).apply()
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(bottom = 75.dp)
+                        ) {
+                            items(items = state.value.notes, key = { it.toString() }) { model ->
+
+                                when (model.alarmMapper) {
+                                    /* 0->Neutral */
+                                    0 -> {}
+                                    /* 0->Current day */
+                                    1 -> {
+                                        if (model.alarmStatus) {
+                                            notes.add(model)
+                                            notificationTrigger.scheduleNotification(
+                                                activityContext,
+                                                notes
+                                            )
+                                        }
+                                    }
+                                    /* 0->Other day */
+                                    2 -> {
                                         val checkDateRequest =
                                             PeriodicWorkRequestBuilder<CheckDateWorker>(
                                                 2,
                                                 TimeUnit.DAYS
                                             ).build()
-                                        workManager.enqueueUniquePeriodicWork(
-                                            "Check date Worker",
-                                            ExistingPeriodicWorkPolicy.UPDATE,
-                                            checkDateRequest
-                                        )
+                                        workManager.enqueue(checkDateRequest)
+                                    }
+                                    3 -> {
+                                        if (model.alarmStatus && model.isRepeat) {
+                                            notes.add(model)
+                                            notificationTrigger.scheduleRepeatingNotification(
+                                                activityContext,
+                                                notes
+                                            )
+                                        }
                                     }
                                 }
-                            }
-                            if (selectAllStatus.value) {
-                                viewModel.removeAllFromList()
-                                viewModel.addAllToList()
-                                selectedNotesCount.intValue = notes.size
-                            }
-                            MainScreenGridItem(
-                                themeColor = themeColor.value,
-                                fontColor = fontColor.value,
-                                fontSize = fontSize.intValue,
-                                onClick = {
-                                    navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/${model.id}")
-                                },
-                                onShare = {
-                                    ShareNote().execute(
-                                        title = model.title,
-                                        content = model.content,
-                                        ctx = activityContext
-                                    ) {}
-                                },
-                                onChange = {
-                                    if (it == 1) {
-                                        if (selectAllStatus.value) {
-                                            viewModel.addAllToList()
-                                            selectedNotesCount.intValue = selectedNotes.size
-                                        } else {
-                                            viewModel.addNoteToList(model)
-                                            selectedNotesCount.intValue = selectedNotes.size
+                                RevealSwipeContent(
+                                    item = model,
+                                    onShare = { shareItem ->
+                                        ShareNote().execute(
+                                            title = shareItem.title,
+                                            content = shareItem.content,
+                                            ctx = activityContext
+                                        ) {}
+                                    },
+                                    onDelete = { deleteItem ->
+                                        viewModel.saveToTrash(
+                                            TrashModel(
+                                                title = deleteItem.title,
+                                                content = deleteItem.content,
+                                                color = deleteItem.color,
+                                                daysLeft = 30,
+                                            )
+                                        )
+                                        coroutineScope.launch(Dispatchers.IO) {
+                                            delay(100)
+                                            viewModel.onEvent(NotesEvent.DeleteNote(deleteItem))
                                         }
-                                    } else {
-                                        viewModel.removeFromList(model)
-                                        selectedNotesCount.intValue = selectedNotes.size
+                                        coroutineScope.launch {
+                                            val snackbarResult =
+                                                scaffoldState.snackbarHostState.showSnackbar(
+                                                    message = activityContext.getString(R.string.note_deleted),
+                                                    actionLabel = activityContext.getString(R.string.undo)
+                                                )
+                                            if (snackbarResult == SnackbarResult.ActionPerformed) {
+                                                viewModel.returnDeletedNote(deleteItem)
+                                            }
+                                        }
+                                        note.value = deleteItem
+                                    },
+                                ) { item ->
+                                    note.value = item
+                                    MainScreenRowItem(
+                                        notesModel = item,
+                                        themeColor = themeColor.value,
+                                        fontColor = fontColor.value,
+                                        fontSize = fontSize.intValue,
+                                        isSelected = isSelected.value,
+                                        onCheckedChange = {
+                                            if (it == 1) {
+                                                if (selectAllStatus.value) {
+                                                    viewModel.addAllToList(state.value.notes)
+                                                    selectedNotesCount.intValue = selectedNotes.size
+                                                } else {
+                                                    viewModel.addNoteToList(item)
+                                                    selectedNotesCount.intValue = selectedNotes.size
+                                                }
+                                            } else {
+                                                viewModel.removeFromList(item)
+                                                selectedNotesCount.intValue = selectedNotes.size
+                                            }
+                                        },
+                                        onClick = {
+                                            navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/${item.id}")
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        /*  Lazy Column Grid Item  */
+                        sharedPrefs.sharedPreferences.edit().putInt(KEY_VIEW_TYPE, 1).apply()
+                        LazyVerticalStaggeredGrid(
+                            columns = StaggeredGridCells.Fixed(2)
+                        ) {
+                            items(state.value.notes, key = { notes ->
+                                notes.toString()
+                            }) { model ->
+                                /* 0-> Neutral */
+                                when (model.alarmMapper) {
+                                    0 -> {}
+                                    /* 1->Current day */
+                                    1 -> {
+                                        if (model.alarmStatus) {
+                                            notes.add(model)
+                                            notificationTrigger.scheduleNotification(
+                                                activityContext,
+                                                notes
+                                            )
+                                        }
                                     }
-                                },
-                                onDelete = {
-                                    viewModel.saveToTrash(
-                                        TrashModel(
-                                            id = model.id,
+                                    /* 0-> Other day */
+                                    2 -> {
+                                        if (!model.isFired) {
+                                            val checkDateRequest =
+                                                PeriodicWorkRequestBuilder<CheckDateWorker>(
+                                                    2,
+                                                    TimeUnit.DAYS
+                                                ).build()
+                                            workManager.enqueueUniquePeriodicWork(
+                                                "Check date Worker",
+                                                ExistingPeriodicWorkPolicy.UPDATE,
+                                                checkDateRequest
+                                            )
+                                        }
+                                    }
+                                }
+                                MainScreenGridItem(
+                                    themeColor = themeColor.value,
+                                    fontColor = fontColor.value,
+                                    fontSize = fontSize.intValue,
+                                    onClick = {
+                                        navController.navigate(ScreensRouter.NewNoteScreenRoute.route + "/${model.id}")
+                                    },
+                                    onShare = {
+                                        ShareNote().execute(
                                             title = model.title,
                                             content = model.content,
-                                            color = model.color,
-                                            daysLeft = 30
-                                        )
-                                    )
-                                    viewModel.onEvent(NotesEvent.DeleteNote(model))
-                                    coroutineScope.launch {
-
-                                        val snackbarResult =
-                                            scaffoldState.snackbarHostState.showSnackbar(
-                                                message = activityContext.getString(R.string.note_deleted),
-                                                actionLabel = activityContext.getString(R.string.undo)
-                                            )
-                                        if (snackbarResult == SnackbarResult.ActionPerformed) {
-                                            viewModel.returnDeletedNote(model)
+                                            ctx = activityContext
+                                        ) {}
+                                    },
+                                    onChange = {
+                                        if (it == 1) {
+                                            if (selectAllStatus.value) {
+                                                viewModel.addAllToList(state.value.notes)
+                                                selectedNotesCount.intValue = selectedNotes.size
+                                            } else {
+                                                viewModel.addNoteToList(model)
+                                                selectedNotesCount.intValue = selectedNotes.size
+                                            }
+                                        } else {
+                                            viewModel.removeFromList(model)
+                                            selectedNotesCount.intValue = selectedNotes.size
                                         }
-                                    }
-                                },
-                                isSelected = isSelected.value,
-                                notesModel = model,
-                                title = model.title,
-                                note = model.content,
-                                date = model.dataAdded,
-                                backgroundColor = model.color
-                            )
+                                    },
+                                    onDelete = {
+                                        viewModel.saveToTrash(
+                                            TrashModel(
+                                                id = model.id,
+                                                title = model.title,
+                                                content = model.content,
+                                                color = model.color,
+                                                daysLeft = 30
+                                            )
+                                        )
+                                        viewModel.onEvent(NotesEvent.DeleteNote(model))
+                                        coroutineScope.launch {
+
+                                            val snackbarResult =
+                                                scaffoldState.snackbarHostState.showSnackbar(
+                                                    message = activityContext.getString(R.string.note_deleted),
+                                                    actionLabel = activityContext.getString(R.string.undo)
+                                                )
+                                            if (snackbarResult == SnackbarResult.ActionPerformed) {
+                                                viewModel.returnDeletedNote(model)
+                                            }
+                                        }
+                                    },
+                                    isSelected = isSelected.value,
+                                    notesModel = model,
+                                    title = model.title,
+                                    note = model.content,
+                                    date = model.dataAdded,
+                                    backgroundColor = model.color
+                                )
+                            }
                         }
                     }
                 }
             }
+
         }
     }
 }

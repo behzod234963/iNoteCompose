@@ -55,6 +55,7 @@ import androidx.core.os.LocaleListCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coder.behzod.R
+import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
@@ -70,7 +71,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@SuppressLint("CommitPrefEdits")
+@SuppressLint("CommitPrefEdits", "CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
@@ -146,6 +147,8 @@ fun SettingsScreen(
     val fontSize = remember { mutableIntStateOf(18) }
     val experimentalFontSize = remember { mutableStateOf(18.sp) }
 
+    val dataStoreInstance = DataStoreInstance(context)
+   LaunchedEffect(key1 = Unit) { dataStoreInstance.mainScreenState(false) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -167,7 +170,7 @@ fun SettingsScreen(
             },
             navigationIcon = {
                 IconButton(onClick = {
-                    navController.navigate(ScreensRouter.MainScreenRoute.route)
+                    navController.popBackStack()
                 }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
