@@ -188,6 +188,7 @@ fun NewNoteScreen(
     val dataStoreInctance = DataStoreInstance(ctx)
 
     coroutineScope.launch { dataStoreInctance.mainScreenState(false) }
+
     Scaffold(
         modifier = Modifier
             .background(if (arguments.id != -1) Color(vmColor) else themeColor.value),
@@ -219,6 +220,7 @@ fun NewNoteScreen(
                         if (!alarmStatus.value) {
                             alarmController.intValue = 0
                         }
+                        if (isRepeating.value) alarmController.intValue = 3
                         /* Save note */
                         if (arguments.id != -1) {
                             viewModel.saveNote(

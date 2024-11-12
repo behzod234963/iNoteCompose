@@ -33,16 +33,19 @@ class NotificationReceiver : BroadcastReceiver() {
         val requestCode = intent.getIntExtra("requestCode", -1)
         val title = intent.getStringExtra("title")
         val content = intent.getStringExtra("content")
+        val isRepeat = intent.getBooleanExtra("repeat", false)
 
-        notificationScheduler.showNotification(
-            ctx = context,
-            requestCode = requestCode,
-            title = title ?: "",
-            content = content ?: ""
-        )
+        if (requestCode != -1) {
+            notificationScheduler.showNotification(
+                ctx = context,
+                requestCode = requestCode,
+                title = title ?: "",
+                content = content ?: ""
+            )
+        }
         CoroutineScope(Dispatchers.IO).launch {
-            useCases.updateIsFiredUseCase.execute(requestCode,true)
-            useCases.updateStatusUseCase.execute(requestCode,false)
+            useCases.updateIsFiredUseCase.execute(requestCode, true)
+            useCases.updateStatusUseCase.execute(requestCode, false)
         }
     }
 }

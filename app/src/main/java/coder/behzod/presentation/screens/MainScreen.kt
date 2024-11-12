@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -626,6 +627,7 @@ fun MainScreen(
                                     /* 3->Repeating */
                                     3 -> {
                                         if (model.alarmStatus && model.isRepeat) {
+                                            Log.d("REPEATING ALARM TEST", "MainScreen: IS WORKING NOW !!!!!!!!")
                                             notificationTrigger.scheduleRepeatingNotification(
                                                 activityContext,
                                                 model
@@ -734,6 +736,7 @@ fun MainScreen(
                                     /* 3->Repeating */
                                     3 -> {
                                         if (model.alarmStatus && model.isRepeat) {
+                                            Log.d("REPEATING ALARM TEST", "MainScreen: IS WORKING NOW !!!!!!!!")
                                             notificationTrigger.scheduleRepeatingNotification(
                                                 activityContext,
                                                 model
