@@ -31,7 +31,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -45,7 +44,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coder.behzod.R
-import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.presentation.broadcastReceiver.NotificationReceiver
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
@@ -244,7 +242,7 @@ fun MainScreenGridItem(
                                             ).also { intent ->
                                                 PendingIntent.getBroadcast(
                                                     activityContext,
-                                                    notesModel.requestCode,
+                                                    notesModel.id,
                                                     intent,
                                                     PendingIntent.FLAG_IMMUTABLE
                                                 ).let { pendingIntent ->
@@ -252,7 +250,7 @@ fun MainScreenGridItem(
                                                 }
                                             }
                                             viewModel.updateAlarmStatus(
-                                                notesModel.requestCode,
+                                                notesModel.id,
                                                 false
                                             )
                                         }) {
@@ -346,7 +344,7 @@ fun MainScreenGridItem(
                                             ).also { intent ->
                                                 PendingIntent.getBroadcast(
                                                     activityContext,
-                                                    notesModel.requestCode,
+                                                    notesModel.id,
                                                     intent,
                                                     PendingIntent.FLAG_IMMUTABLE
                                                 ).let { pendingIntent ->
@@ -354,11 +352,11 @@ fun MainScreenGridItem(
                                                 }
                                             }
                                             viewModel.updateAlarmStatus(
-                                                notesModel.requestCode,
+                                                notesModel.id,
                                                 false
                                             )
                                             viewModel.updateIsRepeat(
-                                                notesModel.requestCode,
+                                                notesModel.id,
                                                 false
                                             )
                                         }) {

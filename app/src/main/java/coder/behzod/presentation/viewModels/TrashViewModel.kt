@@ -1,8 +1,6 @@
 package coder.behzod.presentation.viewModels
 
 import android.annotation.SuppressLint
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -96,8 +94,6 @@ class TrashViewModel @Inject constructor(
                                 newValue = LocalDate.now().toString().dateFormatter()
                             ),
                             alarmMapper = 0,
-                            requestCode = 1,
-                            stopCode = 3,
                             alarmDate = "",
                             alarmTime = "",
                             isRepeat = false
@@ -121,10 +117,8 @@ class TrashViewModel @Inject constructor(
                                 newValue = LocalDate.now().toString().dateFormatter()
                             ),
                             alarmMapper = 0,
-                            requestCode = 1,
-                            stopCode = 3,
-                            alarmTime = "",
                             alarmDate = "",
+                            alarmTime = "",
                             isRepeat = false
                         )
                         restoreNote(note = notesModel, trashModel = i)

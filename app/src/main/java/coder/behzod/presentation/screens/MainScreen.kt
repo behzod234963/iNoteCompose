@@ -2,7 +2,6 @@ package coder.behzod.presentation.screens
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import androidx.compose.foundation.background
@@ -54,7 +53,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import coder.behzod.R
@@ -63,7 +61,6 @@ import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.data.workManager.workers.CheckDateWorker
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.model.TrashModel
-import coder.behzod.presentation.activity.MainActivity
 import coder.behzod.presentation.items.MainScreenGridItem
 import coder.behzod.presentation.items.MainScreenRowItem
 import coder.behzod.presentation.navigation.ScreensRouter
@@ -604,31 +601,34 @@ fun MainScreen(
                                 when (model.alarmMapper) {
                                     /* 0->Neutral */
                                     0 -> {}
-                                    /* 0->Current day */
+                                    /* 1->Current day */
                                     1 -> {
-                                        if (model.alarmStatus) {
-                                            notes.add(model)
+                                        if (model.alarmStatus && !model.isFired && !model.isRepeat) {
                                             notificationTrigger.scheduleNotification(
                                                 activityContext,
-                                                notes
+                                                model
                                             )
                                         }
                                     }
-                                    /* 0->Other day */
+                                    /* 2->Other day */
                                     2 -> {
-                                        val checkDateRequest =
-                                            PeriodicWorkRequestBuilder<CheckDateWorker>(
-                                                2,
-                                                TimeUnit.DAYS
-                                            ).build()
-                                        workManager.enqueue(checkDateRequest)
+                                        if (state.value.notes.isNotEmpty() && model.alarmStatus && !model.isFired){
+                                            val checkDateRequest =
+                                                PeriodicWorkRequestBuilder<CheckDateWorker>(
+                                                    2,
+                                                    TimeUnit.HOURS
+                                                )
+                                                    .addTag("checkDate")
+                                                    .build()
+                                            workManager.enqueue(checkDateRequest)
+                                        }
                                     }
+                                    /* 3->Repeating */
                                     3 -> {
                                         if (model.alarmStatus && model.isRepeat) {
-                                            notes.add(model)
                                             notificationTrigger.scheduleRepeatingNotification(
                                                 activityContext,
-                                                notes
+                                                model
                                             )
                                         }
                                     }
@@ -707,29 +707,36 @@ fun MainScreen(
                             }) { model ->
                                 /* 0-> Neutral */
                                 when (model.alarmMapper) {
+                                    /* 0->Neutral */
                                     0 -> {}
                                     /* 1->Current day */
                                     1 -> {
-                                        if (model.alarmStatus) {
-                                            notes.add(model)
+                                        if (model.alarmStatus && !model.isFired && !model.isRepeat) {
                                             notificationTrigger.scheduleNotification(
                                                 activityContext,
-                                                notes
+                                                model
                                             )
                                         }
                                     }
-                                    /* 0-> Other day */
+                                    /* 2->Other day */
                                     2 -> {
-                                        if (!model.isFired) {
+                                        if (state.value.notes.isNotEmpty() && model.alarmStatus && !model.isFired){
                                             val checkDateRequest =
                                                 PeriodicWorkRequestBuilder<CheckDateWorker>(
                                                     2,
-                                                    TimeUnit.DAYS
-                                                ).build()
-                                            workManager.enqueueUniquePeriodicWork(
-                                                "Check date Worker",
-                                                ExistingPeriodicWorkPolicy.UPDATE,
-                                                checkDateRequest
+                                                    TimeUnit.HOURS
+                                                )
+                                                    .addTag("checkDate")
+                                                    .build()
+                                            workManager.enqueue(checkDateRequest)
+                                        }
+                                    }
+                                    /* 3->Repeating */
+                                    3 -> {
+                                        if (model.alarmStatus && model.isRepeat) {
+                                            notificationTrigger.scheduleRepeatingNotification(
+                                                activityContext,
+                                                model
                                             )
                                         }
                                     }

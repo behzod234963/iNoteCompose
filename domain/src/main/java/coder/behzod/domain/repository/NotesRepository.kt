@@ -11,7 +11,8 @@ interface NotesRepository {
     suspend fun getNote(id: Int): NotesModel
     suspend fun deleteAll(notes: ArrayList<NotesModel>)
     fun getAllNotes():List<NotesModel>
-    suspend fun updateStatus(requestCode: Int, status:Boolean)
-    suspend fun updateIsRepeat(requestCode: Int,isRepeat:Boolean)
-    suspend fun updateIsFired(requestCode: Int,isFired:Boolean)
+    suspend fun updateStatus(id: Int, status:Boolean)
+    suspend fun updateIsRepeat(id: Int,isRepeat:Boolean)
+    suspend fun updateIsFired(id: Int,isFired:Boolean)
+    suspend fun updateIsScheduled(id: Int,isScheduled:Boolean)
 }

@@ -4,7 +4,7 @@ import coder.behzod.domain.repository.NotesRepository
 
 class UpdateIsRepeatUseCase(private val repository: NotesRepository) {
 
-    suspend fun execute(requestCode:Int,isRepeat:Boolean){
-        repository.updateIsRepeat(requestCode,isRepeat)
+    suspend fun execute(id:Int,isRepeat:Boolean){
+        repository.updateIsRepeat(id,isRepeat)
     }
 }

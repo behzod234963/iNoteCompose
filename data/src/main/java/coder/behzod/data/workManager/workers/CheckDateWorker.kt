@@ -12,7 +12,6 @@ import coder.behzod.domain.useCase.notesUseCases.NotesUseCases
 import com.google.firebase.functions.dagger.assisted.Assisted
 import com.google.firebase.functions.dagger.assisted.AssistedInject
 import java.time.LocalDate
-import java.util.Locale
 
 @HiltWorker
 class CheckDateWorker @AssistedInject constructor(
@@ -23,6 +22,7 @@ class CheckDateWorker @AssistedInject constructor(
 
     @SuppressLint("ScheduleExactAlarm")
     override suspend fun doWork(): Result {
+
         val dataStore = DataStoreInstance(ctx)
         val notes: List<NotesModel>
         useCase.getAllNotesUseCase.execute().also {
@@ -47,8 +47,6 @@ class CheckDateWorker @AssistedInject constructor(
                 dataAdded = note.dataAdded,
                 alarmMapper = note.alarmMapper,
                 alarmStatus = note.alarmStatus,
-                requestCode = note.requestCode,
-                stopCode = note.stopCode,
                 alarmDate = note.alarmDate,
                 alarmTime = note.alarmTime,
                 triggerDate = note.triggerDate,
@@ -62,7 +60,9 @@ class CheckDateWorker @AssistedInject constructor(
                 day = model.triggerDate.minus(localYear).minus(localMonth)
 
                 if (year == LocalDate.now().year && month == LocalDate.now().month.value && day == LocalDate.now().dayOfMonth) {
-                    dataStore.saveModelId(model.id ?:-1)
+                    dataStore.saveModelId(model.id)
+                }else{
+                    Result.retry()
                 }
             }
         }

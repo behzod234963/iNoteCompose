@@ -9,5 +9,6 @@ data class NotesUseCases(
     val getAllNotesUseCase: GetAllNoteUseCase,
     val updateStatusUseCase: UpdateStatusUseCase,
     val updateIsRepeatUseCase: UpdateIsRepeatUseCase,
-    val updateIsFiredUseCase: UpdateIsFiredUseCase
+    val updateIsFiredUseCase: UpdateIsFiredUseCase,
+    val updateIsScheduledUseCase: UpdateIsScheduledUseCase
 )

@@ -2,14 +2,9 @@ package coder.behzod.presentation.screens
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import androidx.activity.OnBackPressedDispatcher
-import androidx.activity.addCallback
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -68,7 +63,6 @@ import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.presentation.items.ColorsItem
 import coder.behzod.presentation.navigation.Arguments
-import coder.behzod.presentation.navigation.ScreensRouter
 import coder.behzod.presentation.theme.blue
 import coder.behzod.presentation.theme.cyan
 import coder.behzod.presentation.theme.fontAmidoneGrotesk
@@ -78,7 +72,6 @@ import coder.behzod.presentation.theme.yellow
 import coder.behzod.presentation.utils.constants.KEY_FONT_SIZE
 import coder.behzod.presentation.utils.constants.KEY_INDEX
 import coder.behzod.presentation.utils.constants.colorsList
-import coder.behzod.presentation.utils.constants.notesModel
 import coder.behzod.presentation.utils.events.NewNoteEvent
 import coder.behzod.presentation.utils.extensions.dateFormatter
 import coder.behzod.presentation.utils.helpers.ShareNote
@@ -90,7 +83,9 @@ import kotlinx.coroutines.launch
 import java.util.Locale
 
 @OptIn(ExperimentalMaterialApi::class)
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter", "ScheduleExactAlarm")
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter", "ScheduleExactAlarm",
+    "CoroutineCreationDuringComposition"
+)
 @Composable
 fun NewNoteScreen(
     navController: NavHostController,
@@ -103,11 +98,6 @@ fun NewNoteScreen(
 
     val coroutineScope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
-
-    val range = 1..999999
-    val requestCode = range.random()
-    val stopCode = range.random()
-
     val ctx = LocalContext.current.applicationContext
     val activityContext = LocalContext.current as Activity
 
@@ -226,6 +216,9 @@ fun NewNoteScreen(
                         }
                     } else {
                         if(isDatePicked.value && isTimePicked.value) alarmStatus.value = true
+                        if (!alarmStatus.value) {
+                            alarmController.intValue = 0
+                        }
                         /* Save note */
                         if (arguments.id != -1) {
                             viewModel.saveNote(
@@ -237,15 +230,13 @@ fun NewNoteScreen(
                                     content = note.text,
                                     color = vmColor,
                                     dataAdded = date.intValue.toString().dateFormatter(),
-                                    alarmMapper = model.model?.alarmMapper?:alarmController.intValue,
-                                    alarmStatus = model.model?.alarmStatus?:alarmStatus.value,
-                                    requestCode = model.model?.requestCode?:requestCode,
-                                    stopCode = model.model?.stopCode?:stopCode,
-                                    alarmDate = model.model?.alarmDate?:alarmDate.value,
-                                    alarmTime = model.model?.alarmTime?:alarmTime.value,
-                                    triggerDate = model.model?.triggerDate?:triggerDate.intValue,
-                                    triggerTime = model.model?.triggerTime?:triggerTime.longValue,
-                                    isRepeat = model.model?.isRepeat?:isRepeating.value,
+                                    alarmMapper = if (alarmController.intValue == model.model?.alarmMapper) model.model.alarmMapper else alarmController.intValue,
+                                    alarmStatus = if (alarmStatus.value == model.model?.alarmStatus) model.model.alarmStatus else alarmStatus.value,
+                                    alarmDate = if (alarmDate.value == model.model?.alarmDate) model.model.alarmDate else alarmDate.value,
+                                    alarmTime = if (alarmTime.value == model.model?.alarmTime) model.model.alarmTime else alarmTime.value,
+                                    triggerDate = if (triggerDate.intValue == model.model?.triggerDate) model.model.triggerDate else triggerDate.intValue,
+                                    triggerTime = if(triggerTime.longValue == model.model?.triggerTime) model.model.triggerTime else triggerTime.longValue,
+                                    isRepeat = if (isRepeating.value == model.model?.isRepeat) model.model.isRepeat else isRepeating.value,
                                 )
                             )
                         } else {
@@ -253,14 +244,12 @@ fun NewNoteScreen(
                                 NotesModel(
                                     title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") ""
                                     else title
-                                        .text.capitalize(),
+                                        .text.capitalize(Locale.ROOT),
                                     content = note.text,
                                     color = themeColor.value.toArgb(),
                                     dataAdded = date.intValue.toString().dateFormatter(),
                                     alarmMapper = alarmController.intValue,
                                     alarmStatus = alarmStatus.value,
-                                    requestCode = requestCode,
-                                    stopCode = stopCode,
                                     alarmDate = alarmDate.value,
                                     alarmTime = alarmTime.value,
                                     triggerDate = triggerDate.intValue,
@@ -300,20 +289,18 @@ fun NewNoteScreen(
                                 id = arguments.id,
                                 title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
                                     .text.also {
-                                        it.capitalize()
+                                        it.capitalize(Locale.ROOT)
                                     },
                                 content = note.text,
                                 color = vmColor,
                                 dataAdded = date.intValue.toString().dateFormatter(),
-                                alarmMapper = model.model?.alarmMapper?:alarmController.intValue,
-                                alarmStatus = model.model?.alarmStatus?:alarmStatus.value,
-                                requestCode = model.model?.requestCode?:requestCode,
-                                stopCode = model.model?.stopCode?:stopCode,
-                                alarmDate = model.model?.alarmDate?:alarmDate.value,
-                                alarmTime = model.model?.alarmTime?:alarmTime.value,
-                                triggerDate = model.model?.triggerDate?:triggerDate.intValue,
-                                triggerTime = model.model?.triggerTime?:triggerTime.longValue,
-                                isRepeat = model.model?.isRepeat?:isRepeating.value,
+                                alarmMapper = if (alarmController.intValue == model.model?.alarmMapper) model.model.alarmMapper else alarmController.intValue,
+                                alarmStatus = if (alarmStatus.value == model.model?.alarmStatus) model.model.alarmStatus else alarmStatus.value,
+                                alarmDate = if (alarmDate.value == model.model?.alarmDate) model.model.alarmDate else alarmDate.value,
+                                alarmTime = if (alarmTime.value == model.model?.alarmTime) model.model.alarmTime else alarmTime.value,
+                                triggerDate = if (triggerDate.intValue == model.model?.triggerDate) model.model.triggerDate else triggerDate.intValue,
+                                triggerTime = if(triggerTime.longValue == model.model?.triggerTime) model.model.triggerTime else triggerTime.longValue,
+                                isRepeat = if (isRepeating.value == model.model?.isRepeat) model.model.isRepeat else isRepeating.value
                             )
                         )
                     } else {
@@ -327,14 +314,12 @@ fun NewNoteScreen(
                         viewModel.saveNote(
                             NotesModel(
                                 title = if (title.text.isBlank() && title.text.isEmpty() && title.text == "") "" else title
-                                    .text.capitalize(),
+                                    .text.capitalize(Locale.ROOT),
                                 content = note.text,
                                 color = themeColor.value.toArgb(),
                                 dataAdded = date.intValue.toString().dateFormatter(),
                                 alarmMapper = alarmController.intValue,
                                 alarmStatus = alarmStatus.value,
-                                requestCode = requestCode,
-                                stopCode = stopCode,
                                 alarmDate = alarmDate.value,
                                 alarmTime = alarmTime.value,
                                 triggerDate = triggerDate.intValue,

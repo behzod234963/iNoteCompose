@@ -13,14 +13,17 @@ interface NotesDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun saveNote(note: NotesModel)
 
-    @Query("UPDATE notes SET alarmStatus=:status WHERE requestCode=:requestCode")
-    suspend fun updateStatus(requestCode: Int,status:Boolean)
+    @Query("UPDATE notes SET alarmStatus=:status WHERE id=:id")
+    suspend fun updateStatus(id: Int,status:Boolean)
 
-    @Query("UPDATE notes SET isRepeat=:isRepeat WHERE requestCode=:requestCode")
-    suspend fun updateIsRepeat(requestCode: Int,isRepeat: Boolean)
+    @Query("UPDATE notes SET isRepeat=:isRepeat WHERE id=:id")
+    suspend fun updateIsRepeat(id: Int,isRepeat: Boolean)
 
-    @Query("UPDATE notes SET isFired=:isFired WHERE requestCode=:requestCode")
-    suspend fun updateIsFired(requestCode: Int,isFired: Boolean)
+    @Query("UPDATE notes SET isFired=:isFired WHERE id=:id")
+    suspend fun updateIsFired(id: Int,isFired: Boolean)
+
+    @Query("UPDATE notes SET isScheduled=:isScheduled WHERE id=:id")
+    suspend fun updateIsScheduled(id: Int, isScheduled: Boolean)
 
     @Delete
     suspend fun deleteNote(note: NotesModel)

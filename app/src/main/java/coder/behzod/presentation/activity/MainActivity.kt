@@ -17,28 +17,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import androidx.core.app.ActivityCompat
-import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import coder.behzod.R
 import coder.behzod.data.local.dataStore.DataStoreInstance
 import coder.behzod.data.local.sharedPreferences.SharedPreferenceInstance
-import coder.behzod.data.workManager.workers.UpdateDayWorker
 import coder.behzod.domain.model.NotesModel
 import coder.behzod.domain.useCase.notesUseCases.NotesUseCases
 import coder.behzod.presentation.broadcastReceiver.NotificationReceiver
 import coder.behzod.presentation.navigation.NavGraph
 import coder.behzod.presentation.notifications.NotificationTrigger
+import coder.behzod.presentation.utils.constants.notesModel
 import coder.behzod.presentation.viewModels.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -66,40 +63,10 @@ class MainActivity : AppCompatActivity() {
             InitValue()
             CancelFiredAlarms()
             requestPermission()
-            initUpdateDayWorkManager()
             InitAlarmManager()
             NavGraph()
-            ManagerOnBackPressed()
         }
     }
-
-    @Composable
-    private fun ManagerOnBackPressed() {
-        val count = remember { mutableIntStateOf(0) }
-        val onBackPressed = onBackPressedDispatcher
-        onBackPressed.addCallback {
-            count.intValue++
-        }
-        LaunchedEffect(key1 = Boolean) {
-            dataStoreInstance.getMainScreenState().collect { mainScreenState = it }
-        }
-       if (mainScreenState){
-           if (count.intValue == 1) {
-               Toast.makeText(
-                   this@MainActivity,
-                   stringResource(R.string.tap_twice_to_exit), Toast.LENGTH_SHORT
-               ).show()
-               Handler().postDelayed({
-                   if (count.intValue != 2) {
-                       count.intValue = 0
-                   } else {
-                       finish()
-                   }
-               }, 1000)
-           }
-       }
-    }
-
     @SuppressLint("MutableCollectionMutableState")
     @Composable
     private fun CancelFiredAlarms() {
@@ -109,40 +76,54 @@ class MainActivity : AppCompatActivity() {
                 if (model.isFired && !model.isRepeat) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                         alarmManager.cancelAll()
+                        CoroutineScope(Dispatchers.IO).launch {
+                            useCases.updateIsScheduledUseCase.execute(model.id,isScheduled = false)
+                        }
                     } else {
                         val notificationReceiver =
                             Intent(this@MainActivity, NotificationReceiver::class.java)
                         val pendingIntent = PendingIntent.getBroadcast(
                             this@MainActivity,
-                            model.requestCode,
+                            model.id,
                             notificationReceiver,
                             PendingIntent.FLAG_IMMUTABLE
                         )
                         alarmManager.cancel(pendingIntent)
+                        CoroutineScope(Dispatchers.IO).launch {
+                            useCases.updateIsScheduledUseCase.execute(model.id,isScheduled = false)
+                        }
                     }
                 }
             }
         }
     }
-
     @SuppressLint("CoroutineCreationDuringComposition")
     @Composable
     private fun InitAlarmManager() {
         val id = dataStoreInstance.getModelId().collectAsState(initial = -1)
-        val model = viewModel.model.value
+        val model = remember { mutableStateOf( notesModel ) }
         val notes = ArrayList<NotesModel>()
 
         if (id.value != -1) {
             CoroutineScope(Dispatchers.IO).launch {
-                viewModel.getNoteById(id.value)
+                model.value = useCases.getNoteUseCase(id.value)
             }
         }
-        if (model?.alarmStatus == true) {
-            notes.add(model)
-            notificationTrigger.scheduleNotification(this@MainActivity, notes)
+        if (model.value != null){
+            if (model.value.alarmStatus && !model.value.isFired && !model.value.isRepeat) {
+                notificationTrigger.scheduleNotification(this@MainActivity, model.value)
+                CoroutineScope(Dispatchers.IO).launch {
+                    useCases.updateIsScheduledUseCase.execute(model.value.id,true)
+                }
+            }else if (model.value.alarmStatus && model.value.isRepeat){
+                notes.add(model.value)
+                notificationTrigger.scheduleRepeatingNotification(this@MainActivity, model.value)
+                CoroutineScope(Dispatchers.IO).launch {
+                    useCases.updateIsScheduledUseCase.execute(model.value.id,true)
+                }
+            }
         }
     }
-
     @Composable
     private fun InitValue() {
         notificationTrigger = NotificationTrigger()
@@ -152,7 +133,6 @@ class MainActivity : AppCompatActivity() {
             mainScreenState = it.getBooleanExtra("MainScreen", false)
         }
     }
-
     private fun requestPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
 
@@ -162,10 +142,5 @@ class MainActivity : AppCompatActivity() {
                 0
             )
         }
-    }
-
-    private fun initUpdateDayWorkManager() {
-        val updateDayRequest = PeriodicWorkRequestBuilder<UpdateDayWorker>(1, TimeUnit.DAYS).build()
-        workManager.enqueue(updateDayRequest)
     }
 }

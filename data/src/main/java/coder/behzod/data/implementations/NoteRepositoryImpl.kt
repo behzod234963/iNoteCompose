@@ -22,16 +22,17 @@ class NoteRepositoryImpl(private val dao: NotesDao) : NotesRepository {
     }
 
     override fun getAllNotes(): List<NotesModel> = dao.getAllNotes()
+    override suspend fun updateIsScheduled(id: Int, isScheduled: Boolean) = dao.updateIsScheduled(id,isScheduled)
 
-    override suspend fun updateStatus(requestCode: Int,status: Boolean) {
-        dao.updateStatus(requestCode = requestCode, status)
+    override suspend fun updateStatus(id: Int, status: Boolean) {
+        dao.updateStatus(id, status)
     }
 
-    override suspend fun updateIsRepeat(requestCode: Int, isRepeat: Boolean) {
-        dao.updateIsRepeat(requestCode,isRepeat)
+    override suspend fun updateIsRepeat(id: Int, isRepeat: Boolean) {
+        dao.updateIsRepeat(id,isRepeat)
     }
 
-    override suspend fun updateIsFired(requestCode: Int, isFired: Boolean) {
-        dao.updateIsFired(requestCode,isFired)
+    override suspend fun updateIsFired(id: Int, isFired: Boolean) {
+        dao.updateIsScheduled(id,isFired)
     }
 }

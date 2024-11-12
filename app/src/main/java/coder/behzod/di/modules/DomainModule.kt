@@ -15,6 +15,7 @@ import coder.behzod.domain.useCase.notesUseCases.SaveNoteUseCase
 import coder.behzod.domain.useCase.notesUseCases.NotesUseCases
 import coder.behzod.domain.useCase.notesUseCases.UpdateIsFiredUseCase
 import coder.behzod.domain.useCase.notesUseCases.UpdateIsRepeatUseCase
+import coder.behzod.domain.useCase.notesUseCases.UpdateIsScheduledUseCase
 import coder.behzod.domain.useCase.notesUseCases.UpdateStatusUseCase
 import coder.behzod.domain.useCase.trashUseCases.MultipleDeleteUseCase
 import coder.behzod.domain.useCase.trashUseCases.DeleteUseCase
@@ -45,7 +46,8 @@ class DomainModule {
             getAllNotesUseCase = GetAllNoteUseCase(repository),
             updateStatusUseCase = UpdateStatusUseCase(repository),
             updateIsRepeatUseCase = UpdateIsRepeatUseCase(repository),
-            updateIsFiredUseCase = UpdateIsFiredUseCase(repository)
+            updateIsFiredUseCase = UpdateIsFiredUseCase(repository),
+            updateIsScheduledUseCase = UpdateIsScheduledUseCase(repository)
         )
 
     @Provides

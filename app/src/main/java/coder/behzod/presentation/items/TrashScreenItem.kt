@@ -96,13 +96,6 @@ fun TrashScreenItem(
                             fontSize = fontSize.plus(7).sp,
                             fontFamily = FontFamily(fontAmidoneGrotesk)
                         )
-                        /* This is notes date */
-                        Text(
-                            text = "${model.daysLeft} ${stringResource(id = R.string.days)}",
-                            color = if (model.color == Color.Black.toArgb() ) Color.White else Color.Black,
-                            fontSize = fontSize.sp,
-                            fontFamily = FontFamily(fontAmidoneGrotesk)
-                        )
                     }
                     HorizontalDivider()
                     Row(

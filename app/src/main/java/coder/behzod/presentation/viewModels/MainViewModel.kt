@@ -147,4 +147,7 @@ class MainViewModel @Inject constructor(
                 )
             }.launchIn(viewModelScope)
     }
+    fun updateIsScheduled(id:Int,isScheduled:Boolean) = viewModelScope.launch {
+        useCases.updateIsScheduledUseCase.execute(id,isScheduled)
+    }
 }
